@@ -1,15 +1,12 @@
-# GatorApps Account
+# GatorApps Template App
 
-Public archive of the Global Identity Provider (IdP) for GatorApps as of 09/06/2023.
-
-![Project Screenshot](https://github-lukexli-com.s3.us-east-1.amazonaws.com/img/ga_account_screenshot.jpeg)
+Template for apps under the GatorApps suit.
 
 ## Features
 
-- Centralized session management
-- Sign in once to access all internal or authorized external apps
-- Authenticate users against existing IdPs
-- Sign out in any app to securely sign out everywhere
+- Start a new app for the GatorApps suit in minutes
+- Pre-styled UI with reusable hooks, components, views
+- Use centralized GatorApps session
 
 ## Getting Started
 
@@ -22,10 +19,10 @@ Public archive of the Global Identity Provider (IdP) for GatorApps as of 09/06/2
 From the command line:
   ```bash
   # Clone the repository
-  git clone https://github.com/lukexlii/account.gatorapps.org- public-archive.git
+  git clone https://github.com/lukexlii/templateapp.gatorapps.org.git
 
   # Change working directory into the repository
-  cd account.gatorapps.org-public-archive
+  cd templateapp.gatorapps.org
   ```
 
 #### **Backend**
@@ -95,13 +92,17 @@ In the `server` directory:
 2. **Create a `.env` file under the client directory with the following variables**
 
   ```
-    REACT_APP_APP_NAME='account'
-    REACT_APP_FRONTEND_HOST='http://localhost:3000'
-    REACT_APP_SERVER_HOST='http://localhost:8000'
-    REACT_APP_SERVER_API_PATH='/appApi/account'
-    REACT_APP_IDP_HOST='http://localhost:8000'
+    REACT_APP_APP_NAME='templateapp'
+    REACT_APP_FRONTEND_HOST=''
+    REACT_APP_SERVER_HOST=''
+    REACT_APP_SERVER_API_PATH='/appApi/templateapp'
+    REACT_APP_IDP_HOST='https://account.dev.gatorapps.org'
     REACT_APP_IDP_API_PATH='/globalApi/account'
   ```
+
+#### **Simulating .gatorapps.org with SSL on localhost**
+
+TO ADD
 
 ### Running the project
 
@@ -113,7 +114,7 @@ In the `server` directory:
   npm run dev
   ```
 
-Your backend should now be running on [http://localhost:8000](http://localhost:8000) or your specified port.
+Your backend should now be running on [https://templateapp.dev-local.gatorapp.org:8300](http://localhost:8300) or your specified port.
 
 
 2. **In a new terminal, start the frontend**
@@ -124,7 +125,7 @@ In the `client` directory:
   npm start
   ```
 
-Your frontend should now be running on [http://localhost:3000](http://localhost:3000) or your specified port.
+Your frontend should now be running on [https://templateapp.dev-local.gatorapp.org:3300](http://localhost:3300) or your specified port.
 
 <!-- ## Testing
 
