@@ -12,7 +12,7 @@ function App() {
     <Routes>
       <Route element={<InitializeApp />}>
         {/* public routes */}
-        <Route path="/test" element={<GenericPage />} />
+        <Route path="/genericpage" element={<GenericPage />} />
 
         {/* protected routes */}
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
