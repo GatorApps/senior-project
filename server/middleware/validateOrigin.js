@@ -1,4 +1,5 @@
 const App = require('../model/App');
+const { APP_NAME } = require('../config/config');
 
 const validateOrigin = async (req, res, next) => {
   const requestingApp = req.header('GATORAPPS_app');
@@ -17,7 +18,8 @@ const validateOrigin = async (req, res, next) => {
   if (!foundApp) return res.status(400).json({ 'errCode': '-', 'errMsg': 'Requesting app does not exist' });
 
   // if (!foundApp.origins.includes(origin)) return res.status(403).json({ 'errCode': '-', 'errMsg': 'Unauthorized or mismatched origin' });
-
+  if (foundApp.name !== APP_NAME) return res.status(403).json({ 'errCode': '-', 'errMsg': 'App name mismatch' });
+  
   req.reqApp = foundApp;
   next();
 };

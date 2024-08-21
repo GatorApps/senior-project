@@ -1,7 +1,5 @@
-import { Fragment, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { setUserInfo } from '../../context/authSlice';
+import { Fragment, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { AppBar, Avatar, Box, Collapse, Divider, Drawer, List, ListItemButton, ListSubheader, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -22,11 +20,8 @@ import './Header.css';
 const Header = ({ SignInMenuItems, loading, signedIn }) => {
   // Global context
   const userInfo = useSelector((state) => state.auth.userInfo);
-  const dispatch = useDispatch();
 
   const isSignedIn = signedIn || (signedIn === undefined && userInfo?.roles?.includes(100001));
-
-  const navigate = useNavigate();
 
   // Dorpdown menus
   const [anchorEl, setAnchorEl] = useState(null);
@@ -231,13 +226,11 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
                       position: 'absolute',
                       top: 0,
                       right: 16,
-                      width: 10,
-                      height: 10,
+                      width: 12,
+                      height: 12,
                       bgcolor: 'background.paper',
                       transform: 'translateY(-50%) rotate(45deg)',
                       zIndex: 0,
-                      width: 12,
-                      height: 12
                     },
                     'background-color': 'rgb(255, 253.98, 252.96)'
                   },
@@ -289,7 +282,7 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
         ) : (
           <Box>
             {JSON.parse(leftMenuResponse?.payload?.leftMenuItems).map((section, sectionIndex) => {
-              if (section.length <= 0) return;
+              if (section.length <= 0) return (<Fragment></Fragment>);
               return (
                 <List
                   component="nav"
@@ -332,7 +325,7 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
                         </Collapse>
                       </Fragment>
                     );
-                    return;
+                    return (<Fragment></Fragment>);
                   })}
                 </List>
               );

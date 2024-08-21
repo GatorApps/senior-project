@@ -7,7 +7,7 @@ const Alert = ({ data, style }) => {
       <MUIAlert severity={data?.severity || "error"} action={
         <Box sx={{ marginRight: '12px' }}>
           {data?.actions?.map((action) => {
-            return <Button color="inherit" variant="outlined" size="small" onClick={action.onClick} sx={{ margin: '6px' }}>{action.name}</Button>
+            return <Button color="inherit" variant="outlined" size="small" onClick={action.onClick} sx={{ margin: '6px', width: "90%" }}>{action.name}</Button>
           })}
         </Box>
       } sx={{ padding: '16px' }}>

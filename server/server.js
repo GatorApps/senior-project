@@ -16,10 +16,10 @@ const PORT = process.env.PORT || 8300;
 // To simulate https locally
 const https = require('https');
 const fs = require('fs');
-const httpsOptions = {
+const httpsOptions = process.env.ENV === 'dev' ? {
   key: fs.readFileSync('../../certs/templateapp.dev-local.gatorapps.org.key'),
   cert: fs.readFileSync('../../certs/templateapp.dev-local.gatorapps.org.cert')
-};
+} : {};
 
 // app.use(express.static(path.join(__dirname, './build')));
 
@@ -40,10 +40,6 @@ app.use('/appApi/templateapp/', cors(APP_CORS_OPTIONS));
 // Global APIs (available to all internal apps)
 app.use('/globalApi/templateapp/', cors(GLOBAL_CORS_OPTIONS));
 
-// Check if app is avaliable; only process requests if so
-// TO DO: Resolve overlap with getAppAvailability in renderClientController
-app.use(checkAppAvailability);
-
 // Parse url and request body
 app.use(express.urlencoded({ extended: false }));
 // TO DO: Only support JSON body
@@ -62,6 +58,8 @@ app.use(initializeUserSession);
 app.use(validateOrigin);
 // Validate user auth status and store user in req.userAuth.authedUser
 app.use(validateUserAuth);
+// Check if app is avaliable; only process requests if so
+app.use(checkAppAvailability);
 
 // app.use((req, res) => {
 //   console.log(req.userAuth);
@@ -74,7 +72,7 @@ app.use('/appApi/templateapp/renderClient', require('./routes/appApi/renderClien
 app.use('/appApi/templateapp/appSettings', require('./routes/appApi/appSettings'));
 
 // Global APIs
-//// User auth requests from other internal apps
+//// 
 
 
 // HTTP Status Codes: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status

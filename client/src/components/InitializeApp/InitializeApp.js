@@ -1,19 +1,32 @@
 import { Outlet } from 'react-router-dom';
 import { Fragment, useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import Header from '../Header/Header';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
+import { Box, CircularProgress, Container } from '@mui/material';
+import Alert from '../Alert/Alert';
 import useGetUserInfo from '../../hooks/useGetUserInfo';
+import useGetAppAlert from '../../hooks/useGetAppAlert';
 
 const InitializeApp = () => {
-  const [loading, setLoading] = useState(true);
   const getUserInfo = useGetUserInfo();
+  const getAppAlert = useGetAppAlert();
+
+  const [loading, setLoading] = useState(true);
+  const appAlert = useSelector((state) => state.alert.appAlert);
 
   //const { data: userAuthInfoData, loading: userAuthInfoLoading, alert: userAuthInfoAlert, reFetch: userAuthInfoReFetch } = useHandleData('');
 
-  useEffect(async () => {
-    await getUserInfo();
-    setLoading(false);
+  useEffect(() => {
+    const initializeApp = async () => {
+      // Get authenticated user info
+      await getUserInfo();
+      // Get app alert/maintenanceMode
+      await getAppAlert();
+
+      setLoading(false);
+    }
+
+    initializeApp();
   }, []);
 
   return (
@@ -30,7 +43,22 @@ const InitializeApp = () => {
             <CircularProgress size="80px" sx={{ color: "rgb(224, 129, 46)" }} />
           </Box>
         </Fragment>
-        : <Outlet />
+        : (appAlert.maintenanceMode === true)
+          ? <Fragment>
+            <Header loading />
+            <Container maxWidth="lg" sx={{ marginTop: '36px' }}>
+              <Alert data={{
+                severity: appAlert.severity || "error",
+                title: appAlert.title || "Unable to fetch user authentication status",
+                message: appAlert.message || "We are sorry, but we are unable to process your request at this time",
+                actions: [
+                  { name: "Retry", onClick: () => { window.location.reload() } },
+                  { name: "Home", onClick: () => { window.location.href = "/" } }
+                ]
+              }} />
+            </Container>
+          </Fragment>
+          : <Outlet />
       }
     </div>
   )
