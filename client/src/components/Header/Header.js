@@ -20,7 +20,7 @@ import './Header.css';
 const Header = ({ SignInMenuItems, loading, signedIn }) => {
   // Global context
   const userInfo = useSelector((state) => state.auth.userInfo);
-  const appAlert = useSelector((state) => state.alert.appAlert);
+  const appInfo = useSelector((state) => state.app.appInfo);
 
   const isSignedIn = signedIn || (signedIn === undefined && userInfo?.roles?.includes(100001));
 
@@ -338,7 +338,7 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
       {/* Space holder so pages don't have to each add spaces at top to avoid bar overlap */}
       <Toolbar></Toolbar>
 
-      {(!loading && appAlert?.displayAlert) && (
+      {(!loading && appInfo?.alert?.displayAlert) && (
         <Fragment>
           {/* <Container maxWidth="lg" sx={{
             marginTop: "12px", position: "fixed", zIndex: 1000
@@ -354,9 +354,9 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
           </Container> */}
           <Container maxWidth="lg" sx={{ marginTop: "12px" }}>
             <Alert data={{
-              severity: appAlert?.severity || "error",
+              severity: appInfo?.alert?.severity || "error",
               title: null,
-              message: `${appAlert?.title}${(appAlert?.title && appAlert?.message) && ": "}${appAlert?.message}`,
+              message: `${appInfo?.alert?.title}${(appInfo?.alert?.title && appInfo?.alert?.message) && ": "}${appInfo?.alert?.message}`,
               actions: [
                 { name: "Dismiss", onClick: () => { } },
               ]

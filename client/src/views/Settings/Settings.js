@@ -1,4 +1,5 @@
 import { forwardRef, Fragment, useState, useEffect } from "react";
+import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
 import { Box, Button, Container, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Divider, FormControl, Grid, Grow, InputAdornment, InputLabel, OutlinedInput, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -28,32 +29,35 @@ const Settings = () => {
   }
 
   return (
-    <div className='GenericPage'>
-      <Header />
-      <main>
-        <Box>
-          <Container maxWidth="lg">
-            <Box className="GenericPage__container_title_box GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
-              <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
-                <Typography variant="h1">Settings</Typography>
-                <Button size="medium" sx={{ 'margin-left': '16px' }}>Button</Button>
-              </Box>
-              <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
-                <Box className="GenericPage__container_title_flexBox_right">
-                  <Button variant="contained" size="medium">Button</Button>
+    <HelmetComponent title={"Settings"}>
+
+      <div className='GenericPage SettingsPage'>
+        <Header />
+        <main>
+          <Box>
+            <Container maxWidth="lg">
+              <Box className="GenericPage__container_title_box GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
+                <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
+                  <Typography variant="h1">Settings</Typography>
+                  <Button size="medium" sx={{ 'margin-left': '16px' }}>Button</Button>
+                </Box>
+                <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
+                  <Box className="GenericPage__container_title_flexBox_right">
+                    <Button variant="contained" size="medium">Button</Button>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </Container>
-          <Container maxWidth="lg">
-            <Paper className='GenericPage__container_paper' variant='outlined'>
-              <Form loading={userSettingsItemsLoading} alert={userSettingsItemsAlert} items={userSettingsItemsResponse?.payload?.userSettingsItems} refresh={userSettingsItemsRetry} />
-            </Paper>
-          </Container>
-        </Box>
-      </main>
-      <Footer />
-    </div>
+            </Container>
+            <Container maxWidth="lg">
+              <Paper className='GenericPage__container_paper' variant='outlined'>
+                <Form loading={userSettingsItemsLoading} alert={userSettingsItemsAlert} items={userSettingsItemsResponse?.payload?.userSettingsItems} refresh={userSettingsItemsRetry} />
+              </Paper>
+            </Container>
+          </Box>
+        </main>
+        <Footer />
+      </div>
+    </HelmetComponent>
   );
 }
 
