@@ -23,17 +23,16 @@ const appSchema = new Schema({
   userInfoScope: [String],
   authOptions: [String],
   alert: {
+    displayAlert: Boolean,
     maintenanceMode: Boolean,
     severity: {
       type: String,
     },
     title: {
       type: String,
-      required: [true, `App alert title is required`],
     },
     message: {
       type: String,
-      required: [true, `App alert message is required`],
     },
     actions: [{
       title: String,

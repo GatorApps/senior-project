@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { AppBar, Avatar, Box, Collapse, Divider, Drawer, List, ListItemButton, ListSubheader, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, Avatar, Box, Collapse, Container, Divider, Drawer, List, ListItemButton, ListSubheader, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -20,6 +20,7 @@ import './Header.css';
 const Header = ({ SignInMenuItems, loading, signedIn }) => {
   // Global context
   const userInfo = useSelector((state) => state.auth.userInfo);
+  const appAlert = useSelector((state) => state.alert.appAlert);
 
   const isSignedIn = signedIn || (signedIn === undefined && userInfo?.roles?.includes(100001));
 
@@ -336,6 +337,34 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
 
       {/* Space holder so pages don't have to each add spaces at top to avoid bar overlap */}
       <Toolbar></Toolbar>
+
+      {(!loading && appAlert?.displayAlert) && (
+        <Fragment>
+          {/* <Container maxWidth="lg" sx={{
+            marginTop: "12px", position: "fixed", zIndex: 1000
+          }}>
+            <Alert data={{
+              severity: appAlert?.severity || "error",
+              title: null,
+              message: `${appAlert?.title}${(appAlert?.title && appAlert?.message) && ": "}${appAlert?.message}`,
+              actions: [
+                { name: "Dismiss", onClick: () => { } },
+              ]
+            }} />
+          </Container> */}
+          <Container maxWidth="lg" sx={{ marginTop: "12px" }}>
+            <Alert data={{
+              severity: appAlert?.severity || "error",
+              title: null,
+              message: `${appAlert?.title}${(appAlert?.title && appAlert?.message) && ": "}${appAlert?.message}`,
+              actions: [
+                { name: "Dismiss", onClick: () => { } },
+              ]
+            }} />
+          </Container>
+        </Fragment>
+      )}
+
     </Fragment >
   );
 };

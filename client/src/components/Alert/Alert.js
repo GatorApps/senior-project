@@ -11,7 +11,7 @@ const Alert = ({ data, style }) => {
           })}
         </Box>
       } sx={{ padding: '16px' }}>
-        <AlertTitle sx={{ fontSize: style?.titleFontSize || '18px' }}>{data?.title || "Error"}</AlertTitle>
+        {data?.title !== null && <AlertTitle sx={{ fontSize: style?.titleFontSize || '18px' }}>{data?.title || "Error"}</AlertTitle>}
         <Typography sx={{ fontSize: style?.textFontSize || '16px' }}>{data?.message || "Unknown error"}</Typography>
       </MUIAlert>
     </Box>

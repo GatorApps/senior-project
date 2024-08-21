@@ -49,8 +49,8 @@ const InitializeApp = () => {
             <Container maxWidth="lg" sx={{ marginTop: '36px' }}>
               <Alert data={{
                 severity: appAlert.severity || "error",
-                title: appAlert.title || "Unable to fetch user authentication status",
-                message: appAlert.message || "We are sorry, but we are unable to process your request at this time",
+                title: appAlert.title || "Unnable to load app",
+                message: appAlert.message || "We are sorry, but we are unable to load this app at this time. Check back soon",
                 actions: [
                   { name: "Retry", onClick: () => { window.location.reload() } },
                   { name: "Home", onClick: () => { window.location.href = "/" } }
