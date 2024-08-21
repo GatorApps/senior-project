@@ -23,6 +23,10 @@ const appSchema = new Schema({
   userInfoScope: [String],
   authOptions: [String],
   alert: {
+    alertId: {
+      type: String,
+      required: true
+    },
     displayAlert: Boolean,
     maintenanceMode: Boolean,
     severity: {

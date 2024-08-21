@@ -10,6 +10,7 @@ const getAppAlert = (req, res) => {
   //     "actions": []
   //   }
 
+  if (!reqApp?.alert?.displayAlert) return res.status(200).json({ errCode: '0', payload: { appAlert: { displayAlert: false } } });
   return res.status(200).json({ errCode: '0', payload: { appAlert: reqApp.alert } });
 }
 
