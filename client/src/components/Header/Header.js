@@ -17,7 +17,7 @@ import Alert from '../../components/Alert/Alert';
 import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
 import './Header.css';
 
-const Header = ({ SignInMenuItems, loading, signedIn }) => {
+const Header = ({ SignInMenuItems, loading, signedIn, displayAccountDropdown }) => {
   // Global context
   const userInfo = useSelector((state) => state.auth.userInfo);
   const appInfo = useSelector((state) => state.app.appInfo);
@@ -193,7 +193,7 @@ const Header = ({ SignInMenuItems, loading, signedIn }) => {
           )}
 
           {/* Account dropdown menu */}
-          {(!loading && isSignedIn) && (
+          {((!loading && isSignedIn) || displayAccountDropdown) && (
             <Fragment>
               <Tooltip title="Account">
                 <Box aria-label="Account Menu" marginX="8px" sx={{ display: 'inline-block', height: '100%' }}>

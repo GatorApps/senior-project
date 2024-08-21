@@ -12,6 +12,7 @@ const InitializeApp = () => {
   const getAppInfo = useGetAppInfo();
 
   const [loading, setLoading] = useState(true);
+  const userInfo = useSelector((state) => state.auth.userInfo);
   const appInfo = useSelector((state) => state.app.appInfo);
 
   //const { data: userAuthInfoData, loading: userAuthInfoLoading, alert: userAuthInfoAlert, reFetch: userAuthInfoReFetch } = useHandleData('');
@@ -45,7 +46,7 @@ const InitializeApp = () => {
         </Fragment>
         : (appInfo.alert.maintenanceMode === true)
           ? <Fragment>
-            <Header loading />
+            <Header loading displayAccountDropdown={userInfo?.roles?.includes(100001)} />
             <Container maxWidth="lg" sx={{ marginTop: '36px' }}>
               <Alert data={{
                 severity: appInfo?.alert?.severity || "error",
