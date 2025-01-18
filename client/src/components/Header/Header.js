@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { AppBar, Avatar, Box, Collapse, Container, Divider, Drawer, List, ListItemButton, ListSubheader, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/Button';
@@ -7,6 +8,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Logout from '@mui/icons-material/Logout';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MenuIcon from '@mui/icons-material/Menu';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Settings from '@mui/icons-material/Settings';
@@ -21,6 +23,8 @@ const Header = ({ SignInMenuItems, loading, signedIn, displayAccountDropdown }) 
   // Global context
   const userInfo = useSelector((state) => state.auth.userInfo);
   const appInfo = useSelector((state) => state.app.appInfo);
+
+  const navigate = useNavigate();
 
   const isSignedIn = signedIn || (signedIn === undefined && userInfo?.roles?.includes(100001));
 
@@ -243,18 +247,24 @@ const Header = ({ SignInMenuItems, loading, signedIn, displayAccountDropdown }) 
                   <Avatar>{userDisplayName.toUpperCase()[0]}</Avatar>
                   <Typography noWrap>{userDisplayName}</Typography>
                 </MenuItem>
-                <Divider />
                 <MenuItem onClick={handleAccountSettings}>
                   <ListItemIcon>
-                    <Settings fontSize="small" />
+                    <ManageAccountsIcon fontSize="small" />
                   </ListItemIcon>
-                  Account Settings
+                  Manage Account
                 </MenuItem>
                 <MenuItem onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>
                   Sign Out
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={() => { navigate('/settings'); }}>
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  Settings
                 </MenuItem>
               </Menu>
             </Fragment>
