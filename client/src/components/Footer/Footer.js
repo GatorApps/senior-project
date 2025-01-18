@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 
 const Footer = () => {
   return (
@@ -15,13 +15,13 @@ const Footer = () => {
         }
       }>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={12} md={4}>
+          <Grid size={{ xs: 12, m: 12, md: 4 }}>
             <div>Footer Column 1</div>
           </Grid>
-          <Grid item xs={12} sm={12} md={4}>
+          <Grid size={{ xs: 12, m: 12, md: 4 }}>
             <div>Column 2</div>
           </Grid>
-          <Grid item xs={12} sm={12} md={4}>
+          <Grid size={{ xs: 12, m: 12, md: 4 }}>
             <div>Column 3</div>
           </Grid>
         </Grid>
