@@ -1,46 +1,47 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-  >
-    •
-  </Box>
-);
-
-const card = (
-  <React.Fragment>
-    <CardContent>
-      <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-        Word of the Day
-      </Typography>
-      <Typography variant="h5" component="div">
-        be{bull}nev{bull}o{bull}lent
-      </Typography>
-      <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>adjective</Typography>
-      <Typography variant="body2">
-        well meaning and kindly.
-        <br />
-        {'"a benevolent smile"'}
-      </Typography>
-    </CardContent>
-    <CardActions>
-      <Button size="small">Learn More</Button>
-    </CardActions>
-  </React.Fragment>
-);
+import SkeletonGroup from '../SkeletonGroup/SkeletonGroup';
 
 const GenericPageCard = () => {
+  const [loading, setLoading] = React.useState(true);
+
+  useEffect(() => {
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    // Cleanup the timer in case the component unmounts
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Box sx={{ width: '100%' }}>
-      <Card variant="outlined">{card}</Card>
+      <Card variant="outlined">
+        <CardContent>
+          <Typography gutterBottom variant="h2" component="div" sx={{ lineHeight: 1.2, fontSize: '1.3125rem', fontWeight: 400 }}>
+            Generic Workspace Card
+          </Typography>
+          <Box marginY="16px">
+            {loading ?
+              <SkeletonGroup boxPadding={'0'} /> :
+              <Typography variant="body2" sx={{ fontSize: '0.938rem' }}>
+                This is a generic paragraph of texts. This is a generic paragraph of texts. This is a generic paragraph of texts. This is a generic paragraph of texts.
+              </Typography>
+            }
+          </Box>
+        </CardContent>
+        <CardActions>
+          <Button size="medium">Action One</Button>
+          <Button size="medium">Action Two</Button>
+        </CardActions>
+      </Card>
     </Box>
   );
 }

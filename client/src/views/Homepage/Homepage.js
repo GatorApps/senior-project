@@ -9,6 +9,12 @@ import { useSelector } from 'react-redux';
 const Homepage = () => {
   const userInfo = useSelector((state) => state.auth.userInfo);
 
+  const cards = [<GenericPageCard />, <GenericPageCard />, <GenericPageCard />, <GenericPageCard />,
+  <Box minHeight={300}>
+    <GenericPageCard />
+  </Box>
+    , <GenericPageCard />, <GenericPageCard />, <GenericPageCard />];
+
   return (
     <HelmetComponent>
       <div className="Homepage">
@@ -37,32 +43,13 @@ const Homepage = () => {
             }
           }>
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <Box minHeight={300}>
-                  <GenericPageCard />
-                </Box>
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
-              <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                <GenericPageCard />
-              </Grid>
+              {cards?.map((card, index) => {
+                return (
+                  <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+                    {card}
+                  </Grid>
+                )
+              })}
             </Grid>
           </Box>
 
