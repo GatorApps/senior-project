@@ -36,7 +36,7 @@ const Homepage = () => {
           <Box component="workspace" sx={
             {
               flexGrow: 1,
-              margin: '24px auto auto',
+              margin: '36px auto 24px auto',
               padding: '0 16px',
               justifyContent: "space-between",
               'max-width': '1400px'
