@@ -19,31 +19,39 @@ public class UserService {
         return userRepository.save(user);
     }
 
-//    // Read
-//    public Optional<Application> getApplicationById(String id) {
-//        return applicationRepository.findById(id);
-//    }
-//
-//    public List<Application> getAllApplications() {
-//        return applicationRepository.findAll();
-//    }
-//
-//    // Update
-//    public Application updateApplication(String id, Application updatedApplication) {
-//        Optional<Application> optionalApplication = applicationRepository.findById(id);
-//        if (optionalApplication.isPresent()) {
-//            Application existingApplication = optionalApplication.get();
-//            existingApplication.setOpid(updatedApplication.getOpid());
-//            existingApplication.setPositionId(updatedApplication.getPositionId());
-//            existingApplication.setSubmissionTimeStamp(updatedApplication.getSubmissionTimeStamp());
-//            existingApplication.setStatus(updatedApplication.getStatus());
-//            return applicationRepository.save(existingApplication);
-//        }
-//        throw new RuntimeException("Application not found with id: " + id);
-//    }
-//
-//    // Delete
-//    public void deleteApplication(String id) {
-//        applicationRepository.deleteById(id);
+    // Read: Get a User by ID
+    public Optional<User> getUserById(String id) {
+        return userRepository.findById(id);
+    }
+
+    // Read: Get all Users
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    // Update: Update a User by ID
+    public User updateUser(String id, User updatedUser) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+
+            // Update fields
+            existingUser.setOpid(updatedUser.getOpid());
+            existingUser.setRegisterTimestamp(updatedUser.getRegisterTimestamp());
+            existingUser.setRoles(updatedUser.getRoles());
+            existingUser.setFirstName(updatedUser.getFirstName());
+            existingUser.setLastName(updatedUser.getLastName());
+            existingUser.setNickname(updatedUser.getNickname());
+            existingUser.setEmails(updatedUser.getEmails());
+            existingUser.setSessions(updatedUser.getSessions());
+
+            return userRepository.save(existingUser);
+        }
+        throw new RuntimeException("User not found with id: " + id);
+    }
+
+//    // Delete: Delete a User by ID
+//    public void deleteUser(String id) {
+//        userRepository.deleteById(id);
 //    }
 }

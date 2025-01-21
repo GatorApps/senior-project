@@ -3,13 +3,14 @@ package org.gatorapps.templateapp.model.account;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import java.util.Date;
+import java.util.List;
 
-@Document(collection = "user") // Collection name in the garesearch database
+@Document(collection = "users") // MongoDB collection name
 public class User {
 
     @Id
@@ -17,25 +18,61 @@ public class User {
 
     @NotBlank(message = "User opid is required")
     @Field("opid")
-    private String opid; // Reference to User (String or another entity)
+    @Indexed(unique = true)
+    private String opid;
 
-    @NotBlank(message = "Position ID is required")
-    @Field("positionId")
-    private String positionId; // Reference to Position
+    @NotNull(message = "User registerTimestamp is required")
+    @Field("registerTimestamp")
+    private Date registerTimestamp;
 
-    @NotNull(message = "Submission timestamp is required")
-    @Field("submissionTimeStamp")
-    private Date submissionTimeStamp;
+    @NotNull(message = "User roles are required")
+    @Field("roles")
+    private List<Integer> roles;
 
-    @NotBlank(message = "Status is required")
-    @Pattern(
-            regexp = "saved|submitted|withdrawn|interview|accepted|denied|closed",
-            message = "Application status must be one of 'saved', 'submitted', 'withdrawn', 'interview', 'accepted', 'denied', 'closed'"
-    )
-    @Field("status")
-    private String status;
+    @NotBlank(message = "User firstName is required")
+    @Field("firstName")
+    private String firstName;
 
-    // Getters and Setters
+    @NotBlank(message = "User lastName is required")
+    @Field("lastName")
+    private String lastName;
+
+    @Field("nickname")
+    private String nickname;
+
+    @Field("emails")
+    private List<String> emails;
+
+    @Field("sessions")
+    private List<Session> sessions;
+
+    // Nested Session class
+    public static class Session {
+        @Field("sessionID")
+        private String sessionID;
+
+        @Field("signInTimeStamp")
+        private Date signInTimeStamp;
+
+        // Getters and Setters for Session
+        public String getSessionID() {
+            return sessionID;
+        }
+
+        public void setSessionID(String sessionID) {
+            this.sessionID = sessionID;
+        }
+
+        public Date getSignInTimeStamp() {
+            return signInTimeStamp;
+        }
+
+        public void setSignInTimeStamp(Date signInTimeStamp) {
+            this.signInTimeStamp = signInTimeStamp;
+        }
+    }
+
+    // Getters and Setters for User
     public String getId() {
         return id;
     }
@@ -52,27 +89,59 @@ public class User {
         this.opid = opid;
     }
 
-    public String getPositionId() {
-        return positionId;
+    public Date getRegisterTimestamp() {
+        return registerTimestamp;
     }
 
-    public void setPositionId(String positionId) {
-        this.positionId = positionId;
+    public void setRegisterTimestamp(Date registerTimestamp) {
+        this.registerTimestamp = registerTimestamp;
     }
 
-    public Date getSubmissionTimeStamp() {
-        return submissionTimeStamp;
+    public List<Integer> getRoles() {
+        return roles;
     }
 
-    public void setSubmissionTimeStamp(Date submissionTimeStamp) {
-        this.submissionTimeStamp = submissionTimeStamp;
+    public void setRoles(List<Integer> roles) {
+        this.roles = roles;
     }
 
-    public String getStatus() {
-        return status;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public List<String> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<String> emails) {
+        this.emails = emails;
+    }
+
+    public List<Session> getSessions() {
+        return sessions;
+    }
+
+    public void setSessions(List<Session> sessions) {
+        this.sessions = sessions;
     }
 }
