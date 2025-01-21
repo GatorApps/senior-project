@@ -165,7 +165,7 @@ const Header = ({ SignInMenuItems, loading, signedIn, displayAccountDropdown }) 
                 }
               }
             }>
-              GatorApps
+              RESEARCH.UF
             </Typography>
           </Typography>
 

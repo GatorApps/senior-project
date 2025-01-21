@@ -13,8 +13,8 @@ public class MultiMongoConfig {
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
 
-    @Value("${app.env}")
-    private String environment;
+    @Value("${app.prod-status}")
+    private String prodStatus;
 
     @Value("${app.database.global}")
     private String globalDbName;
@@ -32,16 +32,16 @@ public class MultiMongoConfig {
 
     @Bean(name = "globalMongoTemplate")
     public MongoTemplate globalMongoTemplate() {
-        return new MongoTemplate(mongoClient(), environment.equals("prod") ? globalDbName : "dev_" + globalDbName);
+        return new MongoTemplate(mongoClient(), prodStatus.equals("prod") ? globalDbName : "dev_" + globalDbName);
     }
 
     @Bean(name = "accountMongoTemplate")
     public MongoTemplate accountMongoTemplate() {
-        return new MongoTemplate(mongoClient(), environment.equals("prod") ? accountDbName : "dev_" + accountDbName);
+        return new MongoTemplate(mongoClient(), prodStatus.equals("prod") ? accountDbName : "dev_" + accountDbName);
     }
 
     @Bean(name = "garesearchMongoTemplate")
     public MongoTemplate garesearchMongoTemplate() {
-        return new MongoTemplate(mongoClient(), environment.equals("prod") ? garesearchDbName : "dev_" + garesearchDbName);
+        return new MongoTemplate(mongoClient(), prodStatus.equals("prod") ? garesearchDbName : "dev_" + garesearchDbName);
     }
 }

@@ -25,7 +25,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "dev": "HTTPS=true SSL_CRT_FILE=../../certs/templateapp.dev-local.gatorapps.org.cert SSL_KEY_FILE=../../certs/templateapp.dev-local.gatorapps.org.key react-scripts start",
+    "dev": "HTTPS=true SSL_CRT_FILE=../../certs/research.dev-local.gatorapps.org.cert SSL_KEY_FILE=../../certs/research.dev-local.gatorapps.org.key react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
