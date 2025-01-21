@@ -13,7 +13,6 @@ import Alert from '../../components/Alert/Alert';
 import GenericForm from '../../components/GenericForm/GenericForm';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
-import Form from '../../components/Form/Form';
 import { axiosPrivate } from '../../apis/backend';
 import useHandleData from '../../hooks/useHandleData';
 import useGetUserInfo from '../../hooks/useGetUserInfo';
