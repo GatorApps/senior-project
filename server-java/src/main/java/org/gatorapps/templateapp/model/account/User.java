@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
-@Document(collection = "users") // MongoDB collection name
+@Document(collection = "users")
 public class User {
 
     @Id
