@@ -15,7 +15,7 @@ public class PositionIdExistsValidator implements ConstraintValidator<PositionId
     @Override
     public boolean isValid(String positionId, ConstraintValidatorContext context) {
         try {
-            return positionRepository.existsByPositionId(positionId);
+            return positionRepository.existsById(positionId);
         } catch (Exception e) {
             return false;
         }

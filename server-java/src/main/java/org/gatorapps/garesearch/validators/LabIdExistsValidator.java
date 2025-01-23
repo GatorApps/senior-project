@@ -15,7 +15,7 @@ public class LabIdExistsValidator implements ConstraintValidator<LabIdExists, St
     @Override
     public boolean isValid(String labId, ConstraintValidatorContext context) {
         try {
-            return labRepository.existsByLabId(labId);
+            return labRepository.existsById(labId);
         } catch (Exception e) {
             return false;
         }
