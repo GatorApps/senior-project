@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,27 @@ public class GlobalExceptionHandler {
         ErrorResponse errResponse = new ErrorResponse(ex.getErrCode(), ex.getMessage());
         return new ResponseEntity<>(errResponse, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(MalformedParamException.class)
+    public ResponseEntity<?> handleMalformedParamsException(MalformedParamException ex) {
+        ErrorResponse errResponse = new ErrorResponse(ex.getErrCode(), ex.getMessage());
+        return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnwantedResult.class)
+    public ResponseEntity<?> handleUnwantedResult(UnwantedResult ex) {
+        ErrorResponse errResponse = new ErrorResponse(ex.getErrCode(), ex.getMessage());
+        return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // when @RequestParam is required but missing
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<?> handleMissingParamsException(MissingServletRequestParameterException ex) {
+        String paramName = ex.getParameterName();
+        ErrorResponse errResponse = new ErrorResponse("ERR_REQ_MISSING_REQUIRED_PARAM", "Missing required req params: " + paramName);
+        return new ResponseEntity<>(errResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex){

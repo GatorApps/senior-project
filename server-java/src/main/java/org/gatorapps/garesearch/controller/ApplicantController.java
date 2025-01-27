@@ -1,8 +1,10 @@
 package org.gatorapps.garesearch.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
+import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,6 +60,8 @@ public class ApplicantController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // TODO : test all routes below
+
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@Valid @RequestBody ApplicantProfile applicantProfile) throws Exception {
 
@@ -66,32 +71,29 @@ public class ApplicantController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-    // TODO : the rest of these
-
     @GetMapping("/applications")
-    public ResponseEntity<Map<String, Object>> getStudentApplications(@RequestParam(required=false) String status ){
-        // logic done in service
-        // applicationService.getStudentApplications()
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(
+            @RequestParam(required=true)
+            @Pattern(regexp = "saved|active|inactive", message = "Status must be one of 'saved', 'active', 'inactive'")
+            String status ) throws Exception {
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        List<Map> foundApplications = applicationService.getStudentApplications(status);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        Map<String, Object> payloadResponse = Map.of(
+                "applications", foundApplications);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/application")
-    public ResponseEntity<Map<String, Object>> submitApplication(@RequestParam(value = "positionId", required = false) String positionId, @RequestParam(value = "saveApp", required = false) String saveApp){
-        // logic done in service
-        // applicationService.submitApplication()
+    public ResponseEntity<ApiResponse<Void>> submitApplication(
+            @RequestParam(value = "positionId", required = true) String positionId,
+            @RequestParam(value = "saveApp", required = false) String saveApp) throws Exception {
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        applicationService.submitApplication(positionId, saveApp);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        ApiResponse<Void> response = new ApiResponse<>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -25,9 +25,9 @@ public class ApplicantService {
     public ApplicantProfile getProfileById (){
         // TODO: retrieving opid from spring security or something
 
-        String id = "4d9c6082-c107-4828-95bf-d998953f8f80";
+        String opid = "4d9c6082-c107-4828-95bf-d998953f8f80";
 
-        return applicantProfileRepository.findByOpid(id)
+        return applicantProfileRepository.findByOpid(opid)
                 .orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
     }
 
