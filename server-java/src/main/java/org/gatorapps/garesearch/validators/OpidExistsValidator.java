@@ -13,6 +13,11 @@ public class OpidExistsValidator implements ConstraintValidator<OpidExists, Stri
     private UserRepository userRepository;
 
     @Override
+    public void initialize(OpidExists constraintAnnotation) {
+        // Initialization logic (if any)
+    }
+
+    @Override
     public boolean isValid(String opid, ConstraintValidatorContext context){
         try {
             return userRepository.existsByOpid(opid);

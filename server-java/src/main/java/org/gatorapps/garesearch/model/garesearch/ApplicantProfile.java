@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.BaseApplicationProfileSchema;
@@ -27,7 +28,7 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     private String opid;
 
     @Field("lastUpdateTimeStamp")
-    @NotBlank(message = "lastUpdateTimeStamp is required")
+    @NotNull(message = "lastUpdateTimeStamp is required")
     private Date lastUpdateTimeStamp;
 
 

@@ -10,7 +10,4 @@ public interface ApplicantProfileRepository extends MongoRepository<ApplicantPro
 
     Optional<ApplicantProfile> findByOpid(String opid);
 
-    Optional<ApplicantProfile> findByOpidAndPositionId(String opid, String positionId);
-
-
 }

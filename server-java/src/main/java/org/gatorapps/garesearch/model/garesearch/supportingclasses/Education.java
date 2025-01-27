@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.model.garesearch.supportingclasses;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.gatorapps.garesearch.validators.EndDateValid;
@@ -11,6 +12,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class Education {
     public Education(){};
 
@@ -28,6 +30,7 @@ public class Education {
 
     @Field("degree")
     private String degree;
+
     @Field("major")
     private String major;
 

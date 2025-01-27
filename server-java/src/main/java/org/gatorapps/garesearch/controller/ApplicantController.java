@@ -52,7 +52,7 @@ public class ApplicantController {
                         "update", Map.of(
                                 "endpoint", Map.of(
                                         "method", "put",
-                                        "route", "applicant/profile")))
+                                        "route", "/applicant/profile")))
         );
 
 
@@ -60,16 +60,16 @@ public class ApplicantController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // TODO : test all routes below
-
     @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@Valid @RequestBody ApplicantProfile applicantProfile) throws Exception {
+    public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@RequestBody ApplicantProfile applicantProfile) throws Exception {
 
         applicantService.updateProfileById(applicantProfile);
 
         ApiResponse<Void> response = new ApiResponse<>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // TODO : test all routes below
 
     @GetMapping("/applications")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(

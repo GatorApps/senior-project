@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.validators;
 
 import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,6 +15,6 @@ import java.lang.annotation.Target;
 public @interface OpidExists {
     String message() default "User with provided opid does not exist";
 
-    // groups will allow running validator based on something such as Create.class etc
-    // Class<?>[] groups() default{};
+    Class<?>[] groups() default {};  // Ensure this is added
+    Class<? extends Payload>[] payload() default {};
 }

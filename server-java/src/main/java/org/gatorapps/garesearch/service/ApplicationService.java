@@ -1,5 +1,7 @@
 package org.gatorapps.garesearch.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ValidationException;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
@@ -11,17 +13,18 @@ import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.nio.charset.MalformedInputException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ApplicationService {
@@ -38,9 +41,19 @@ public class ApplicationService {
     @Qualifier("garesearchMongoTemplate")
     private MongoTemplate garesearchMongoTemplate;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    public Map<String, Object> convertToMap(Object object) {
+        return objectMapper.convertValue(object, Map.class);
+    }
+
+
+    // TODO : write in the manual validation commands where needed
+
     public List<Map> getStudentApplications (String status) throws Exception {
         // TODO : retrieving opid from spring security or something
-        String opid = "4d9c6082-c107-4828-95bf-d998953f8f80";
+        String opid = "127ad6f9-a0ff-4e3f-927f-a70b64c542e4";
 
         List<String> statuses = switch (status) {
             case "saved" -> List.of("saved");
@@ -98,7 +111,7 @@ public class ApplicationService {
 
     public void submitApplication (String positionId, String saveApp) throws Exception {
         // TODO : retrieving opid from spring security or something
-        String opid = "4d9c6082-c107-4828-95bf-d998953f8f80";
+        String opid = "127ad6f9-a0ff-4e3f-927f-a70b64c542e4";
 
         // Check if position is valid and open
         Position foundPosition;
@@ -110,7 +123,7 @@ public class ApplicationService {
             System.out.println(e.getMessage());
 
             if (e instanceof IllegalArgumentException && e.getMessage().contains("Invalid format")){
-                throw new MalformedParamException("ERR_REQ_INVALID_PARAM_MALFORMID", "positionId is malformed")
+                throw new MalformedParamException("ERR_REQ_INVALID_PARAM_MALFORMID", "positionId is malformed");
             }
             throw new Exception("Unable to process your request at this time", e);
         }
@@ -133,20 +146,48 @@ public class ApplicationService {
         // case to save application
         if (Objects.equals(saveApp, "true")) {
             try {
-                // TODO: create application
+                Application newApp = new Application();
+                newApp.setOpid(opid);
+                newApp.setPositionId(positionId);
+                newApp.setSubmissionTimeStamp(new Date());
+                newApp.setStatus("saved");
+
+                garesearchMongoTemplate.save(newApp);
+                return;
             } catch (Exception e){
                 throw new Exception("Unable to process your request at this time", e);
             }
         }
 
-        // case to submit application
+        Query profileQuery = new Query(Criteria.where("opid").is(opid).and("positionId").is(positionId));
+        profileQuery.fields().exclude("_id").exclude("__v");
 
-        // TODO : excluded "-_id -__v' . could use DTO to ensure they dont get passed ? OR MongoTemplate query stuff
-        ApplicantProfile foundProfile = applicantProfileRepository.findByOpidAndPositionId(opid, positionId)
-                .orElseThrow(() -> new ResourceNotFoundException("-", "Applicant profile has not been set up yet. Please create your profile to easily apply to all available positions"));
+        ApplicantProfile foundProfile = garesearchMongoTemplate.findOne(profileQuery, ApplicantProfile.class);
+        if (foundProfile == null) {
+            throw new ResourceNotFoundException("-", "Applicant profile has not been set up yet. Please create your profile to easily apply to all available positions");
+        }
 
-        // TODO : Finish the rest . from applicationData onwards
-        // updating application. and exception handling for that
+        Map<String, Object> applicationData = convertToMap(foundProfile);
+        applicationData.put("opid", opid);
+        applicationData.put("positionId", positionId);
+        applicationData.put("submissionTimeStamp", new Date());
+        applicationData.put("status", "submitted");
+
+        try {
+            Update update = new Update();
+            applicationData.forEach(update::set);
+
+            Query applicationQuery = new Query(Criteria.where("opid").is(opid).and("positionId").is(positionId));
+
+            garesearchMongoTemplate.findAndModify(
+                    applicationQuery,
+                    update,
+                    FindAndModifyOptions.options().upsert(true).returnNew(true),
+                    Application.class
+            );
+        } catch (Exception e) {
+            throw new Exception("Unable to process your request at this time", e);
+        }
 
     }
 

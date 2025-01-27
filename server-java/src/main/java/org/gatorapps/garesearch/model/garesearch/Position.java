@@ -3,6 +3,7 @@ package org.gatorapps.garesearch.model.garesearch;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.validators.LabIdExists;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
