@@ -10,7 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Date;
+
 
 @Getter
 @Setter
@@ -28,7 +30,6 @@ public class Position {
     @Field("name")
     @NotBlank(message = "Position name is required")
     private String name;
-
 
     @Field("description")
     private String description;

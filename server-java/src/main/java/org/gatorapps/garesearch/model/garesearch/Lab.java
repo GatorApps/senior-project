@@ -3,16 +3,16 @@ package org.gatorapps.garesearch.model.garesearch;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
-import org.gatorapps.garesearch.validators.OpidExists;
+import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
+/** JSONs in lists need to declared in separate files or serializable issues arise **/
 @Getter
 @Setter
 @Document(collection = "labs")
@@ -42,15 +42,5 @@ public class Lab {
     @Field("description")
     private String description;
 
-    public static class User {
-        @Field("opid")
-        @NotBlank(message = "User opid is required")
-        @Indexed(unique=true)
-        @OpidExists
-        private String opid;
 
-        @Field("role")
-        @NotBlank(message = "Lab user role is required")
-        private String role;
-    }
 }

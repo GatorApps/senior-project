@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Configuration
 @EnableMongoRepositories(
         basePackages = "org.gatorapps.garesearch.repository.garesearch",
-        mongoTemplateRef = "globalMongoTemplate"
+        mongoTemplateRef = "garesearchMongoTemplate"
 )
 public class GaresearchMongoConfig {
 }

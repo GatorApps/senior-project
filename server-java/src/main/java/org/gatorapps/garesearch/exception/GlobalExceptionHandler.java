@@ -1,11 +1,14 @@
 package org.gatorapps.garesearch.exception;
 
+import org.gatorapps.garesearch.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,4 +24,18 @@ public class GlobalExceptionHandler {
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundExceptions(ResourceNotFoundException ex){
+        ErrorResponse errResponse = new ErrorResponse(ex.getErrCode(), ex.getMessage());
+        return new ResponseEntity<>(errResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex){
+        ErrorResponse errResponse = new ErrorResponse("ERR_ISE_CATCH_ALL", ex.getMessage());
+        return new ResponseEntity<>(errResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
 }

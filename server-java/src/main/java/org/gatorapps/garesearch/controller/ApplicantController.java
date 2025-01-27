@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.controller;
 
 import jakarta.validation.Valid;
+import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
@@ -21,30 +22,52 @@ public class ApplicantController {
     ApplicationService applicationService;
 
     @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getApplicantProfile(){
-        // logic done in service
-        // applicantService.getProfileById()
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicantProfile(){
+        ApplicantProfile applicant = applicantService.getProfileById();
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
+
+        /* Response is a lot of nested jsons
+            {
+                errCode: '0',
+                payload: {
+                    applicantProfile: {
+                        data: foundProfile,
+                        update: {
+                            endpoint: {
+                                method: "put",
+                                route: "/applicant/profile"
+                            }
+                        }
+                    }
+                }
+            }
+         */
+
+        Map<String, Object> payloadResponse = Map.of(
+                "applicantProfile", Map.of(
+                        "data", applicant,
+                        "update", Map.of(
+                                "endpoint", Map.of(
+                                        "method", "put",
+                                        "route", "applicant/profile")))
         );
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<Map<String, Object>> updateApplicantProfile(@Valid @RequestBody ApplicantProfile applicantProfile){
-        // logic done in service
-        // applicantService.updateProfileById()
+    public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@Valid @RequestBody ApplicantProfile applicantProfile) throws Exception {
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        applicantService.updateProfileById(applicantProfile);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        ApiResponse<Void> response = new ApiResponse<>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
+    // TODO : the rest of these
 
     @GetMapping("/applications")
     public ResponseEntity<Map<String, Object>> getStudentApplications(@RequestParam(required=false) String status ){

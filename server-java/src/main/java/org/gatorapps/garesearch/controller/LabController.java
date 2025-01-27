@@ -14,6 +14,7 @@ public class LabController {
     @Autowired
     LabService labService;
 
+    // TODO : all of these
 
     @GetMapping("/publicProfile")
     public ResponseEntity<Map<String, Object>> getLabPublicProfile(){

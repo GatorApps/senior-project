@@ -2,12 +2,14 @@ package org.gatorapps.garesearch.model.garesearch;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.gatorapps.garesearch.model.garesearch.supportingclasses.BaseApplicationProfileSchema;
 import org.gatorapps.garesearch.validators.OpidExists;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import jakarta.validation.constraints.NotBlank;
+
 import java.util.Date;
 
 @Getter
@@ -27,4 +29,9 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     @Field("lastUpdateTimeStamp")
     @NotBlank(message = "lastUpdateTimeStamp is required")
     private Date lastUpdateTimeStamp;
+
+
+    public void setLastUpdateTimeStampToNow() {
+        this.lastUpdateTimeStamp = new Date();
+    }
 }

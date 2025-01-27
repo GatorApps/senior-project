@@ -3,6 +3,7 @@ package org.gatorapps.garesearch.model.garesearch;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+import org.gatorapps.garesearch.model.garesearch.supportingclasses.BaseApplicationProfileSchema;
 import org.gatorapps.garesearch.validators.OpidExists;
 import org.gatorapps.garesearch.validators.PositionIdExists;
 import org.springframework.data.annotation.Id;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.Date;
+
 
 @Getter
 @Setter
@@ -39,4 +41,5 @@ public class Application extends BaseApplicationProfileSchema {
     @NotBlank(message = "status is required")
     @Pattern(regexp = "draft|open|closed", message = "Position status must be one of 'draft', 'open', 'closed'")
     private String status;
+
 }
