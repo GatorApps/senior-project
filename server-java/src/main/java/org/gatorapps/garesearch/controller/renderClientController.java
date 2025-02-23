@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/appApi/garesearch/renderClient")
 public class renderClientController {
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/appAlert")
     public ResponseEntity<Map<String, Object>> getAppAlert() {
@@ -28,7 +31,7 @@ public class renderClientController {
 
     @GetMapping("/leftMenuItems")
     public ResponseEntity<Map<String, Object>> getLeftMenuItems() {
-        List<Map<String, Object>> leftMenuItems = List.of(
+        List<Map<String, Object>> demoLeftMenuItems = List.of(
                 Map.of(
                         "heading", "Heading 1",
                         "items", List.of(
@@ -75,14 +78,49 @@ public class renderClientController {
                 )
         );
 
-        // Construct the response payload
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of("leftMenuItems", leftMenuItems)
+        List<Map<String, Object>> leftMenuItems = List.of(
+                Map.of(
+                        "heading", "Student",
+                        "items", List.of(
+                                Map.of("label", "Dashboard", "route", "/?t=student")
+                        )
+                ),
+                Map.of(
+                        "heading", "Faculty",
+                        "items", List.of(
+                                Map.of("label", "Dashboard", "route", "/?t=faculty")
+                        )
+                )
         );
 
-        // Return the response with a custom status code (e.g., 200 OK)
+        // Constructs response
+        Map<String, Object> responsePayload;
+        try {
+            responsePayload = Map.of(
+                    "errCode", "0",
+                    "payload", Map.of("leftMenuItems", objectMapper.writeValueAsString(leftMenuItems))
+            );
+        } catch (Exception e) {
+            responsePayload = Map.of(
+                    "errCode", "-"
+            );
+        }
+
         return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+    }
+
+    @GetMapping("/appInfo")
+    public Map<String, Object> getAppInfo() {
+        return Map.of(
+                "errCode", "0",
+                "payload", Map.of(
+                        "app", Map.of(
+                                "name", "garesearch",
+                                "displayName", "RESEARCH.UF",
+                                "alert", Map.of("displayAlert", false)
+                        )
+                )
+        );
     }
 
 }
