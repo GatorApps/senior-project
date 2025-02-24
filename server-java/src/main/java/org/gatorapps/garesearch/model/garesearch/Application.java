@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +35,7 @@ public class Application extends BaseApplicationProfileSchema {
     private String positionId;
 
     @Field("submissionTimeStamp")
-    @NotBlank(message = "submissionTimeStamp is required")
+    @NotNull(message = "submissionTimeStamp is required")
     private Date submissionTimeStamp;
 
     @Field("status")

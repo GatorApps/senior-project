@@ -1,5 +1,8 @@
 package org.gatorapps.garesearch.controller;
 
+import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.model.garesearch.Lab;
+import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,21 +17,21 @@ public class PositionController {
     @Autowired
     PositionService positionService;
 
-    // TODO : all of these
 
-    @GetMapping("/publicPosting")
-    public ResponseEntity<Map<String, Object>> getPositionPublicPosting() {
-        // logic done in service
-        // positionService.getPublicPosting()
+    @GetMapping("/single")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(@RequestParam(value = "positionId", required = true) String positionId){
 
+        Position position = positionService.getPublicPosting(positionId);
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        Map<String, Object> payloadResponse = Map.of(
+                "positionPublicPosting", position);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // TODO : all of these below
 
     @GetMapping("/posting")
     public ResponseEntity<Map<String, Object>> getPositionPosting(){

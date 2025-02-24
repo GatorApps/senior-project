@@ -1,5 +1,7 @@
 package org.gatorapps.garesearch.controller;
 
+import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.service.LabService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,21 +16,20 @@ public class LabController {
     @Autowired
     LabService labService;
 
-    // TODO : all of these
 
-    @GetMapping("/publicProfile")
-    public ResponseEntity<Map<String, Object>> getLabPublicProfile(){
-        // logic done in service
-        // labService.getPublicProfile()
+    @GetMapping("/single")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabPublicProfile(@RequestParam(value = "labId", required = true) String labId){
+        Lab lab = labService.getPublicProfile(labId);
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        Map<String, Object> payloadResponse = Map.of(
+                "labPublicProfile", lab);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // TODO : all of these below
 
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getLabProfile(){

@@ -68,32 +68,4 @@ public class ApplicantController {
         ApiResponse<Void> response = new ApiResponse<>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    // TODO : test all routes below
-
-    @GetMapping("/applications")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(
-            @RequestParam(required=true)
-            @Pattern(regexp = "saved|active|inactive", message = "Status must be one of 'saved', 'active', 'inactive'")
-            String status ) throws Exception {
-
-        List<Map> foundApplications = applicationService.getStudentApplications(status);
-
-        Map<String, Object> payloadResponse = Map.of(
-                "applications", foundApplications);
-
-        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/application")
-    public ResponseEntity<ApiResponse<Void>> submitApplication(
-            @RequestParam(value = "positionId", required = true) String positionId,
-            @RequestParam(value = "saveApp", required = false) String saveApp) throws Exception {
-
-        applicationService.submitApplication(positionId, saveApp);
-
-        ApiResponse<Void> response = new ApiResponse<>("0");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 }

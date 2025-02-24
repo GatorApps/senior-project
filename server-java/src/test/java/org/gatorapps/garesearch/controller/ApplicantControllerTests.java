@@ -84,33 +84,4 @@ public class ApplicantControllerTests {
                 .andExpect(jsonPath("$.payload").doesNotExist());
 
     }
-
-    @Test // @GetMapping("/applications")
-    // public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(
-    //          @RequestParam(required=true)
-    //          @Pattern(regexp = "saved|active|inactive", message = "Status must be one of 'saved', 'active', 'inactive'")
-    //          String status )
-    public void testGetStudentApplications() throws Exception {
-        mockMvc.perform(get(applicantControllerRoute + "/applications")
-                        .param("status", "active"))
-                .andExpect(status().isOk())  // Check for HTTP 200 OK
-                .andExpect(jsonPath("$.payload.applications").isArray());
-        // TODO : looks correct . but write actual check for correct structure.
-    }
-
-
-    // TODO : write tests for each case of submit . (and label what case is what)
-    @Test // @PostMapping("/application")
-//    public ResponseEntity<ApiResponse<Void>> submitApplication(
-//            @RequestParam(value = "positionId", required = true) String positionId,
-//            @RequestParam(value = "saveApp", required = false) String saveApp)
-    public void testSubmitApplication() throws Exception {
-        mockMvc.perform(post(applicantControllerRoute + "/application")
-                        .param("positionId", "6797d2a79ecab28bd554866b")
-                        .param("saveApp", "false"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errCode").value("-"));
-    }
-
-
 }

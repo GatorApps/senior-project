@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.model.garesearch.supportingclasses;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +22,7 @@ public class Education {
     private String institution;
 
     @Field("startDate")
-    @NotBlank(message = "startDate is required")
+    @NotNull(message = "startDate is required")
     private Date startDate;
 
     @Field("endDate")

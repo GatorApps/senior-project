@@ -7,10 +7,12 @@ import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Application;
+import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
+import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
@@ -44,12 +46,24 @@ public class ApplicationService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private ValidationUtil validationUtil;
+
     public Map<String, Object> convertToMap(Object object) {
         return objectMapper.convertValue(object, Map.class);
     }
 
 
     // TODO : write in the manual validation commands where needed
+
+    public Application getStudentApplication (String applicationId){
+        // TODO : retrieving opid from spring security or something
+        String opid = "127ad6f9-a0ff-4e3f-927f-a70b64c542e4";
+
+        // find by both to ensure correct user is accessing the application
+        return applicationRepository.findByOpidAndId(opid, applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
+    }
 
     public List<Map> getStudentApplications (String status) throws Exception {
         // TODO : retrieving opid from spring security or something
@@ -63,8 +77,6 @@ public class ApplicationService {
         };
 
         try {
-
-
             // must match 'opid' and 'status' fields
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(
@@ -75,7 +87,7 @@ public class ApplicationService {
                             .andExpression("toObjectId(positionId)").as("positionIdObjectId"),
                     // join with 'positions' collection
                     Aggregation.lookup(
-                            "positions",           // Collection to join
+                            "positions",      // Collection to join
                             "positionIdObjectId",  // Local field
                             "_id",                 // Foreign field
                             "position"             // Alias for the joined field
@@ -152,6 +164,7 @@ public class ApplicationService {
                 newApp.setSubmissionTimeStamp(new Date());
                 newApp.setStatus("saved");
 
+                validationUtil.validate(newApp);
                 garesearchMongoTemplate.save(newApp);
                 return;
             } catch (Exception e){
