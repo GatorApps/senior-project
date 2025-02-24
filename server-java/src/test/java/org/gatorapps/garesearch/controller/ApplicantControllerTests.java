@@ -36,7 +36,11 @@ public class ApplicantControllerTests {
 
     // TODO : write tests expecting exceptions and stuff
 
-    @Test // @GetMapping("/profile") getApplicantProfile()
+    /*------------------------- getApplicantProfile -------------------------*/
+
+    // @GetMapping("/profile") getApplicantProfile()
+
+    @Test // @GetMapping("/profile")
     public void testGetApplicantProfile() throws Exception {
         mockMvc.perform(get(applicantControllerRoute+"/profile"))
                 .andExpect(status().isOk())
@@ -63,8 +67,13 @@ public class ApplicantControllerTests {
      */
 
 
+    /*------------------------- updateApplicantProfile -------------------------*/
+
+    // @PutMapping("/profile")
+    //      public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(
+    //          @Valid @RequestBody ApplicantProfile applicantProfile)
+
     @Test // @PutMapping("/profile")
-    //public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@Valid @RequestBody ApplicantProfile applicantProfile)
     public void testPutApplicantProfile() throws Exception {
         ApplicantProfile applicantProfile = new ApplicantProfile();
         applicantProfile.setOpid("127ad6f9-a0ff-4e3f-927f-a70b64c542e4");

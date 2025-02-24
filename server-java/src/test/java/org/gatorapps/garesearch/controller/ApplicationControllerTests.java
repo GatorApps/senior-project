@@ -35,8 +35,6 @@ public class ApplicationControllerTests {
 
     private final String applicationControllerRoute = "/appApi/garesearch/application";
 
-    // TODO : write tests expecting exceptions and stuff
-
 
     /*------------------------- getStudentApplication -------------------------*/
 
