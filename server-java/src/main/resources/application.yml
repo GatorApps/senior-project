@@ -1,0 +1,9 @@
+app:
+  name: "garesearch"
+  frontend-host: "https://templateapp.dev-local.gatorapps.org:3500"
+
+session:
+  global-cookie-name: "GATORAPPS_GLOBAL_SID"
+  lifespan: 43200000
+  auth-token-lifespan: "12h"
+  max-web-sessions: 2
