@@ -1,0 +1,188 @@
+package org.gatorapps.garesearch.middleware;
+
+import org.gatorapps.garesearch.model.account.User;
+import org.gatorapps.garesearch.repository.account.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Optional;
+
+@Component
+public class ValidateUserAuthInterceptor implements HandlerInterceptor {
+
+    @Value("${app.prod-status}")
+    private String prodStatus;
+
+    private final UserRepository userRepository;
+//    private final PublicKey publicKey;
+
+    public ValidateUserAuthInterceptor(UserRepository userRepository, @Value("${app.user.auth.token.public-key}") String publicKeyStr) throws Exception {
+        this.userRepository = userRepository;
+//        this.publicKey = loadPublicKey(publicKeyStr);
+    }
+
+    public static PublicKey loadPublicKey(String key) throws GeneralSecurityException {
+        try {
+            String publicKeyPEM = key
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replaceAll("\\s", ""); // Remove all whitespace and newlines
+
+            byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
+            KeyFactory keyFactory = KeyFactory.getInstance("EC"); // Use "RSA" if it's an RSA key
+            return keyFactory.generatePublic(keySpec);
+        } catch (IllegalArgumentException e) {
+            throw new GeneralSecurityException("Invalid public key encoding", e);
+        }
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // Accept simulated user auth in dev mode
+        if (prodStatus.equals("dev")) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String opid = authHeader.substring(7);  // Remove "Bearer " prefix
+                Optional<User> foundUser = userRepository.findByOpid(opid);
+                if (foundUser.isPresent()) {
+                    request.setAttribute("userAuth", new UserAuth(foundUser.get(), new AuthError("0")));
+                } else {
+                    request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user opid")));
+                }
+                return true;
+            }
+        }
+
+        return true;
+
+//        // Simulating `userAuth` being injected into request (assume provided)
+//        UserAuth userAuth = (UserAuth) request.getAttribute("userAuth");
+//        if (userAuth == null) {
+//            request.setAttribute("userAuth", new AuthResponse(403, "-", "Session missing userAuth info"));
+//            return true;
+//        }
+//
+//        String opid = userAuth.getOpid();
+//        String userAuthToken = userAuth.getToken();
+//        if (opid == null || userAuthToken == null) {
+//            request.setAttribute("userAuth", new AuthResponse(403, "-", "Incomplete userAuth info"));
+//            return true;
+//        }
+//
+//        try {
+//            Claims decoded = Jwts.parser()
+//                    .setSigningKey(publicKey)
+//                    .parseClaimsJws(userAuthToken)
+//                    .getBody();
+//
+//            String decodedOpid = decoded.get("opid", String.class);
+//            String decodedSessionID = decoded.get("sessionID", String.class);
+//            long decodedSignInTimeStamp = decoded.get("signInTimeStamp", Long.class);
+//
+//            if (decodedOpid == null || decodedSessionID == null || decodedSignInTimeStamp == 0) {
+//                request.setAttribute("userAuth", new AuthResponse(403, "-", "Incomplete userAuthToken"));
+//                return true;
+//            }
+//
+//            if (!decodedOpid.equals(opid)) {
+//                request.setAttribute("userAuth", new AuthResponse(403, "-", "Token and client opid mismatch"));
+//                return true;
+//            }
+//
+//            if (!decodedSessionID.equals(request.getSession().getId())) {
+//                request.setAttribute("userAuth", new AuthResponse(403, "-", "Token and client sessionID mismatch"));
+//                return true;
+//            }
+//
+//            Optional<User> foundUser = userRepository.findByOpid(decodedOpid);
+//            if (foundUser.isEmpty()) {
+//                request.setAttribute("userAuth", new AuthResponse(403, "-", "Invalid user opid in userAuthToken"));
+//                return true;
+//            }
+//
+//            User user = foundUser.get();
+//            boolean sessionExists = user.getSessions().stream()
+//                    .anyMatch(session -> session.getSessionID().equals(decodedSessionID) &&
+//                            session.getSignInTimeStamp().getTime() == decodedSignInTimeStamp);
+//
+//            if (!sessionExists) {
+//                request.setAttribute("userAuth", new AuthResponse(403, "-", "Client and user sessionID mismatch"));
+//                return true;
+//            }
+//
+//            long currentTimestamp = System.currentTimeMillis() / 1000;
+//            if (decoded.getExpiration() != null && decoded.getExpiration().before(new Date(currentTimestamp * 1000))) {
+//                request.setAttribute("userAuth", new AuthResponse(403, "-", "Auth session has expired", user));
+//                return true;
+//            }
+//
+//            request.setAttribute("userAuth", new AuthResponse(user));
+//            return true;
+//
+//        } catch (ExpiredJwtException e) {
+//            request.setAttribute("userAuth", new AuthResponse(403, "-", "Auth session has expired"));
+//            return true;
+//        } catch (SignatureException e) {
+//            request.setAttribute("userAuth", new AuthResponse(403, "-", "Invalid userAuthToken"));
+//            return true;
+//        } catch (Exception e) {
+//            request.setAttribute("userAuth", new AuthResponse(500, "-", "Unable to validate user auth session"));
+//            return true;
+//        }
+}
+
+    // Helper classes
+    public static class AuthError {
+        private final int status;
+        private final String errCode;
+        private final String errMsg;
+        private User expiredUser;
+
+        public AuthError(int status, String errCode, String errMsg, User expiredUser) {
+            this.status = status;
+            this.errCode = errCode;
+            this.errMsg = errMsg;
+            this.expiredUser = expiredUser;
+        }
+
+        public AuthError(int status, String errCode, String errMsg) {
+            this(status, errCode, errMsg, null);
+        }
+
+        public AuthError(String errCode) {
+            this(-1, errCode, null, null);
+        }
+    }
+
+    public static class UserAuth {
+        private User authedUser = null;
+        private AuthError authError = null;
+
+        public UserAuth(User authedUser, AuthError authError) {
+            this.authedUser = authedUser;
+            this.authError = authError;
+        }
+
+        public User getAuthedUser() {
+            return authedUser;
+        }
+
+        public AuthError getAuthError() {
+            return authError;
+        }
+    }
+}
