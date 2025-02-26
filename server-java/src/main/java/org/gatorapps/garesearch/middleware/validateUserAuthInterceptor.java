@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.middleware;
 
+import lombok.Getter;
 import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.repository.account.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -146,11 +147,12 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
 }
 
     // Helper classes
+    @Getter
     public static class AuthError {
         private final int status;
         private final String errCode;
         private final String errMsg;
-        private User expiredUser;
+        private final User expiredUser;
 
         public AuthError(int status, String errCode, String errMsg, User expiredUser) {
             this.status = status;
@@ -164,25 +166,18 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
         }
 
         public AuthError(String errCode) {
-            this(-1, errCode, null, null);
+            this(-1, "0", null, null);
         }
     }
 
+    @Getter
     public static class UserAuth {
-        private User authedUser = null;
-        private AuthError authError = null;
+        private final User authedUser;
+        private final AuthError authError;
 
         public UserAuth(User authedUser, AuthError authError) {
             this.authedUser = authedUser;
             this.authError = authError;
-        }
-
-        public User getAuthedUser() {
-            return authedUser;
-        }
-
-        public AuthError getAuthError() {
-            return authError;
         }
     }
 }
