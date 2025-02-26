@@ -45,10 +45,10 @@ public class ApplicationControllerTests {
     @Test // @GetMapping("/single")
     public void getStuApplication_Valid() throws Exception {
         mockMvc.perform(get(applicationControllerRoute + "/single")
-                        .param("applicationId", "6797d2359ecab28bd5548664"))
+                        .param("applicationId", "67be553bd7565c4e30236224"))
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.application").isNotEmpty())
-                .andExpect(jsonPath("$.payload.application.id").value("6797d2359ecab28bd5548664"));
+                .andExpect(jsonPath("$.payload.application.applicationId").value("67be553bd7565c4e30236224"));
     }
 
     @Test // @GetMapping("/single")
@@ -71,42 +71,16 @@ public class ApplicationControllerTests {
     /*------------------------- getStudentApplications -------------------------*/
 
     // @GetMapping("/applications")
-    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(
-    //          @RequestParam(required=true)
-    //          @Pattern(regexp = "saved|active|inactive", message = "Status must be one of 'saved', 'active', 'inactive'")
-    //          String status )
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications()
 
     @Test // @GetMapping("/applications")
     public void getStuApplications_Valid() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/stuList")
-                        .param("status", "active"))
+        mockMvc.perform(get(applicationControllerRoute + "/studentList"))
                 .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.applications").isArray());
+                .andExpect(jsonPath("$.payload.applications").isMap())
+                .andExpect(jsonPath("$.payload.applications.activeApplications").isArray())
+                .andExpect(jsonPath("$.payload.applications.archivedApplications").isArray());
     }
-
-    @Test // @GetMapping("/applications")
-    public void getStuApplications_MissingParam() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/stuList"))
-                .andExpect(status().isBadRequest())  // 400
-                .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
-                .andExpect(jsonPath("$.errMsg").value("Missing required req params: status"));
-    }
-
-
-    @Test // @GetMapping("/applications")
-    public void getStuApplications_InvalidParam() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/stuList")
-                        .param("status", "kdlfajkd"))
-                .andExpect(status().isBadRequest())  // 400
-                .andExpect(jsonPath("$.errCode").value("ERR_INPUT_FAIL_VALIDATION"))
-                .andExpect(jsonPath("$.errMsg").value("Status must be one of 'saved', 'active', 'inactive'"));
-    }
-
-
-
-
-
-
 
 
     /*------------------------- submitApplication -------------------------*/

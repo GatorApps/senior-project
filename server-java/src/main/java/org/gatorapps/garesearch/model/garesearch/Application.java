@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.BaseApplicationProfileSchema;
 import org.gatorapps.garesearch.validators.OpidExists;
 import org.gatorapps.garesearch.validators.PositionIdExists;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -34,6 +35,7 @@ public class Application extends BaseApplicationProfileSchema {
     @PositionIdExists
     private String positionId;
 
+    @CreatedDate
     @Field("submissionTimeStamp")
     @NotNull(message = "submissionTimeStamp is required")
     private Date submissionTimeStamp;

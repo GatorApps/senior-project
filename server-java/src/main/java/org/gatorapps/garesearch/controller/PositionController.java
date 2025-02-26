@@ -9,15 +9,41 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/appApi/garesearch/position")
+@RequestMapping("/appApi/garesearch/posting")
 public class PositionController {
     @Autowired
     PositionService positionService;
 
 
+    /*
+        response.payload returns: list of positions
+     */
+    @GetMapping("/searchList")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(@RequestParam(value = "searchParams") String searchParams) throws Exception {
+
+        List<Map> positions = positionService.getSearchResults(searchParams);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "positions", positions);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+    /*
+        follows old logic
+
+        response.payload returns: position by positionId
+
+        will likely need update to join with Lab or something
+     */
     @GetMapping("/single")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(@RequestParam(value = "positionId", required = true) String positionId){
 
@@ -34,44 +60,48 @@ public class PositionController {
     // TODO : all of these below
 
     @GetMapping("/posting")
-    public ResponseEntity<Map<String, Object>> getPositionPosting(){
-        // logic done in service
-        // positionService.getPosting()
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPosting(){
+        // Position position = positionService.getPosting();
+        Position position = new Position();
 
+        // Define Payload Structure first
+        Map<String, Object> payloadResponse = Map.of(
+                "positionPosting", position);
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<Map<String, Object>> createPositionPosting(){
-        // logic done in service
-        // positionService.createPosting()
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createPositionPosting(){
+        // Position position = positionService.createPosting();
+        Position position = new Position();
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        // Define Payload Structure first
+        Map<String, Object> payloadResponse = Map.of(
+                "positionPosting", position);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<Map<String, Object>> updatePositionPosting(){
-        // logic done in service
-        // positionService.updatePosting()
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updatePositionPosting(){
+        // Position position = positionService.updatePosting();
+        Position position = new Position();
 
+        // Define Payload Structure first
+        Map<String, Object> payloadResponse = Map.of(
+                "positionPosting", position);
 
-        Map<String, Object> responsePayload = Map.of(
-                "errCode", "0",
-                "payload", Map.of()
-        );
+        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 
-        return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

@@ -24,6 +24,12 @@ public class ApplicantController {
     @Autowired
     ApplicationService applicationService;
 
+
+    /*
+        follows old logic
+
+        response.payload returns: applicant profile and update endpoint route ?
+     */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicantProfile(){
         ApplicantProfile applicant = applicantService.getProfileById();
@@ -60,6 +66,12 @@ public class ApplicantController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    /*
+        follows old logic
+
+        no payload
+     */
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@RequestBody ApplicantProfile applicantProfile) throws Exception {
 
