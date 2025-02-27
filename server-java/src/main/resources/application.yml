@@ -1,6 +1,7 @@
 app:
   name: "garesearch"
   frontend-host: "https://templateapp.dev-local.gatorapps.org:3500"
+  prod-status: "dev"
 
 session:
   global-cookie-name: "GATORAPPS_GLOBAL_SID"

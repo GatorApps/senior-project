@@ -1,6 +1,8 @@
 package org.gatorapps.garesearch.middleware;
 
+import jakarta.servlet.http.Cookie;
 import lombok.Getter;
+import org.gatorapps.garesearch.config.AppConfig;
 import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.repository.account.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -9,10 +11,13 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PublicKey;
@@ -21,11 +26,14 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 @Component
 public class ValidateUserAuthInterceptor implements HandlerInterceptor {
 
-    @Value("${app.prod-status}")
-    private String prodStatus;
+    @Autowired
+    private AppConfig appConfig;
 
     private final UserRepository userRepository;
 //    private final PublicKey publicKey;
@@ -54,7 +62,7 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // Accept simulated user auth in dev mode
-        if (prodStatus.equals("dev")) {
+        if (appConfig.getProdStatus().equals("dev")) {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String opid = authHeader.substring(7);  // Remove "Bearer " prefix
@@ -66,6 +74,44 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
                 }
                 return true;
             }
+        }
+
+        // Read GATORAPPS_GLOBAL_SID cookie value
+        String globalSIDCookieValue = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals("GATORAPPS_GLOBAL_SID")) {
+                    globalSIDCookieValue = cookie.getValue();
+                }
+            }
+        }
+        if (globalSIDCookieValue == null) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Missing user auth session")));
+            return true;
+        }
+        // Decode session cookie value
+        String decodedGlobalSIDCookieValue = URLDecoder.decode(globalSIDCookieValue, StandardCharsets.UTF_8);
+        if (!decodedGlobalSIDCookieValue.startsWith("s:")) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user auth session")));
+            return true;
+        }
+        // Remove the "s:" prefix
+        decodedGlobalSIDCookieValue = decodedGlobalSIDCookieValue.substring(2);
+        // Split session cookie into session ID and signature
+        String[] parts = decodedGlobalSIDCookieValue.split("\\.");
+        if (parts.length != 2) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user auth session")));
+            return true;
+        }
+        String sessionId = parts[0];
+        String signature = parts[1];
+        System.out.println(sessionId);
+        System.out.println(signature);
+
+        // Verify Signature
+        if (!verifySignature(sessionId, signature)) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user auth session")));
+            return true;
         }
 
         return true;
@@ -145,6 +191,28 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
 //            return true;
 //        }
 }
+
+    private boolean verifySignature(String sessionId, String signature) {
+        for (String secret : appConfig.getSessionSecrets()) {
+            if (verifyWithSecret(sessionId, signature, secret)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean verifyWithSecret(String sessionId, String signature, String secret) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] hmac = mac.doFinal(sessionId.getBytes());
+            String expectedSignature = Base64.getUrlEncoder().withoutPadding().encodeToString(hmac).replace("-", "+").replace("_", "/");
+            return expectedSignature.equals(signature);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     // Helper classes
     @Getter
