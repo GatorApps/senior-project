@@ -6,6 +6,8 @@ import Settings from './views/Settings/Settings';
 import RequireAuth from './components/RequireAuth/RequireAuth';
 import { Routes, Route } from 'react-router-dom';
 import GenericPage from './components/GenericPage/GenericPage';
+import OpportunitySearchPage from './views/OpportunitySearchPage/OpportunitySearchPage';
+import MyApplicationsPage from './views/MyApplicationsPage/MyApplicationsPage';
 
 function App() {
   return (
@@ -17,6 +19,14 @@ function App() {
         {/* protected routes */}
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
           <Route path="/" element={<Homepage />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[100001]} />}>
+          <Route path="/search" element={<OpportunitySearchPage />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[100001]} />}>
+          <Route path="/myapplications" element={<MyApplicationsPage />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100999]} />}>
