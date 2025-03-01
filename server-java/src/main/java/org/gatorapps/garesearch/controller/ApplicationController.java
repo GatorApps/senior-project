@@ -48,7 +48,7 @@ public class ApplicationController {
         List<Map> foundApplications = applicationService.getStudentApplications();
 
         List<Map> submittedApps = foundApplications.stream()
-                .filter(app -> "submitted".equalsIgnoreCase((String) app.get("status")))
+                .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
                 .toList();
         List<Map> archivedApps = foundApplications.stream()
