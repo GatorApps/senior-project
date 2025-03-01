@@ -5,11 +5,13 @@ import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
 import Header from '../../components/Header/Header';
 import GenericPageCard from '../../components/GenericPage/GenericPageCard';
 import { useSelector } from 'react-redux';
+import OpportunitySearchPageCard from '../../views/OpportunitySearchPage/OpportunitySearchPageCard';
+import MyApplicationsPageCard from '../../views/MyApplicationsPage/MyApplicationsPageCard';
 
 const Homepage = () => {
   const userInfo = useSelector((state) => state.auth.userInfo);
 
-  const cards = [<GenericPageCard />, <GenericPageCard />, <GenericPageCard />, <GenericPageCard />,
+  const cards = [<OpportunitySearchPageCard />, <MyApplicationsPageCard />, <GenericPageCard />, <GenericPageCard />,
   <Box minHeight={300}>
     <GenericPageCard />
   </Box>
