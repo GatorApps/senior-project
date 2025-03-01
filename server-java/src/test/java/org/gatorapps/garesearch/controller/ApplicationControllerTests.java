@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,6 +47,7 @@ public class ApplicationControllerTests {
     public void getStuApplication_Valid() throws Exception {
         mockMvc.perform(get(applicationControllerRoute + "/single")
                         .param("applicationId", "67be553bd7565c4e30236224"))
+                .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.application").isNotEmpty())
                 .andExpect(jsonPath("$.payload.application.applicationId").value("67be553bd7565c4e30236224"));
@@ -55,6 +57,7 @@ public class ApplicationControllerTests {
     public void getStuApplication_ResourceNotFound() throws Exception {
         mockMvc.perform(get(applicationControllerRoute + "/single")
                         .param("applicationId", "111111111111111111111111"))
+                .andDo(print())
                 .andExpect(status().isNotFound()) // 404
                 .andExpect(jsonPath("$.errCode").value("ERR_RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.errMsg").value("Unable to process your request at this time"));
@@ -63,6 +66,7 @@ public class ApplicationControllerTests {
     @Test // @GetMapping("/single")
     public void getStuApplication_MissingParam() throws Exception {
         mockMvc.perform(get(applicationControllerRoute + "/single"))
+                .andDo(print())
                 .andExpect(status().isBadRequest()) // 400
                 .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
                 .andExpect(jsonPath("$.errMsg").value("Missing required req params: applicationId"));
@@ -73,9 +77,10 @@ public class ApplicationControllerTests {
     // @GetMapping("/applications")
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications()
 
-    @Test // @GetMapping("/applications")
+    @Test // @GetMapping("/studentList")
     public void getStuApplications_Valid() throws Exception {
         mockMvc.perform(get(applicationControllerRoute + "/studentList"))
+                .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.applications").isMap())
                 .andExpect(jsonPath("$.payload.applications.activeApplications").isArray())
@@ -91,7 +96,7 @@ public class ApplicationControllerTests {
 //            @RequestParam(value = "positionId", required = true) String positionId,
 //            @RequestParam(value = "saveApp", required = false) String saveApp)
     public void testSubmitApplication() throws Exception {
-        mockMvc.perform(post(applicationControllerRoute + "/stuList")
+        mockMvc.perform(post(applicationControllerRoute + "/submitApplication")
                         .param("positionId", "6797d2a79ecab28bd554866b")
                         .param("saveApp", "false"))
                 .andExpect(status().is4xxClientError())

@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,6 +38,7 @@ public class LabControllerTests {
     public void getPublicProfile_Valid() throws Exception {
         mockMvc.perform(get(labControllerRoute + "/single")
                         .param("labId", "6616be49511f9c6619446abb"))
+                .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.labPublicProfile").isNotEmpty())
                 .andExpect(jsonPath("$.payload.labPublicProfile.id").value("6616be49511f9c6619446abb"));
@@ -46,6 +48,7 @@ public class LabControllerTests {
     public void getPublicProfile_ResourceNotFound() throws Exception {
         mockMvc.perform(get(labControllerRoute + "/single")
                         .param("labId", "111111111111111111111111"))
+                .andDo(print())
                 .andExpect(status().isNotFound()) // 404
                 .andExpect(jsonPath("$.errCode").value("ERR_RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.errMsg").value("Unable to process your request at this time"));
@@ -54,6 +57,7 @@ public class LabControllerTests {
     @Test // @GetMapping("/single")
     public void getPublicProfile_MissingParam() throws Exception {
         mockMvc.perform(get(labControllerRoute + "/single"))
+                .andDo(print())
                 .andExpect(status().isBadRequest()) // 400
                 .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
                 .andExpect(jsonPath("$.errMsg").value("Missing required req params: labId"));

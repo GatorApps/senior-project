@@ -1,10 +1,13 @@
 package org.gatorapps.garesearch.service;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.search.SearchOptions;
-import com.mongodb.client.model.search.TextSearchOperator;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.UnwindOptions;
+import com.mongodb.client.model.search.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -23,10 +26,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PositionService {
@@ -40,52 +40,107 @@ public class PositionService {
 
     public List<Map> getSearchResults (String searchParams) throws Exception {
         try {
+            Bson searchStage = Aggregates.search(
+                    SearchOperator.compound()
+                            .should(List.of(
+                                    SearchOperator.autocomplete(SearchPath.fieldPath("name"), searchParams)
+                                            .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                    .maxEdits(2)
+                                                    .prefixLength(1)
+                                                    .maxExpansions(256)),
+                                    SearchOperator.autocomplete(SearchPath.fieldPath("description"), searchParams)
+                                            .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                    .maxEdits(2)
+                                                    .prefixLength(1)
+                                                    .maxExpansions(256))
+                            )),
+                    SearchOptions.searchOptions()
+                            .index("positionSearchIndex")
+                            .option("scoreDetails", true)
+            );
 
-//            List<Bson> pipeline = Arrays.asList(
-//                    Aggregates.search(
-//                            new Document("index", "positionSearchIndex") // Specify the Atlas Search index name
-//                                    .append("text", new Document("$search", searchParams))
-//                    )
-//            );
-//
-//            Aggregation aggregation = Aggregation.newAggregation(
-//                    Aggregation.match(
-//                            Criteria.where("$text").is(new Document("$search", searchParams).append("index", "positionSearchIndex"))
-//                    ),
-//                    Aggregation.project()
-//                            .andExpression("toObjectId(labId)").as("labIdObjectId")
-//                            .andExpression("{ $toString: '$_id' }").as("positionId")
-//                            .and("name").as("positionName")
-//                            .and("description").as("positionDescription"),
-//
-//                    // join with 'labs' collection
-//                    Aggregation.lookup(
-//                            "labs",      // Collection to join
-//                            "labIdObjectId",  // Local field
-//                            "_id",                 // Foreign field
-//                            "lab"             // Alias for the joined field
-//                    ),
-//                    // flatten 'lab' array
-//                    Aggregation.unwind("lab", true),
-//                    Aggregation.project()
-//                            .andInclude("positionId")
-//                            .andInclude("positionName")
-//                            .andInclude("positionDescription")
-//                            .and("lab.name").as("labName")
-//                            .andExclude("_id")
-//            );
+            List<Bson> pipeline = Arrays.asList(
+                    searchStage,
+                    Aggregates.project(Projections.fields(
+                            Projections.computed("labIdObjectId", new Document().append("$toObjectId", "$labId")),
+                            Projections.computed("positionId", new Document().append("$toString", "_id")),
+                            Projections.computed("positionName", "$name"),
+                            Projections.computed("positionDescription", "$description"),
+                            Projections.computed("score", new Document("$meta", "searchScore"))
+                            )),
+                    Aggregates.sort(Sorts.descending("score")),
+                    Aggregates.lookup(
+                            "labs",      // Collection to join
+                            "labIdObjectId",  // Local field
+                            "_id",            // Foreign field
+                            "lab"             // Alias for the joined field
+                    ),
+                    Aggregates.unwind("$lab", new UnwindOptions().preserveNullAndEmptyArrays(true)),
+                    Aggregates.project(Projections.fields(
+                            Projections.include("positionId", "positionName", "positionDescription"),
+                            Projections.computed("labName", "$lab.name"),
+                            Projections.excludeId()
+                    ))
+            );
 
-//            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
-//                    aggregation, "positions", Map.class);
+            AggregateIterable<Document> results = garesearchMongoTemplate.getCollection("positions").aggregate(pipeline);
 
-            AggregationResults<Document> results = garesearchMongoTemplate.aggregate(Aggregation.newAggregation(pipeline), "positions", Document.class);
+            // convert to List
+            List<Map> resultList = new ArrayList<>();
+            results.forEach(resultList::add);
 
-            if (results.getMappedResults().isEmpty()){
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+            if (resultList.isEmpty()){
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "No Positions found. Try Expanding your search terms");
             }
-            return results.getMappedResults();
+            return resultList;
         } catch (Exception e){
-            System.out.println(e.getMessage());
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
+
+    public List<Map> getSearchIndexerResults (String searchParams) throws Exception {
+        try {
+            Bson searchStage = Aggregates.search(
+                    SearchOperator.compound()
+                            .should(List.of(
+                                    SearchOperator.autocomplete(SearchPath.fieldPath("name"), searchParams)
+                                            .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                    .maxEdits(2)
+                                                    .prefixLength(1)
+                                                    .maxExpansions(256)),
+                                    SearchOperator.autocomplete(SearchPath.fieldPath("description"), searchParams)
+                                            .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                    .maxEdits(2)
+                                                    .prefixLength(1)
+                                                    .maxExpansions(256))
+                            )),
+                    SearchOptions.searchOptions()
+                            .index("positionSearchIndex")
+                            .option("scoreDetails", true)
+            );
+
+            List<Bson> pipeline = Arrays.asList(
+                    searchStage,
+                    Aggregates.sort(Sorts.descending("score")),
+                    Aggregates.project(Projections.fields(
+                            Projections.computed("positionId", new Document().append("$toString", "_id")),
+                            Projections.computed("positionName", "$name"),
+                            Projections.excludeId()
+                    ))
+            );
+
+            AggregateIterable<Document> results = garesearchMongoTemplate.getCollection("positions").aggregate(pipeline);
+
+            // convert to List
+            List<Map> resultList = new ArrayList<>();
+            results.forEach(resultList::add);
+
+            if (resultList.isEmpty()){
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "No Positions found. Try Expanding your search terms");
+            }
+            return resultList;
+        } catch (Exception e){
             throw new Exception("Unable to process your request at this time", e);
         }
     }

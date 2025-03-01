@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -43,6 +44,7 @@ public class ApplicantControllerTests {
     @Test // @GetMapping("/profile")
     public void testGetApplicantProfile() throws Exception {
         mockMvc.perform(get(applicantControllerRoute+"/profile"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errCode").value("0"))
                 .andExpect(jsonPath("$.payload.applicantProfile.data").exists()) // can make more specific like opid once that is figured out
@@ -88,6 +90,7 @@ public class ApplicantControllerTests {
         mockMvc.perform(put(applicantControllerRoute + "/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))  // Mock the request body
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errCode").value("0"))
                 .andExpect(jsonPath("$.payload").doesNotExist());

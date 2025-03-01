@@ -24,8 +24,22 @@ public class PositionController {
      */
     @GetMapping("/searchList")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(@RequestParam(value = "searchParams") String searchParams) throws Exception {
-
         List<Map> positions = positionService.getSearchResults(searchParams);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "positions", positions);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        response.payload returns: list of positions. similar to above, but only returns position id , name
+     */
+    @GetMapping("/searchIndexer")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchIndexerResults(@RequestParam(value = "searchParams") String searchParams) throws Exception {
+        List<Map> positions = positionService.getSearchIndexerResults(searchParams);
 
         Map<String, Object> payloadResponse = Map.of(
                 "positions", positions);
