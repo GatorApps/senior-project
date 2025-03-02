@@ -1,6 +1,8 @@
 package org.gatorapps.garesearch.controller;
 
+import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.PositionService;
@@ -88,17 +90,17 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /*
+        may be tweaked in future, but is working. created to set up rawDescription field
+            (description --- remove html tags ---> rawDescription)
+     */
     @PostMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> createPositionPosting(){
-        // Position position = positionService.createPosting();
-        Position position = new Position();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "positionPosting", position);
+    public ResponseEntity<ApiResponse<Void>> createPositionPosting(@RequestBody Position position) throws Exception {
+        positionService.createPosting(position);
+        //Position position = new Position();
 
         // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

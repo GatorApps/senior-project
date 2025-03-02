@@ -14,6 +14,7 @@ import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
+import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
@@ -37,6 +38,9 @@ public class PositionService {
     @Qualifier("garesearchMongoTemplate")
     private MongoTemplate garesearchMongoTemplate;
 
+    @Autowired
+    private ValidationUtil validationUtil;
+
 
     public List<Map> getSearchResults (String searchParams) throws Exception {
         try {
@@ -48,7 +52,7 @@ public class PositionService {
                                                     .maxEdits(2)
                                                     .prefixLength(1)
                                                     .maxExpansions(256)),
-                                    SearchOperator.autocomplete(SearchPath.fieldPath("description"), searchParams)
+                                    SearchOperator.autocomplete(SearchPath.fieldPath("rawDescription"), searchParams)
                                             .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
                                                     .maxEdits(2)
                                                     .prefixLength(1)
@@ -109,7 +113,7 @@ public class PositionService {
                                                     .maxEdits(2)
                                                     .prefixLength(1)
                                                     .maxExpansions(256)),
-                                    SearchOperator.autocomplete(SearchPath.fieldPath("description"), searchParams)
+                                    SearchOperator.autocomplete(SearchPath.fieldPath("rawDescription"), searchParams)
                                             .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
                                                     .maxEdits(2)
                                                     .prefixLength(1)
@@ -158,10 +162,20 @@ public class PositionService {
     }
 
 
-    public Optional<Position> createPosting (Position position){
+    public void createPosting (Position position) throws Exception {
         // TODO
 
-        return Optional.of(positionRepository.save(position));
+        try {
+            position.setRawDescription(position.getDescription());
+            position.setPostedTimeStamp();
+
+            // manual command to validate because JPA annotations do not get checked on .save
+            validationUtil.validate(position);
+
+            positionRepository.save(position);
+        } catch (Exception e){
+            throw new Exception("Unable to process your request at this time", e);
+        }
     }
 
     public Optional<Position> updatePosting (Position position){
