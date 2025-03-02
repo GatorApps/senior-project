@@ -63,7 +63,7 @@ public class PositionService {
                     searchStage,
                     Aggregates.project(Projections.fields(
                             Projections.computed("labIdObjectId", new Document().append("$toObjectId", "$labId")),
-                            Projections.computed("positionId", new Document().append("$toString", "_id")),
+                            Projections.computed("positionId", new Document().append("$toString", "$_id")),
                             Projections.computed("positionName", "$name"),
                             Projections.computed("positionDescription", "$description"),
                             Projections.computed("score", new Document("$meta", "searchScore"))
@@ -124,7 +124,7 @@ public class PositionService {
                     searchStage,
                     Aggregates.sort(Sorts.descending("score")),
                     Aggregates.project(Projections.fields(
-                            Projections.computed("positionId", new Document().append("$toString", "_id")),
+                            Projections.computed("positionId", new Document().append("$toString", "$_id")),
                             Projections.computed("positionName", "$name"),
                             Projections.excludeId()
                     ))
