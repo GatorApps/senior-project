@@ -3,8 +3,9 @@ package org.gatorapps.garesearch.repository.account;
 import org.gatorapps.garesearch.model.account.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UserRepository extends MongoRepository<User, String> {
-    // Custom query methods can be defined here if needed
+import java.util.Optional;
 
+public interface UserRepository extends MongoRepository<User, String> {
     boolean existsByOpid(String opid);
+    Optional<User> findByOpid(String opid);
 }

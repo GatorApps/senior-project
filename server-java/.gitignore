@@ -30,7 +30,10 @@ build/
 !**/src/test/**/build/
 
 ### application.properties ###
-src/main/resources/
+src/main/resources/application.properties
+
+### private key ###
+src/main/resources/keystore.p12
 
 ### VS Code ###
 .vscode/
