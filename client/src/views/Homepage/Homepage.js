@@ -11,11 +11,7 @@ import MyApplicationsPageCard from '../../views/MyApplicationsPage/MyApplication
 const Homepage = () => {
   const userInfo = useSelector((state) => state.auth.userInfo);
 
-  const cards = [<OpportunitySearchPageCard />, <MyApplicationsPageCard />, <GenericPageCard />, <GenericPageCard />,
-  <Box minHeight={300}>
-    <GenericPageCard />
-  </Box>
-    , <GenericPageCard />, <GenericPageCard />, <GenericPageCard />];
+  const cards = [<OpportunitySearchPageCard />, <MyApplicationsPageCard />, <GenericPageCard />];
 
   return (
     <HelmetComponent>

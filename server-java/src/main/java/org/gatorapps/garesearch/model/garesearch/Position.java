@@ -45,8 +45,11 @@ public class Position {
     private Date postedTimeStamp;
 
     @Field("status")
-    @Pattern(regexp = "draft|open|closed", message = "Position status must be one of 'draft', 'open', 'closed'")
+    @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'")
     private String status;
+
+    @Field("positionSpecificSupplements")
+    private String positionSpecificSupplements;
 
     public void setDescription(String description) {
         this.description = description;
@@ -60,11 +63,4 @@ public class Position {
     public void setPostedTimeStamp(){
         this.postedTimeStamp = new Date();
     }
-
-//    public void setPostedTimeStamp(String status){
-//        if (status.equals("open")){
-//            this.postedTimeStamp = new Date();
-//        }
-//    }
-
 }

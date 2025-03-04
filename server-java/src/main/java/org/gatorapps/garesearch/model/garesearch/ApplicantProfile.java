@@ -33,7 +33,6 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     @NotNull(message = "lastUpdateTimeStamp is required")
     private Date lastUpdateTimeStamp;
 
-
     public void setLastUpdateTimeStampToNow() {
         this.lastUpdateTimeStamp = new Date();
     }
