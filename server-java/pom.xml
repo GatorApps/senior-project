@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.gatorapps</groupId>
-	<artifactId>templateapp</artifactId>
+	<artifactId>garesearch</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>templateapp</name>
-	<description>GatorApps Template App</description>
+	<name>RESEARCH.UF</name>
+	<description>RESEARCH.UF</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -76,6 +76,27 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.18.2</version>
 		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
