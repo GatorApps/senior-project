@@ -8,16 +8,10 @@ import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.model.global.Session;
 import org.gatorapps.garesearch.model.global.SessionAttributes;
 import org.gatorapps.garesearch.repository.account.UserRepository;
-import org.gatorapps.garesearch.repository.global.AppRepository;
 import org.gatorapps.garesearch.repository.global.SessionRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -28,7 +22,6 @@ import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.Date;
 import java.util.Optional;
 
 import javax.crypto.Mac;
