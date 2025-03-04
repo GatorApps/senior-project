@@ -1,10 +1,14 @@
 package org.gatorapps.garesearch.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
+import org.gatorapps.garesearch.model.account.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +34,7 @@ public class renderClientController {
     }
 
     @GetMapping("/leftMenuItems")
-    public ResponseEntity<Map<String, Object>> getLeftMenuItems() {
+    public ResponseEntity<Map<String, Object>> getLeftMenuItems(HttpServletRequest request) {
         List<Map<String, Object>> demoLeftMenuItems = List.of(
                 Map.of(
                         "heading", "Heading 1",
@@ -78,20 +82,39 @@ public class renderClientController {
                 )
         );
 
-        List<Map<String, Object>> leftMenuItems = List.of(
-                Map.of(
-                        "heading", "Student",
-                        "items", List.of(
-                                Map.of("label", "Dashboard", "route", "/?t=student")
-                        )
-                ),
-                Map.of(
-                        "heading", "Faculty",
-                        "items", List.of(
-                                Map.of("label", "Dashboard", "route", "/?t=faculty")
-                        )
-                )
-        );
+        List<Map<String, Object>> leftMenuItems = new ArrayList<>();
+
+        // Render menu items based on user roles
+        ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth");
+        if (userAuth != null) {
+            User authedUser = userAuth.getAuthedUser();
+            if (authedUser != null) {
+                List<Integer> userRoles = authedUser.getRoles();
+                // Students
+                if (userRoles.contains(500201)) {
+                    leftMenuItems.add(
+                            Map.of(
+                                    "heading", "Student",
+                                    "items", List.of(
+                                            Map.of("label", "Dashboard", "route", "/?t=student")
+                                    )
+                            )
+
+                    );
+                }
+                // Faculty
+                if (userRoles.contains(500301)) {
+                    leftMenuItems.add(
+                            Map.of(
+                                    "heading", "Faculty",
+                                    "items", List.of(
+                                            Map.of("label", "Dashboard", "route", "/?t=faculty")
+                                    )
+                            )
+                    );
+                }
+            }
+        }
 
         // Constructs response
         Map<String, Object> responsePayload;

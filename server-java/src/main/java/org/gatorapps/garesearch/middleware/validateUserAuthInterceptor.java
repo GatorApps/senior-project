@@ -130,7 +130,32 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
         // Parse session attributes string
         String sessionAttributesString = session.getSession();
         SessionAttributes sessionAttributes = objectMapper.readValue(sessionAttributesString, SessionAttributes.class);
-        System.out.println(sessionAttributes.getUserAuth().getOpid());
+        String opid = sessionAttributes.getUserAuth().getOpid();
+        String token = sessionAttributes.getUserAuth().getToken();
+        if (opid == null || token == null) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user auth session")));
+            return true;
+        }
+
+        // TODO: Validate user auth token signature
+
+        // TODO: Check opid, sessionID in user auth token matches
+
+        // TODO: Check session is associated with foundUser
+
+        // Fetch user with opid
+        Optional<User> foundUser = userRepository.findByOpid(opid);
+        if (foundUser.isEmpty()) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user auth session")));
+            return true;
+        }
+
+        // TODO: Check signInTimeStamp match as stored with foundUser
+
+        // TODO: Check auth has not expired
+
+        // Save authed user to request attribute
+        request.setAttribute("userAuth", new UserAuth(foundUser.get(), new AuthError("0")));
 
         return true;
 

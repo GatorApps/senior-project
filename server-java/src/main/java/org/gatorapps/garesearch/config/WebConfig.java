@@ -29,8 +29,5 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(100001))))
                 .addPathPatterns("/appApi/garesearch/posting/searchList", "/appApi/garesearch/application/studentList");
-
-        registry.addInterceptor(new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(100001))))
-                .addPathPatterns("/appApi/garesearch/renderClient/leftMenuItems");
     }
 }
