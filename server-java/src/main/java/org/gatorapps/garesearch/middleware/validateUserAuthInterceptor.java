@@ -1,10 +1,15 @@
 package org.gatorapps.garesearch.middleware;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import lombok.Getter;
 import org.gatorapps.garesearch.config.AppConfig;
 import org.gatorapps.garesearch.model.account.User;
+import org.gatorapps.garesearch.model.global.Session;
+import org.gatorapps.garesearch.model.global.SessionAttributes;
 import org.gatorapps.garesearch.repository.account.UserRepository;
+import org.gatorapps.garesearch.repository.global.AppRepository;
+import org.gatorapps.garesearch.repository.global.SessionRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
@@ -32,15 +37,17 @@ import javax.crypto.spec.SecretKeySpec;
 @Component
 public class ValidateUserAuthInterceptor implements HandlerInterceptor {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
     private AppConfig appConfig;
 
     private final UserRepository userRepository;
-//    private final PublicKey publicKey;
+    private final SessionRepository sessionRepository;
 
-    public ValidateUserAuthInterceptor(UserRepository userRepository, @Value("${app.user.auth.token.public-key}") String publicKeyStr) throws Exception {
+    public ValidateUserAuthInterceptor(UserRepository userRepository, SessionRepository sessionRepository) throws Exception {
         this.userRepository = userRepository;
-//        this.publicKey = loadPublicKey(publicKeyStr);
+        this.sessionRepository = sessionRepository;
     }
 
     public static PublicKey loadPublicKey(String key) throws GeneralSecurityException {
@@ -105,8 +112,6 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
         }
         String sessionId = parts[0];
         String signature = parts[1];
-        System.out.println(sessionId);
-        System.out.println(signature);
 
         // Verify Signature
         if (!verifySignature(sessionId, signature)) {
@@ -114,15 +119,21 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // Fetch session with sessionId
+        Optional<Session> foundSession = sessionRepository.findById(sessionId);
+        if (foundSession.isEmpty()) {
+            request.setAttribute("userAuth", new UserAuth(null, new AuthError(403, "-", "Invalid user auth session")));
+            return true;
+        }
+        Session session = foundSession.get();
+
+        // Parse session attributes string
+        String sessionAttributesString = session.getSession();
+        SessionAttributes sessionAttributes = objectMapper.readValue(sessionAttributesString, SessionAttributes.class);
+        System.out.println(sessionAttributes.getUserAuth().getOpid());
+
         return true;
 
-//        // Simulating `userAuth` being injected into request (assume provided)
-//        UserAuth userAuth = (UserAuth) request.getAttribute("userAuth");
-//        if (userAuth == null) {
-//            request.setAttribute("userAuth", new AuthResponse(403, "-", "Session missing userAuth info"));
-//            return true;
-//        }
-//
 //        String opid = userAuth.getOpid();
 //        String userAuthToken = userAuth.getToken();
 //        if (opid == null || userAuthToken == null) {
