@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -36,9 +37,14 @@ public class ApplicantControllerTests {
 
     // TODO : write tests expecting exceptions and stuff
 
-    @Test // @GetMapping("/profile") getApplicantProfile()
+    /*------------------------- getApplicantProfile -------------------------*/
+
+    // @GetMapping("/profile") getApplicantProfile()
+
+    @Test // @GetMapping("/profile")
     public void testGetApplicantProfile() throws Exception {
         mockMvc.perform(get(applicantControllerRoute+"/profile"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errCode").value("0"))
                 .andExpect(jsonPath("$.payload.applicantProfile.data").exists()) // can make more specific like opid once that is figured out
@@ -63,8 +69,13 @@ public class ApplicantControllerTests {
      */
 
 
+    /*------------------------- updateApplicantProfile -------------------------*/
+
+    // @PutMapping("/profile")
+    //      public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(
+    //          @Valid @RequestBody ApplicantProfile applicantProfile)
+
     @Test // @PutMapping("/profile")
-    //public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@Valid @RequestBody ApplicantProfile applicantProfile)
     public void testPutApplicantProfile() throws Exception {
         ApplicantProfile applicantProfile = new ApplicantProfile();
         applicantProfile.setOpid("127ad6f9-a0ff-4e3f-927f-a70b64c542e4");
@@ -79,38 +90,10 @@ public class ApplicantControllerTests {
         mockMvc.perform(put(applicantControllerRoute + "/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))  // Mock the request body
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errCode").value("0"))
                 .andExpect(jsonPath("$.payload").doesNotExist());
 
     }
-
-    @Test // @GetMapping("/applications")
-    // public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(
-    //          @RequestParam(required=true)
-    //          @Pattern(regexp = "saved|active|inactive", message = "Status must be one of 'saved', 'active', 'inactive'")
-    //          String status )
-    public void testGetStudentApplications() throws Exception {
-        mockMvc.perform(get(applicantControllerRoute + "/applications")
-                        .param("status", "active"))
-                .andExpect(status().isOk())  // Check for HTTP 200 OK
-                .andExpect(jsonPath("$.payload.applications").isArray());
-        // TODO : looks correct . but write actual check for correct structure.
-    }
-
-
-    // TODO : write tests for each case of submit . (and label what case is what)
-    @Test // @PostMapping("/application")
-//    public ResponseEntity<ApiResponse<Void>> submitApplication(
-//            @RequestParam(value = "positionId", required = true) String positionId,
-//            @RequestParam(value = "saveApp", required = false) String saveApp)
-    public void testSubmitApplication() throws Exception {
-        mockMvc.perform(post(applicantControllerRoute + "/application")
-                        .param("positionId", "6797d2a79ecab28bd554866b")
-                        .param("saveApp", "false"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errCode").value("-"));
-    }
-
-
 }

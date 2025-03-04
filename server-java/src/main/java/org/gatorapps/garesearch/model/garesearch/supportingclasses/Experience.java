@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.model.garesearch.supportingclasses;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.gatorapps.garesearch.validators.EndDateValid;
@@ -19,7 +20,7 @@ public class Experience {
     private String employer;
 
     @Field("startDate")
-    @NotBlank(message = "startDate is required")
+    @NotNull(message = "startDate is required")
     private Date startDate;
 
     @Field("endDate")

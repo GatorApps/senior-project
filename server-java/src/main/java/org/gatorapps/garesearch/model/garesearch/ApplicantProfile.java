@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.BaseApplicationProfileSchema;
 import org.gatorapps.garesearch.validators.OpidExists;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -27,6 +28,7 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     @OpidExists // note: must use @Valid annotation when writing ApplicantProfile profile in controller for example
     private String opid;
 
+    @LastModifiedDate
     @Field("lastUpdateTimeStamp")
     @NotNull(message = "lastUpdateTimeStamp is required")
     private Date lastUpdateTimeStamp;

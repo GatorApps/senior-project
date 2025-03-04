@@ -1,11 +1,13 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.BaseApplicationProfileSchema;
 import org.gatorapps.garesearch.validators.OpidExists;
 import org.gatorapps.garesearch.validators.PositionIdExists;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -33,8 +35,9 @@ public class Application extends BaseApplicationProfileSchema {
     @PositionIdExists
     private String positionId;
 
+    @CreatedDate
     @Field("submissionTimeStamp")
-    @NotBlank(message = "submissionTimeStamp is required")
+    @NotNull(message = "submissionTimeStamp is required")
     private Date submissionTimeStamp;
 
     @Field("status")

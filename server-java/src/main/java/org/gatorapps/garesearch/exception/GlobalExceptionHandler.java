@@ -3,6 +3,7 @@ package org.gatorapps.garesearch.exception;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ConstraintViolation;
 import org.gatorapps.garesearch.dto.ErrorResponse;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -10,13 +11,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -60,8 +63,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse<Void>> handleMissingParamsException(MissingServletRequestParameterException ex) {
         String paramName = ex.getParameterName();
         ErrorResponse<Void> errResponse = new ErrorResponse<>("ERR_REQ_MISSING_REQUIRED_PARAM", "Missing required req params: " + paramName);
-        return new ResponseEntity<>(errResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
     }
+
+    // when @RequestParam is found invalid (example: the @Pattern check for getStudentApplications in ApplicationController)
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse<Void>> handleMethodValidationExceptions(HandlerMethodValidationException ex) {
+        String errMessage = ex.getAllValidationResults().stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(MessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+
+        ErrorResponse<Void> errResponse = new ErrorResponse<>("ERR_INPUT_FAIL_VALIDATION", errMessage);
+
+        return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse<Void>> handleGenericException(Exception ex){

@@ -3,8 +3,10 @@ package org.gatorapps.garesearch.model.garesearch;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.bson.types.ObjectId;
+
 import org.gatorapps.garesearch.validators.LabIdExists;
+import org.jsoup.Jsoup;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -35,6 +37,9 @@ public class Position {
     @Field("description")
     private String description;
 
+    @Field("rawDescription")
+    private String rawDescription;
+
     @Field("postedTimeStamp")
     @NotNull(message = "Posted timestamp is required")
     private Date postedTimeStamp;
@@ -42,4 +47,24 @@ public class Position {
     @Field("status")
     @Pattern(regexp = "draft|open|closed", message = "Position status must be one of 'draft', 'open', 'closed'")
     private String status;
+
+    public void setDescription(String description) {
+        this.description = description;
+        this.rawDescription = Jsoup.parse(description).text();
+    }
+
+    public void setRawDescription(String description) {
+        this.rawDescription = Jsoup.parse(description).text();
+    }
+
+    public void setPostedTimeStamp(){
+        this.postedTimeStamp = new Date();
+    }
+
+//    public void setPostedTimeStamp(String status){
+//        if (status.equals("open")){
+//            this.postedTimeStamp = new Date();
+//        }
+//    }
+
 }

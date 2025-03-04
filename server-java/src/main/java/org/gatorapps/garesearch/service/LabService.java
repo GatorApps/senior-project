@@ -1,5 +1,7 @@
 package org.gatorapps.garesearch.service;
 
+import org.gatorapps.garesearch.exception.ResourceNotFoundException;
+import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,9 @@ public class LabService {
     @Autowired
     LabRepository labRepository;
 
-    public Optional<Lab> getPublicProfile (String id){
-        // TODO
-
-        return labRepository.findById(id);
+    public Lab getPublicProfile (String id){
+        return labRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
     }
 
     public Optional<Lab> getProfile (String id){

@@ -24,6 +24,12 @@ public class ApplicantController {
     @Autowired
     ApplicationService applicationService;
 
+
+    /*
+        follows old logic
+
+        response.payload returns: applicant profile and update endpoint route ?
+     */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicantProfile(){
         ApplicantProfile applicant = applicantService.getProfileById();
@@ -60,38 +66,16 @@ public class ApplicantController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    /*
+        follows old logic
+
+        no payload
+     */
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@RequestBody ApplicantProfile applicantProfile) throws Exception {
 
         applicantService.updateProfileById(applicantProfile);
-
-        ApiResponse<Void> response = new ApiResponse<>("0");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    // TODO : test all routes below
-
-    @GetMapping("/applications")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(
-            @RequestParam(required=true)
-            @Pattern(regexp = "saved|active|inactive", message = "Status must be one of 'saved', 'active', 'inactive'")
-            String status ) throws Exception {
-
-        List<Map> foundApplications = applicationService.getStudentApplications(status);
-
-        Map<String, Object> payloadResponse = Map.of(
-                "applications", foundApplications);
-
-        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/application")
-    public ResponseEntity<ApiResponse<Void>> submitApplication(
-            @RequestParam(value = "positionId", required = true) String positionId,
-            @RequestParam(value = "saveApp", required = false) String saveApp) throws Exception {
-
-        applicationService.submitApplication(positionId, saveApp);
 
         ApiResponse<Void> response = new ApiResponse<>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
