@@ -25,7 +25,7 @@ public class PositionController {
         response.payload returns: list of positions
      */
     @GetMapping("/searchList")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(@RequestParam(value = "searchParams") String searchParams) throws Exception {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(@RequestParam(value = "q") String searchParams) throws Exception {
         List<Map> positions = positionService.getSearchResults(searchParams);
 
         Map<String, Object> payloadResponse = Map.of(
@@ -40,7 +40,7 @@ public class PositionController {
         response.payload returns: list of positions. similar to above, but only returns position id , name
      */
     @GetMapping("/searchIndexer")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchIndexerResults(@RequestParam(value = "searchParams") String searchParams) throws Exception {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchIndexerResults(@RequestParam(value = "q") String searchParams) throws Exception {
         List<Map> positions = positionService.getSearchIndexerResults(searchParams);
 
         Map<String, Object> payloadResponse = Map.of(
@@ -54,19 +54,15 @@ public class PositionController {
 
 
     /*
-        follows old logic
-
         response.payload returns: position by positionId
-
-        will likely need update to join with Lab or something
      */
-    @GetMapping("/single")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(@RequestParam(value = "positionId", required = true) String positionId){
+    @GetMapping
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(@RequestParam(value = "positionId", required = true) String positionId) throws Exception {
 
-        Position position = positionService.getPublicPosting(positionId);
+        Map position = positionService.getPublicPosting(positionId);
 
         Map<String, Object> payloadResponse = Map.of(
-                "positionPublicPosting", position);
+                "position", position);
 
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 

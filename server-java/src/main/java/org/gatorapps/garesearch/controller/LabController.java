@@ -17,18 +17,18 @@ public class LabController {
     LabService labService;
 
     /*
-        follows old logic
-
-        response.payload returns: lab profile
-
-        will likely need update to join with positions or something
+        response.payload returns: lab profile by labId
      */
-    @GetMapping("/single")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabPublicProfile(@RequestParam(value = "labId", required = true) String labId){
-        Lab lab = labService.getPublicProfile(labId);
+    @GetMapping
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabPublicProfile(@RequestParam(value = "labId", required = true) String labId) throws Exception {
+        Map lab = labService.getPublicProfile(labId);
 
         Map<String, Object> payloadResponse = Map.of(
-                "labPublicProfile", lab);
+                "lab", lab);
+
+//        Map<String, Object> payloadResponse = Map.of(
+//                "lab", lab.get("_id"),
+//                "positions", lab.get("positions"));
 
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 
