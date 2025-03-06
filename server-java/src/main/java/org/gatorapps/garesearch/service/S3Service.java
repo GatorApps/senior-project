@@ -80,7 +80,7 @@ public class S3Service {
 
         s3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
 
-        return s3Client.getUrl(bucketName, fileName).toString(); // Return file URL
+        return fileName;
     }
 
 }

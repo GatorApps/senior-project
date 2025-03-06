@@ -1,12 +1,12 @@
 package org.gatorapps.garesearch.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
+import jakarta.servlet.http.HttpServletRequest;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.dto.ErrorResponse;
 import org.gatorapps.garesearch.exception.FileValidationException;
+import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
-import org.gatorapps.garesearch.model.garesearch.Application;
+import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
 import org.gatorapps.garesearch.service.S3Service;
@@ -16,9 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/appApi/garesearch/applicant")
@@ -28,6 +28,9 @@ public class ApplicantController {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    private ApplicantProfileRepository applicantProfileRepository;
 
     private final S3Service s3Service;
 
@@ -93,16 +96,28 @@ public class ApplicantController {
 
 
     @PostMapping("/resume")
-    public ResponseEntity<?> uploadApplicantResume(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadApplicantResume(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
         try {
-            String fileUrl = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880);
-            ApiResponse<String> response = new ApiResponse<>("0", "{\"fileUrl\": \"" + fileUrl + "\"}");
+            // Fetch applicant profile
+            ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth");
+            // TODO: case when profile doesn't exist
+            Optional<ApplicantProfile> applicantProfileOptional = applicantProfileRepository.findByOpid(userAuth.getAuthedUser().getOpid());
+            ApplicantProfile applicantProfile = applicantProfileOptional.orElseThrow(() -> new RuntimeException("Applicant profile not found"));
+
+            // Upload file to S3
+            String fileName = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880);
+
+            // Update applicant profile
+            applicantProfile.setResume(fileName);
+            applicantProfile.setResumeLastUpdateTimeStampToNow();
+            applicantProfileRepository.save(applicantProfile);
+
+            ApiResponse<String> response = new ApiResponse<>("0", "{\"resume\": \"" + fileName + "\"}");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (FileValidationException e) {
             ErrorResponse<String> response = new ErrorResponse<>("-",  e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            System.out.println(e);
             ErrorResponse<Void> response = new ErrorResponse<>("-", "Unable to upload file: %s".formatted(e.getMessage()));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
