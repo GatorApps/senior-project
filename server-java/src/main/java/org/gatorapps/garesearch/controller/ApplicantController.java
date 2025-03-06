@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.dto.ErrorResponse;
+import org.gatorapps.garesearch.exception.FileValidationException;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.service.ApplicantService;
@@ -94,15 +95,14 @@ public class ApplicantController {
     @PostMapping("/resume")
     public ResponseEntity<?> uploadApplicantResume(@RequestParam("file") MultipartFile file) {
         try {
-            if (!file.getContentType().equals("application/pdf")) {
-                ErrorResponse<Void> response = new ErrorResponse<>("-", "Invalid file type. Only PDF files are allowed");
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
-
-            String fileUrl = s3Service.uploadFile(file, List.of("pdf"), null);
+            String fileUrl = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880);
             ApiResponse<String> response = new ApiResponse<>("0", "{\"fileUrl\": \"" + fileUrl + "\"}");
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (IOException e) {
+        } catch (FileValidationException e) {
+            ErrorResponse<String> response = new ErrorResponse<>("-",  e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            System.out.println(e);
             ErrorResponse<Void> response = new ErrorResponse<>("-", "Unable to upload file: %s".formatted(e.getMessage()));
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
