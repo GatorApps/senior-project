@@ -26,10 +26,6 @@ public class LabController {
         Map<String, Object> payloadResponse = Map.of(
                 "lab", lab);
 
-//        Map<String, Object> payloadResponse = Map.of(
-//                "lab", lab.get("_id"),
-//                "positions", lab.get("positions"));
-
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 
         return new ResponseEntity<>(response, HttpStatus.OK);

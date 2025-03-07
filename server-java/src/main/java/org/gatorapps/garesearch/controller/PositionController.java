@@ -1,9 +1,6 @@
 package org.gatorapps.garesearch.controller;
 
-import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
-import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
-import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +16,22 @@ import java.util.Map;
 public class PositionController {
     @Autowired
     PositionService positionService;
+
+    /*
+        response.payload returns: position by positionId
+     */
+    @GetMapping
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(@RequestParam(value = "positionId", required = true) String positionId) throws Exception {
+
+        Map position = positionService.getPublicPosting(positionId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "position", position);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
     /*
@@ -51,23 +64,6 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-
-    /*
-        response.payload returns: position by positionId
-     */
-    @GetMapping
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(@RequestParam(value = "positionId", required = true) String positionId) throws Exception {
-
-        Map position = positionService.getPublicPosting(positionId);
-
-        Map<String, Object> payloadResponse = Map.of(
-                "position", position);
-
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
     // TODO : all of these below
 

@@ -50,7 +50,7 @@ public class ApplicationController {
      */
     @GetMapping("/studentList")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(HttpServletRequest request) throws Exception {
-        List<Map> foundApplications = applicationService.getStudentApplications(userAuthUtil.retrieveOpid(request), );
+        List<Map> foundApplications = applicationService.getStudentApplications(userAuthUtil.retrieveOpid(request));
 
         List<Map> submittedApps = foundApplications.stream()
                 .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))

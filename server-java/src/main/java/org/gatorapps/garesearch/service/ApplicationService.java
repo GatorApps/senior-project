@@ -1,7 +1,6 @@
 package org.gatorapps.garesearch.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.ValidationException;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
@@ -9,7 +8,6 @@ import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Application;
-import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
@@ -25,9 +23,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
-import java.nio.charset.MalformedInputException;
 import java.util.*;
 
 @Service
@@ -62,9 +58,6 @@ public class ApplicationService {
     // TODO : write in the manual validation commands where needed
 
     public Map getStudentApplication (String opid, String applicationId) throws Exception {
-        // TODO : retrieving opid from spring security or something
-        String opid = "127ad6f9-a0ff-4e3f-927f-a70b64c542e4";
-
         // find by both opid and applicationId to ensure correct user is accessing the application
         try {
             // must match 'opid'
@@ -117,6 +110,9 @@ public class ApplicationService {
             }
             return results.getMappedResults().get(0);
         } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
             throw new Exception("Unable to process your request at this time", e);
         }
     }

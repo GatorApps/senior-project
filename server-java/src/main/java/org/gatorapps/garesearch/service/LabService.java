@@ -2,14 +2,12 @@ package org.gatorapps.garesearch.service;
 
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
-import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
@@ -79,7 +77,9 @@ public class LabService {
             lab.put("positions", results.getMappedResults().get(0).get("positions"));
             return lab;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
             throw new Exception("Unable to process your request at this time", e);
         }
 

@@ -1,25 +1,25 @@
 package org.gatorapps.garesearch.controller;
 
-import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.config.RestDocsConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Map;
-
+import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource("classpath:application-test.properties")
+@AutoConfigureRestDocs(outputDir="target/generated-snippets")
 public class PositionControllerTests {
 
     @Autowired
@@ -38,10 +38,13 @@ public class PositionControllerTests {
     @Test // @GetMapping("/searchList")
     public void getSearchResults_Valid() throws Exception {
         mockMvc.perform(get(positionControllerRoute + "/searchList")
-                        .param("searchParams", "lu"))
+                        .param("q", "lu")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.positions").isArray());
+                .andExpect(jsonPath("$.payload.positions").isArray())
+                .andDo(RestDocsConfig.getDefaultDocHandler("position-get-searchResults"));
     }
 
     /*------------------------- getSearchIndexerResults -------------------------*/
@@ -52,34 +55,41 @@ public class PositionControllerTests {
     @Test // @GetMapping("/searchList")
     public void getSearchIndexerResults_Valid() throws Exception {
         mockMvc.perform(get(positionControllerRoute + "/searchIndexer")
-                        .param("searchParams", "lu 8"))
+                        .param("q", "lu 8")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.positions").isArray());
+                .andExpect(jsonPath("$.payload.positions").isArray())
+                .andDo(RestDocsConfig.getDefaultDocHandler("position-get-searchResults_Indexer"));
     }
 
 
     /*------------------------- getPositionPublicPosting -------------------------*/
 
-    // @GetMapping("/single")
+    // @GetMapping
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPublicPosting(
     //          @RequestParam(value = "positionId", required = true) String positionId)
 
-    @Test // @GetMapping("/single")
+    @Test // @GetMapping
     public void getPublicPosting_Valid() throws Exception {
-        mockMvc.perform(get(positionControllerRoute + "/single")
-                        .param("positionId", "6622b8fcceb54473205d08bf"))
+        mockMvc.perform(get(positionControllerRoute)
+                        .param("positionId", "67c3c01ab87e185493ae9c10")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.positionPublicPosting").isNotEmpty())
-                .andExpect(jsonPath("$.payload.positionPublicPosting.id").value("6622b8fcceb54473205d08bf"));
+                .andExpect(jsonPath("$.payload.position").isNotEmpty())
+                .andExpect(jsonPath("$.payload.position.positionId").value("67c3c01ab87e185493ae9c10"))
+                .andDo(RestDocsConfig.getDefaultDocHandler("position-get-posting-by-id"));
     }
 
-
-    @Test // @GetMapping("/single")
+    @Test // @GetMapping
     public void getPublicPosting_ResourceNotFound() throws Exception {
-        mockMvc.perform(get(positionControllerRoute + "/single")
-                        .param("positionId", "111111111111111111111111"))
+        mockMvc.perform(get(positionControllerRoute)
+                        .param("positionId", "111111111111111111111111")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isNotFound()) // 404
                 .andExpect(jsonPath("$.errCode").value("ERR_RESOURCE_NOT_FOUND"))
@@ -88,7 +98,9 @@ public class PositionControllerTests {
 
     @Test // @GetMapping("/single")
     public void getPublicPosting_MissingParam() throws Exception {
-        mockMvc.perform(get(positionControllerRoute + "/single"))
+        mockMvc.perform(get(positionControllerRoute)
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isBadRequest()) // 400
                 .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
@@ -96,6 +108,10 @@ public class PositionControllerTests {
     }
 
     /*------------------------- controller function -------------------------*/
+    // @_____Mapping
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> functionName(
+    //          @RequestParam(value = "example", required = true) String example)
+
 
 
 }
