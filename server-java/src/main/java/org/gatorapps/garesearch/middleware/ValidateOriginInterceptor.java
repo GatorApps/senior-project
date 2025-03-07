@@ -30,7 +30,6 @@ public class ValidateOriginInterceptor implements HandlerInterceptor {
             response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Missing requesting app\"}");
             return false;
         }
-
         // Fetch app details from MongoDB
         Optional<App> foundApp = appRepository.findByName(requestingApp);
 

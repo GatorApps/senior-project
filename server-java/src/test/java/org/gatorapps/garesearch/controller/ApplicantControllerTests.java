@@ -1,26 +1,26 @@
 package org.gatorapps.garesearch.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Valid;
-import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.config.RestDocsConfig;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.Education;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.*;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
-import java.util.Map;
 
-import static org.mockito.Mockito.when;
+import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource("classpath:application-test.properties")
+@AutoConfigureRestDocs(outputDir="target/generated-snippets")
 public class ApplicantControllerTests {
 
     @Autowired
@@ -35,21 +37,22 @@ public class ApplicantControllerTests {
 
     private final String applicantControllerRoute = "/appApi/garesearch/applicant";
 
-    // TODO : write tests expecting exceptions and stuff
-
     /*------------------------- getApplicantProfile -------------------------*/
 
     // @GetMapping("/profile") getApplicantProfile()
 
     @Test // @GetMapping("/profile")
     public void testGetApplicantProfile() throws Exception {
-        mockMvc.perform(get(applicantControllerRoute+"/profile"))
+        mockMvc.perform(get(applicantControllerRoute+"/profile")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errCode").value("0"))
-                .andExpect(jsonPath("$.payload.applicantProfile.data").exists()) // can make more specific like opid once that is figured out
+                .andExpect(jsonPath("$.payload.applicantProfile.data").exists())
                 .andExpect(jsonPath("$.payload.applicantProfile.update.endpoint.method").value("put"))
-                .andExpect(jsonPath("$.payload.applicantProfile.update.endpoint.route").value("/applicant/profile"));
+                .andExpect(jsonPath("$.payload.applicantProfile.update.endpoint.route").value("/applicant/profile"))
+                .andDo(RestDocsConfig.getDefaultDocHandler("applicant-profile-get"));
     }
     /* Response is a lot of nested jsons
             {
@@ -89,11 +92,13 @@ public class ApplicantControllerTests {
 
         mockMvc.perform(put(applicantControllerRoute + "/profile")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonRequest))  // Mock the request body
+                        .content(jsonRequest) // Mock the request body
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errCode").value("0"))
-                .andExpect(jsonPath("$.payload").doesNotExist());
-
+                .andExpect(jsonPath("$.payload").doesNotExist())
+                .andDo(RestDocsConfig.getDefaultDocHandler("applicant-profile-put"));
     }
 }
