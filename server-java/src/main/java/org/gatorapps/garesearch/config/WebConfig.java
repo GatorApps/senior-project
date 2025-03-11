@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.config;
 
+import org.gatorapps.garesearch.middleware.RequireApplicantProfileInterceptor;
 import org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor;
 import org.gatorapps.garesearch.middleware.ValidateOriginInterceptor;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
@@ -14,10 +15,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final ValidateOriginInterceptor validateOriginInterceptor;
     private final ValidateUserAuthInterceptor validateUserAuthInterceptor;
+    private final RequireApplicantProfileInterceptor requireApplicantProfileInterceptor;
 
-    public WebConfig(ValidateOriginInterceptor validateOriginInterceptor, ValidateUserAuthInterceptor validateUserAuthInterceptor, RequireUserAuthInterceptor requireUserAuthInterceptor) {
+    public WebConfig(ValidateOriginInterceptor validateOriginInterceptor, ValidateUserAuthInterceptor validateUserAuthInterceptor,
+                     RequireUserAuthInterceptor requireUserAuthInterceptor, RequireApplicantProfileInterceptor requireApplicantProfileInterceptor) {
         this.validateOriginInterceptor = validateOriginInterceptor;
         this.validateUserAuthInterceptor = validateUserAuthInterceptor;
+        this.requireApplicantProfileInterceptor = requireApplicantProfileInterceptor;
     }
 
     @Override
@@ -32,5 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500201))))
                 .addPathPatterns("/appApi/garesearch/applicant/**", "/appApi/garesearch/application/studentList");
+
+        registry.addInterceptor(requireApplicantProfileInterceptor)
+                .addPathPatterns("/appApi/garesearch/applicant/resume", "/appApi/garesearch/applicant/transcript");
     }
 }
