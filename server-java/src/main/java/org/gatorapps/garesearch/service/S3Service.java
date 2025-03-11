@@ -8,6 +8,9 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.tika.Tika;
 import org.gatorapps.garesearch.exception.FileValidationException;
+import org.gatorapps.garesearch.model.garesearch.File;
+import org.gatorapps.garesearch.repository.garesearch.FileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,9 @@ import java.util.UUID;
 
 @Service
 public class S3Service {
+
+    @Autowired
+    private FileRepository fileRepository;
 
     private final AmazonS3 s3Client;
     private static final Tika tika = new Tika();
@@ -38,7 +44,7 @@ public class S3Service {
                 .build();
     }
 
-    public String uploadFile(MultipartFile file, List<String> allowedTypes, Long maxSize) throws IOException {
+    public File uploadFile(MultipartFile file, List<String> allowedTypes, Long maxSize, String S3PathPrefix, String uploaderOpid, String category) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new FileValidationException("No file provided");
         }
@@ -76,15 +82,18 @@ public class S3Service {
             }
         }
 
-        String fileName = "uploads/" + UUID.randomUUID();
+        String fileS3Path = (S3PathPrefix != null ? S3PathPrefix : "") + UUID.randomUUID();
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
         metadata.setContentType(file.getContentType());
 
-        s3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
+        s3Client.putObject(bucketName, fileS3Path, file.getInputStream(), metadata);
 
-        return fileName;
+        File uploadedFile = new File(uploaderOpid, category, file.getOriginalFilename(), fileS3Path);
+        fileRepository.save(uploadedFile);
+
+        return uploadedFile;
     }
 
 }

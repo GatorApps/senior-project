@@ -33,27 +33,13 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     @NotNull(message = "lastUpdateTimeStamp is required")
     private Date lastUpdateTimeStamp;
 
-    @Field("resume")
-    private String resume;
+    @Field("resumeId")
+    private String resumeId;
 
-    @Field("resumeLastUpdateTimeStamp")
-    private Date resumeLastUpdateTimeStamp;
-
-    @Field("transcript")
-    private String transcript;
-
-    @Field("transcriptLastUpdateTimeStamp")
-    private Date transcriptLastUpdateTimeStamp;
+    @Field("transcriptId")
+    private String transcriptId;
 
     public void setLastUpdateTimeStampToNow() {
         this.lastUpdateTimeStamp = new Date();
-    }
-
-    public void setResumeLastUpdateTimeStampToNow() {
-        this.resumeLastUpdateTimeStamp = new Date();
-    }
-
-    public void setTranscriptLastUpdateTimeStampToNow() {
-        this.transcriptLastUpdateTimeStamp = new Date();
     }
 }

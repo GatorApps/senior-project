@@ -7,9 +7,9 @@ import org.gatorapps.garesearch.dto.ErrorResponse;
 import org.gatorapps.garesearch.exception.FileValidationException;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
+import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.service.ApplicantService;
-import org.gatorapps.garesearch.service.ApplicationService;
 import org.gatorapps.garesearch.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -26,9 +25,6 @@ import java.util.Optional;
 public class ApplicantController {
     @Autowired
     ApplicantService applicantService;
-
-    @Autowired
-    ApplicationService applicationService;
 
     @Autowired
     private ApplicantProfileRepository applicantProfileRepository;
@@ -44,41 +40,41 @@ public class ApplicantController {
 
         response.payload returns: applicant profile and update endpoint route ?
      */
-    @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicantProfile(){
-        ApplicantProfile applicant = applicantService.getProfileById();
-
-
-        /* Response is a lot of nested jsons
-            {
-                errCode: '0',
-                payload: {
-                    applicantProfile: {
-                        data: foundProfile,
-                        update: {
-                            endpoint: {
-                                method: "put",
-                                route: "/applicant/profile"
-                            }
-                        }
-                    }
-                }
-            }
-         */
-
-        Map<String, Object> payloadResponse = Map.of(
-                "applicantProfile", Map.of(
-                        "data", applicant,
-                        "update", Map.of(
-                                "endpoint", Map.of(
-                                        "method", "put",
-                                        "route", "/applicant/profile")))
-        );
-
-
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @GetMapping("/profile")
+//    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicantProfile(){
+//        ApplicantProfile applicant = applicantService.getProfileById();
+//
+//
+//        /* Response is a lot of nested jsons
+//            {
+//                errCode: '0',
+//                payload: {
+//                    applicantProfile: {
+//                        data: foundProfile,
+//                        update: {
+//                            endpoint: {
+//                                method: "put",
+//                                route: "/applicant/profile"
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//         */
+//
+//        Map<String, Object> payloadResponse = Map.of(
+//                "applicantProfile", Map.of(
+//                        "data", applicant,
+//                        "update", Map.of(
+//                                "endpoint", Map.of(
+//                                        "method", "put",
+//                                        "route", "/applicant/profile")))
+//        );
+//
+//
+//        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 
     /*
@@ -86,14 +82,14 @@ public class ApplicantController {
 
         no payload
      */
-    @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@RequestBody ApplicantProfile applicantProfile) throws Exception {
-
-        applicantService.updateProfileById(applicantProfile);
-
-        ApiResponse<Void> response = new ApiResponse<>("0");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @PutMapping("/profile")
+//    public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@RequestBody ApplicantProfile applicantProfile) throws Exception {
+//
+//        applicantService.updateProfileById(applicantProfile);
+//
+//        ApiResponse<Void> response = new ApiResponse<>("0");
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 
     @PostMapping("/resume")
@@ -101,19 +97,17 @@ public class ApplicantController {
         try {
             // Fetch applicant profile
             ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth");
-            // TODO: case when profile doesn't exist
             Optional<ApplicantProfile> applicantProfileOptional = applicantProfileRepository.findByOpid(userAuth.getAuthedUser().getOpid());
             ApplicantProfile applicantProfile = applicantProfileOptional.orElseThrow(() -> new RuntimeException("Applicant profile not found"));
 
             // Upload file to S3
-            String fileName = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880);
+            File resumeFile = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880, "uploads/", userAuth.getAuthedUser().getOpid(), "resume");
 
             // Update applicant profile
-            applicantProfile.setResume(fileName);
-            applicantProfile.setResumeLastUpdateTimeStampToNow();
+            applicantProfile.setResumeId(resumeFile.getId());
             applicantProfileRepository.save(applicantProfile);
 
-            ApiResponse<String> response = new ApiResponse<>("0", "{\"resume\": \"" + fileName + "\"}");
+            ApiResponse<String> response = new ApiResponse<>("0", "{\"resume\": \"" + resumeFile.getId() + "\"}");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (FileValidationException e) {
             ErrorResponse<String> response = new ErrorResponse<>("-",  e.getMessage());
@@ -129,19 +123,17 @@ public class ApplicantController {
         try {
             // Fetch applicant profile
             ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth");
-            // TODO: case when profile doesn't exist
             Optional<ApplicantProfile> applicantProfileOptional = applicantProfileRepository.findByOpid(userAuth.getAuthedUser().getOpid());
             ApplicantProfile applicantProfile = applicantProfileOptional.orElseThrow(() -> new RuntimeException("Applicant profile not found"));
 
             // Upload file to S3
-            String fileName = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880);
+            File transcriptFile = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880, "uploads/", userAuth.getAuthedUser().getOpid(), "transcript");
 
             // Update applicant profile
-            applicantProfile.setTranscript(fileName);
-            applicantProfile.setTranscriptLastUpdateTimeStampToNow();
+            applicantProfile.setTranscriptId(transcriptFile.getId());
             applicantProfileRepository.save(applicantProfile);
 
-            ApiResponse<String> response = new ApiResponse<>("0", "{\"transcript\": \"" + fileName + "\"}");
+            ApiResponse<String> response = new ApiResponse<>("0", "{\"transcript\": \"" + transcriptFile.getId() + "\"}");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (FileValidationException e) {
             ErrorResponse<String> response = new ErrorResponse<>("-",  e.getMessage());
@@ -151,6 +143,5 @@ public class ApplicantController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 }

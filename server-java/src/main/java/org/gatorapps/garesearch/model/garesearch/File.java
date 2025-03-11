@@ -22,14 +22,14 @@ public class File {
     private String id;
 
     @Field("opid")
-    @NotBlank(message = "User opid is required")
+    // @NotBlank(message = "File uploader opid is required")
     @Indexed(unique=true)
     @OpidExists
     private String opid;
 
     @CreatedDate
     @Field("uploadedTimeStamp")
-    @NotNull(message = "uploadedTimeStamp is required")
+    // @NotNull(message = "uploadedTimeStamp is required")
     private Date uploadedTimeStamp;
 
     @Field("category")
