@@ -8,6 +8,8 @@ import { Routes, Route } from 'react-router-dom';
 import GenericPage from './components/GenericPage/GenericPage';
 import OpportunitySearchPage from './views/OpportunitySearchPage/OpportunitySearchPage';
 import MyApplicationsPage from './views/MyApplicationsPage/MyApplicationsPage';
+import LabDetailsPage from './views/LabDetailsPage/LabDetailsPage';
+import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage';
 
 function App() {
   return (
@@ -27,6 +29,14 @@ function App() {
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
           <Route path="/myapplications" element={<MyApplicationsPage />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[100001]} />}>
+          <Route path="/lab" element={<LabDetailsPage />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[100001]} />}>
+          <Route path="/posting" element={<PositionDetailsPage />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100999]} />}>

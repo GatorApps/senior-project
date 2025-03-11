@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
@@ -11,7 +11,42 @@ import MyApplicationsPageCard from '../../views/MyApplicationsPage/MyApplication
 const Homepage = () => {
   const userInfo = useSelector((state) => state.auth.userInfo);
 
-  const cards = [<OpportunitySearchPageCard />, <MyApplicationsPageCard />, <GenericPageCard />];
+  const cards = [
+    <OpportunitySearchPageCard />,
+    <MyApplicationsPageCard />,
+    <GenericPageCard />,
+    <OpportunitySearchPageCard />,
+    <MyApplicationsPageCard />,
+    <GenericPageCard />
+  ];
+
+  // State to track the number of columns
+  const [numColumns, setNumColumns] = useState(3);
+
+  // Function to update number of columns based on screen size
+  const updateColumns = () => {
+    if (window.innerWidth < 600) {
+      setNumColumns(1);
+    } else if (window.innerWidth < 960) {
+      setNumColumns(2);
+    } else {
+      setNumColumns(3);
+    }
+  };
+
+  // Run once on mount & update on window resize
+  useEffect(() => {
+    updateColumns(); // Initial check
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
+
+  // Distribute cards into columns while preserving row order
+  const columns = Array.from({ length: numColumns }, () => []);
+
+  cards.forEach((card, index) => {
+    columns[index % numColumns].push(card); // Assign cards row-wise
+  });
 
   return (
     <HelmetComponent>
@@ -31,24 +66,32 @@ const Homepage = () => {
           // If not
           <></>
         )} */}
-          <Box component="workspace" sx={
-            {
-              flexGrow: 1,
+          <Box
+            component="workspace"
+            sx={{
+              display: 'flex',
+              gap: '24px',
+              justifyContent: 'center',
               margin: '36px auto 24px auto',
               padding: '0 16px',
-              justifyContent: "space-between",
-              'max-width': '1400px'
-            }
-          }>
-            <Grid container spacing={2}>
-              {cards?.map((card, index) => {
-                return (
-                  <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+              maxWidth: '1200px',
+            }}
+          >
+            {columns.map((column, colIndex) => (
+              <Box key={colIndex} sx={{ flex: 1, minWidth: '300px' }}>
+                {column.map((card, cardIndex) => (
+                  <Box
+                    key={cardIndex}
+                    sx={{
+                      width: '350px',
+                      marginBottom: '24px',
+                    }}
+                  >
                     {card}
-                  </Grid>
-                )
-              })}
-            </Grid>
+                  </Box>
+                ))}
+              </Box>
+            ))}
           </Box>
 
         </main>
