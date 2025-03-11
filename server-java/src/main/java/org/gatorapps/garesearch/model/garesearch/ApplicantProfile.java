@@ -39,11 +39,21 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     @Field("resumeLastUpdateTimeStamp")
     private Date resumeLastUpdateTimeStamp;
 
+    @Field("transcript")
+    private String transcript;
+
+    @Field("transcriptLastUpdateTimeStamp")
+    private Date transcriptLastUpdateTimeStamp;
+
     public void setLastUpdateTimeStampToNow() {
         this.lastUpdateTimeStamp = new Date();
     }
 
     public void setResumeLastUpdateTimeStampToNow() {
         this.resumeLastUpdateTimeStamp = new Date();
+    }
+
+    public void setTranscriptLastUpdateTimeStampToNow() {
+        this.transcriptLastUpdateTimeStamp = new Date();
     }
 }

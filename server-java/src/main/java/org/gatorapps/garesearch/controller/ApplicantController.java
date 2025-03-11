@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.dto.ErrorResponse;
 import org.gatorapps.garesearch.exception.FileValidationException;
@@ -96,7 +97,7 @@ public class ApplicantController {
 
 
     @PostMapping("/resume")
-    public ResponseEntity<?> uploadApplicantResume(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadApplicantResume(@Valid HttpServletRequest request, @RequestParam("resume") MultipartFile file) {
         try {
             // Fetch applicant profile
             ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth");
@@ -122,5 +123,34 @@ public class ApplicantController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/transcript")
+    public ResponseEntity<?> uploadApplicantTranscript(HttpServletRequest request, @RequestParam("transcript") MultipartFile file) {
+        try {
+            // Fetch applicant profile
+            ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth");
+            // TODO: case when profile doesn't exist
+            Optional<ApplicantProfile> applicantProfileOptional = applicantProfileRepository.findByOpid(userAuth.getAuthedUser().getOpid());
+            ApplicantProfile applicantProfile = applicantProfileOptional.orElseThrow(() -> new RuntimeException("Applicant profile not found"));
+
+            // Upload file to S3
+            String fileName = s3Service.uploadFile(file, List.of("pdf"), (long) 5242880);
+
+            // Update applicant profile
+            applicantProfile.setTranscript(fileName);
+            applicantProfile.setTranscriptLastUpdateTimeStampToNow();
+            applicantProfileRepository.save(applicantProfile);
+
+            ApiResponse<String> response = new ApiResponse<>("0", "{\"transcript\": \"" + fileName + "\"}");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (FileValidationException e) {
+            ErrorResponse<String> response = new ErrorResponse<>("-",  e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            ErrorResponse<Void> response = new ErrorResponse<>("-", "Unable to upload file: %s".formatted(e.getMessage()));
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }

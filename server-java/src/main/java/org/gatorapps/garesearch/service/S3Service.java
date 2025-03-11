@@ -39,6 +39,10 @@ public class S3Service {
     }
 
     public String uploadFile(MultipartFile file, List<String> allowedTypes, Long maxSize) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new FileValidationException("No file provided");
+        }
+
         // Check file size if maxSize is provided
         if (maxSize != null && file.getSize() > maxSize) {
             throw new FileValidationException("File size exceeds the allowed limit of " + (maxSize / 1048576) + "MB");
