@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { axiosPrivate } from '../../apis/backend';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -16,63 +17,63 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 
-
-const response = {
-    errCode: '0',
-    payload: {
-        positions: [
-            {
-                labName: "Demo Lab 1",
-                positionName: "Demo Position 1",
-                positionDescription: "Demo Position Description 1"
-            },
-            {
-                labName: "Demo Lab 2",
-                positionName: "Demo Position 1",
-                positionDescription: "Demo Position Description 2"
-            },
-            {
-                labName: "Demo Lab 2",
-                positionName: "Demo Position 2",
-                positionDescription: "Demo Position Description 3"
-            }
-        ]
-    }
-}
+import { debounce } from 'lodash';
 
 
 const GenericPageCard = () => {
     const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState(null);
     const navigate = useNavigate();
 
-    const handleButtonClick = () => {
-        navigate('/search');
+    const [positions, setPositions] = useState([]);
+    const [searchOptions, setSearchOptions] = useState([]);
+    const [searchText, setSearchText] = useState('');
+
+    // Debounced API call for search
+    const fetchSearchOptions = useCallback(
+        debounce((query) => {
+            if (query.trim() === '') {
+                setSearchOptions([]);
+                return;
+            }
+            axiosPrivate.get(`/posting/searchIndexer?q=${query}`)
+                .then((response) => {
+                    setSearchOptions(response.data.payload.positions || []);
+                })
+                .catch(() => {
+                    setSearchOptions([]);
+                });
+        }, 500),
+        []
+    );
+
+    // Handle input change and trigger API search
+    const handleSearchChange = (event, value) => {
+        setSearchText(value);
+        fetchSearchOptions(value);
     };
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 2000);
-
-        // Cleanup the timer in case the component unmounts
-        return () => clearTimeout(timer);
-    }, []);
+    const navigateSearch = (text) => {
+        if (text.trim() === '') return;
+        navigate(`/search?q=${text}`);
+    };
 
     return (
         <Box sx={{ width: '100%' }}>
             <Card variant="outlined">
-                <CardContent>
+                <CardContent sx={{ height: '175px' }}>
                     <Typography gutterBottom variant="h2" component="div" sx={{ lineHeight: 1.2, fontSize: '1.3125rem', fontWeight: 400 }}>
                         Search for Opportunities
                     </Typography>
-                    <Container maxWidth="lg">
+                    <div maxWidth="lg">
                         <Box
                             className="GenericPage__container_title_box"
-                            sx={{ marginBottom: '8px', display: 'flex' }}
+                            sx={{ marginTop: '64px' }}
                             component="div"
                             display="flex"
                             flexDirection="column"
+                            justifyContent="space-between"
+                            alignItems="center"
                         >
                             {/* Search bar */}
                             <Box
@@ -80,8 +81,23 @@ const GenericPageCard = () => {
                             >
                                 <Autocomplete
                                     freeSolo
-                                    sx={{ width: '100%', maxWidth: '100%', backgroundColor: 'white' }}
-                                    options={response.payload.positions.map((option) => option.positionName)}
+                                    disableClearable
+                                    sx={{ width: 500, maxWidth: '100%', backgroundColor: 'white' }}
+                                    value={searchText}
+                                    onChange={(event, newValue) => {
+                                        if (typeof newValue === 'string') {
+                                            setSearchText(newValue); // Handle text input
+                                            navigateSearch(newValue);
+                                        } else if (newValue && newValue.positionName) {
+                                            setSearchText(newValue.positionName); // Handle selection
+                                            navigateSearch(newValue.positionName);
+                                        } else {
+                                            setSearchText(''); // Reset if invalid
+                                        }
+                                    }}
+                                    onInputChange={handleSearchChange}
+                                    options={searchOptions}
+                                    getOptionLabel={(option) => (typeof option === "string" ? option : option.positionName || "")}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
@@ -96,17 +112,22 @@ const GenericPageCard = () => {
                                                     </InputAdornment>
                                                 ),
                                             }}
+                                            onKeyDown={(event) => {
+                                                if (event.key === 'Enter') {
+                                                    navigate(`/search?q=${searchText}`);
+                                                }
+                                            }}
                                         />
                                     )}
                                 />
                                 {/* <Button variant="contained" size="medium">Search</Button> */}
                             </Box>
                         </Box>
-                    </Container>
+                    </div>
                 </CardContent>
-                <CardActions>
+                {/* <CardActions>
                     <Button size="medium" onClick={handleButtonClick}>Take me to search page</Button>
-                </CardActions>
+                </CardActions> */}
             </Card>
         </Box>
     );

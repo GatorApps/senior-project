@@ -1,4 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { axiosPrivate } from '../../apis/backend';
+import { Link, useLocation } from 'react-router-dom';
 import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
@@ -8,61 +10,85 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import React from 'react';
-
+import React, { useState, useEffect, useCallback } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
+import { debounce } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
-const response = {
-  errCode: '0',
-  payload: {
-    positions: [
-      {
-        labName: "Demo Lab 1",
-        positionName: "Demo Position 1",
-        positionDescription: "Demo Position Description 1"
-      },
-      {
-        labName: "Demo Lab 2",
-        positionName: "Demo Position 1",
-        positionDescription: "Demo Position Description 2"
-      },
-      {
-        labName: "Demo Lab 2",
-        positionName: "Demo Position 2",
-        positionDescription: "Demo Position Description 3"
-      }
-    ]
-  }
-}
-
-const response2 = {
-  errCode: '0',
-  payload: {
-    positions: []
-  }
-}
 
 const GenericPage = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
-
-  // Set loading state
-  const [loading, setLoading] = React.useState(true);
-  const [positions, setPositions] = React.useState([]);
-  const [error, setError] = React.useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const dispatch = useDispatch();
-  React.useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-      setPositions(response.payload.positions);
-    }, 2000);
+  const navigate = useNavigate();
 
-    // Cleanup the timer in case the component unmounts
-    return () => clearTimeout(timer);
-  }, []);
+  // Get search param from URL
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  // Get search query from URL and decode it
+  const searchQuery = searchParams.get('q');
+
+  const [positions, setPositions] = useState([]);
+  const [searchOptions, setSearchOptions] = useState([]);
+  const [searchText, setSearchText] = useState('');
+
+  // Fetch initial positions
+  useEffect(() => {
+    setLoading(true);
+    if (searchQuery) {
+      setSearchText(searchQuery);
+      searchPositions(searchQuery);
+    } else {
+      setLoading(false);
+    }
+  }, [searchQuery]);
+
+  const searchPositions = (text) => {
+    setLoading(true);
+    axiosPrivate.get(`/posting/searchList?q=${text}`)
+      .then((response) => {
+        setPositions(response.data.payload.positions || []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+      });
+  };
+
+  const navigateSearch = (text) => {
+    if (text.trim() === '') return;
+    navigate(`/search?q=${text}`);
+  };
+
+  // Debounced API call for search
+  const fetchSearchOptions = useCallback(
+    debounce((query) => {
+      if (query.trim() === '') {
+        setSearchOptions([]);
+        return;
+      }
+      axiosPrivate.get(`/posting/searchIndexer?q=${query}`)
+        .then((response) => {
+          setSearchOptions(response.data.payload.positions || []);
+        })
+        .catch(() => {
+          setSearchOptions([]);
+        });
+    }, 500),
+    []
+  );
+
+  // Handle input change and trigger API search
+  const handleSearchChange = (event, value) => {
+    setSearchText(value);
+    fetchSearchOptions(value);
+  };
 
   return (
     <HelmetComponent title={"Search for Opportunities"}>
@@ -77,20 +103,43 @@ const GenericPage = ({ title }) => {
                 </Box>
               </Box>
             </Container>
+
             <Container maxWidth="lg">
               <Paper className='GenericPage__container_paper' variant='outlined'>
+
                 {/* Search bar */}
                 <Box margin="30px" sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <Autocomplete
                     freeSolo
-                    sx={{ width: 500, maxWidth: '100%', backgroundColor: 'white' }}
-                    options={response.payload.positions.map((option) => option.positionName)}
+                    sx={{ width: '100%', maxWidth: '100%', backgroundColor: 'white' }}
+                    value={searchText}
+                    onChange={(event, newValue) => {
+                      if (typeof newValue === 'string') {
+                        setSearchText(newValue); // Handle text input
+                        searchPositions(newValue);
+                      } else if (newValue && newValue.positionName) {
+                        setSearchText(newValue.positionName); // Handle new option
+                        searchPositions(newValue.positionName);
+                      } else {
+                        setSearchText(''); // Reset if invalid
+                      }
+                    }}
+                    onInputChange={handleSearchChange}
+                    options={searchOptions}
+                    getOptionLabel={(option) => (typeof option === "string" ? option : option.positionName || "")}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         variant="outlined"
                         size="small"
                         placeholder="Search..."
+                        sx={{
+                          ...params.sx,
+                          height: '65px', // Set the height of the TextField here
+                          '& .MuiInputBase-root': {
+                            height: '100%', // Ensure the input field inside has the correct height
+                          },
+                        }}
                         InputProps={{
                           ...params.InputProps,
                           startAdornment: (
@@ -99,10 +148,19 @@ const GenericPage = ({ title }) => {
                             </InputAdornment>
                           ),
                         }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            if (searchText.trim() !== '') {
+                              navigateSearch(searchText);
+                              // refresh the page to trigger the search
+                              window.location.reload();
+                            }
+                          }
+                        }}
                       />
                     )}
                   />
-                  <Button variant="contained" size="medium">Search</Button>
+                  <Button variant="contained" size="medium" onClick={() => searchPositions(searchText)}>Search</Button>
                 </Box>
 
                 {/* Search results */}
@@ -127,26 +185,25 @@ const GenericPage = ({ title }) => {
                       >
                         <Container maxWidth="lg">
                           <Typography variant="h7">{position.labName}</Typography>
-                          <Typography variant="h5">{position.positionName}</Typography>
-                          <Typography variant="body2">{position.positionDescription}</Typography>
+                          <Link to={`/posting?postingId=${position.positionId}`} target="_blank">
+                            <Typography variant="h5" marginBottom="24px">{position.positionName}</Typography>
+                          </Link>
+                          <Box dangerouslySetInnerHTML={{ __html: position.positionDescription }} />
                         </Container>
                       </Box>
                     ))
                   }
                 </Box>
 
-                {/* If there is an error, display it */}
-                {error &&
-                  <Typography
-                    variant="body2"
-                    color="error"
-                  >
-                    {error}
+                {/* Error message */}
+                {error && (
+                  <Typography variant="body2" color="error">
+                    {error.message || "An error occurred while fetching data."}
                   </Typography>
-                }
+                )}
 
-                {/* If there are no positions, display a message */}
-                {!loading && positions.length === 0 &&
+                {/* No positions found message */}
+                {!loading && positions.length === 0 && (
                   <Typography
                     variant="body2"
                     sx={{ marginTop: '16px', textAlign: 'center' }}
@@ -155,7 +212,7 @@ const GenericPage = ({ title }) => {
                   >
                     No positions found.
                   </Typography>
-                }
+                )}
 
               </Paper>
             </Container>
@@ -163,7 +220,7 @@ const GenericPage = ({ title }) => {
         </main>
         <Footer />
       </div>
-    </HelmetComponent >
+    </HelmetComponent>
   );
 }
 
