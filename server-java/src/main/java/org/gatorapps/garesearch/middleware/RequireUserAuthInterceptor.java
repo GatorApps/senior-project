@@ -1,5 +1,7 @@
 package org.gatorapps.garesearch.middleware;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.gatorapps.garesearch.dto.ErrorResponse;
 import org.gatorapps.garesearch.model.account.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import java.util.List;
 public class RequireUserAuthInterceptor implements HandlerInterceptor {
 
     private final List<List<Integer>> roleRules;
+    private final ObjectMapper objectMapper = new ObjectMapper(); // Jackson's ObjectMapper
 
     public RequireUserAuthInterceptor(List<List<Integer>> roleRules) {
         this.roleRules = roleRules;
@@ -22,9 +25,7 @@ public class RequireUserAuthInterceptor implements HandlerInterceptor {
         // Retrieve userAuth from request attributes
         Object userAuthObj = request.getAttribute("userAuth");
         if (!(userAuthObj instanceof ValidateUserAuthInterceptor.UserAuth)) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Internal server error\"}");
-            return false;
+            return sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "-", "Internal server error");
         }
         ValidateUserAuthInterceptor.UserAuth userAuth = (ValidateUserAuthInterceptor.UserAuth) userAuthObj;
 
@@ -32,9 +33,7 @@ public class RequireUserAuthInterceptor implements HandlerInterceptor {
 
         // Validate authError object
         if (authError == null) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Internal server error\"}");
-            return false;
+            return sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "-", "Internal server error");
         }
 
         String errCode = authError.getErrCode();
@@ -43,22 +42,16 @@ public class RequireUserAuthInterceptor implements HandlerInterceptor {
             String errMsg = authError.getErrMsg();
 
             if (HttpStatus.resolve(status) == null || errMsg == null) {
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Internal server error\"}");
-                return false;
+                return sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "-", "Internal server error");
             }
 
-            response.setStatus(status);
-            response.getWriter().write(String.format("{\"errCode\": \"%s\", \"errMsg\": \"%s\"}", errCode, errMsg));
-            return false;
+            return sendErrorResponse(response, status, errCode, errMsg);
         }
 
         // Validate authenticated user
         User authedUser = userAuth.getAuthedUser();
         if (authedUser == null) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Internal server error\"}");
-            return false;
+            return sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "-", "Internal server error");
         }
 
         // Role-based access control
@@ -66,9 +59,7 @@ public class RequireUserAuthInterceptor implements HandlerInterceptor {
             List<Integer> userRoles = authedUser.getRoles();
 
             if (userRoles == null || userRoles.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Insufficient permission\"}");
-                return false;
+                return sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "-", "Insufficient permission");
             }
 
             for (List<Integer> roles : roleRules) {
@@ -84,11 +75,18 @@ public class RequireUserAuthInterceptor implements HandlerInterceptor {
                 }
             }
 
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"errCode\": \"-\", \"errMsg\": \"Insufficient permission\"}");
-            return false;
+            return sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "-", "Insufficient permission");
         }
 
         return true;
+    }
+
+    private boolean sendErrorResponse(HttpServletResponse response, int status, String errCode, String errMsg) throws Exception {
+        ErrorResponse<Object> errorResponse = new ErrorResponse<>(errCode, errMsg);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(status);
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        return false;
     }
 }

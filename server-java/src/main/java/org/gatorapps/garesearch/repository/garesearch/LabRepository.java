@@ -1,6 +1,5 @@
 package org.gatorapps.garesearch.repository.garesearch;
 import org.gatorapps.garesearch.model.garesearch.Lab;
-import org.gatorapps.garesearch.model.garesearch.Position;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
