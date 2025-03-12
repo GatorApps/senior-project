@@ -8,6 +8,8 @@ import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Optional;
+
 @Component
 public class RequireApplicantProfileInterceptor implements HandlerInterceptor {
 
@@ -23,11 +25,19 @@ public class RequireApplicantProfileInterceptor implements HandlerInterceptor {
         User authedUser = ((ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth")).getAuthedUser();
 
         // Create applicant profile if not already exists
-        if (applicantProfileRepository.findByOpid(authedUser.getOpid()).isEmpty()) {
-            ApplicantProfile newApplicantProfile = new ApplicantProfile();
-            newApplicantProfile.setOpid(authedUser.getOpid());
-            applicantProfileRepository.save(newApplicantProfile);
+        ApplicantProfile applicantProfile;
+        Optional<ApplicantProfile> applicantProfileOptional = applicantProfileRepository.findByOpid(authedUser.getOpid());
+        if (applicantProfileOptional.isEmpty()) {
+            applicantProfile = new ApplicantProfile();
+            applicantProfile.setOpid(authedUser.getOpid());
+            applicantProfileRepository.save(applicantProfile);
+        } else {
+            applicantProfile = applicantProfileOptional.get();
         }
+
+        // Save applicant profile to request attributes
+        request.setAttribute("applicantProfile", applicantProfile);
+
         return true;
     }
 }

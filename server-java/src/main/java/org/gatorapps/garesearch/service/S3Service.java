@@ -5,13 +5,18 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import org.apache.tika.Tika;
 import org.gatorapps.garesearch.exception.FileValidationException;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -96,4 +101,17 @@ public class S3Service {
         return uploadedFile;
     }
 
+    public ResponseEntity<InputStreamResource> downloadFile(File file) throws IOException {
+        S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, file.getFileS3Path()));
+
+        // Prepare response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFileName());
+        headers.add(HttpHeaders.CONTENT_TYPE, s3Object.getObjectMetadata().getContentType());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(s3Object.getObjectMetadata().getContentLength())
+                .body(new InputStreamResource(s3Object.getObjectContent()));
+    }
 }
