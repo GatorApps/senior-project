@@ -9,7 +9,6 @@ import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
-import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,74 +24,16 @@ import java.util.Optional;
 @RequestMapping("/appApi/garesearch/applicant")
 public class ApplicantController {
     @Autowired
-    ApplicantService applicantService;
-
-    @Autowired
     private ApplicantProfileRepository applicantProfileRepository;
 
     private final S3Service s3Service;
+
     @Autowired
     private FileRepository fileRepository;
 
     public ApplicantController(S3Service s3Service) {
         this.s3Service = s3Service;
     }
-
-    /*
-        follows old logic
-
-        response.payload returns: applicant profile and update endpoint route ?
-     */
-//    @GetMapping("/profile")
-//    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicantProfile(){
-//        ApplicantProfile applicant = applicantService.getProfileById();
-//
-//
-//        /* Response is a lot of nested jsons
-//            {
-//                errCode: '0',
-//                payload: {
-//                    applicantProfile: {
-//                        data: foundProfile,
-//                        update: {
-//                            endpoint: {
-//                                method: "put",
-//                                route: "/applicant/profile"
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//         */
-//
-//        Map<String, Object> payloadResponse = Map.of(
-//                "applicantProfile", Map.of(
-//                        "data", applicant,
-//                        "update", Map.of(
-//                                "endpoint", Map.of(
-//                                        "method", "put",
-//                                        "route", "/applicant/profile")))
-//        );
-//
-//
-//        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-
-
-    /*
-        follows old logic
-
-        no payload
-     */
-//    @PutMapping("/profile")
-//    public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(@RequestBody ApplicantProfile applicantProfile) throws Exception {
-//
-//        applicantService.updateProfileById(applicantProfile);
-//
-//        ApiResponse<Void> response = new ApiResponse<>("0");
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
 
     @GetMapping("/resumeMetadata")
     public ResponseEntity<?> getApplicantResumeMetadata(@Valid HttpServletRequest request) {
@@ -113,11 +54,11 @@ public class ApplicantController {
 
         // Construct response
         Map<String, Object> responsePayload = Map.of(
-        "resumeMetadata", Map.of(
-            "resumeId", resumeFile.getId(),
-            "fileName", resumeFile.getFileName(),
-            "uploadedTimeStamp", resumeFile.getUploadedTimeStamp().getTime()
-            )
+                "resumeMetadata", Map.of(
+                        "fileId", resumeFile.getId(),
+                        "fileName", resumeFile.getFileName(),
+                        "uploadedTimeStamp", resumeFile.getUploadedTimeStamp().getTime()
+                )
         );
         ApiResponse<Object> response = new ApiResponse<>("0", responsePayload);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -143,7 +84,7 @@ public class ApplicantController {
         // Construct response
         Map<String, Object> responsePayload = Map.of(
                 "transcriptMetadata", Map.of(
-                        "transcriptId", transcriptFile.getId(),
+                        "fileId", transcriptFile.getId(),
                         "fileName", transcriptFile.getFileName(),
                         "uploadedTimeStamp", transcriptFile.getUploadedTimeStamp().getTime()
                 )
