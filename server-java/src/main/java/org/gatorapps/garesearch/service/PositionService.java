@@ -1,12 +1,7 @@
 package org.gatorapps.garesearch.service;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.UnwindOptions;
+import com.mongodb.client.model.*;
 import com.mongodb.client.model.search.*;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -17,14 +12,10 @@ import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,6 +33,7 @@ public class PositionService {
     private ValidationUtil validationUtil;
 
 
+    // add logic NOT archived ? / not closed
     public List<Map> getSearchResults (String searchParams) throws Exception {
         try {
             Bson searchStage = Aggregates.search(
@@ -65,11 +57,13 @@ public class PositionService {
 
             List<Bson> pipeline = Arrays.asList(
                     searchStage,
+                    Aggregates.match(Filters.eq("status", "open")),
                     Aggregates.project(Projections.fields(
                             Projections.computed("labIdObjectId", new Document().append("$toObjectId", "$labId")),
                             Projections.computed("positionId", new Document().append("$toString", "$_id")),
                             Projections.computed("positionName", "$name"),
                             Projections.computed("positionDescription", "$description"),
+                            Projections.include("postedTimeStamp", "lastUpdatedTimeStamp"),
                             Projections.computed("score", new Document("$meta", "searchScore"))
                             )),
                     Aggregates.sort(Sorts.descending("score")),
@@ -81,7 +75,10 @@ public class PositionService {
                     ),
                     Aggregates.unwind("$lab", new UnwindOptions().preserveNullAndEmptyArrays(true)),
                     Aggregates.project(Projections.fields(
-                            Projections.include("positionId", "positionName", "positionDescription"),
+                            Projections.include("positionId",
+                                    "positionName",
+                                    "positionDescription",
+                                    "postedTimeStamp"),
                             Projections.computed("labName", "$lab.name"),
                             Projections.excludeId()
                     ))
@@ -97,7 +94,10 @@ public class PositionService {
                 throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "No Positions found. Try Expanding your search terms");
             }
             return resultList;
-        } catch (Exception e){
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
             throw new Exception("Unable to process your request at this time", e);
         }
     }
@@ -126,6 +126,7 @@ public class PositionService {
 
             List<Bson> pipeline = Arrays.asList(
                     searchStage,
+                    Aggregates.match(Filters.eq("status", "open")),
                     Aggregates.sort(Sorts.descending("score")),
                     Aggregates.project(Projections.fields(
                             Projections.computed("positionId", new Document().append("$toString", "$_id")),
@@ -144,14 +145,65 @@ public class PositionService {
                 throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "No Positions found. Try Expanding your search terms");
             }
             return resultList;
-        } catch (Exception e){
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
             throw new Exception("Unable to process your request at this time", e);
         }
     }
 
-    public Position getPublicPosting (String id){
-        return positionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
+    public Map getPublicPosting (String positionId) throws Exception {
+        try {
+            // must match 'opid'
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(
+                            Criteria.where("_id").is(new ObjectId(positionId))
+                    ),
+                    Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("positionId")
+                            .andExpression("toObjectId(labId)").as("labIdObjectId")
+                            .and("name").as("positionName")
+                            .and("description").as("positionDescription")
+                            .andInclude("status",
+                                    "postedTimeStamp",
+                                    "lastUpdatedTimeStamp"),
+                    // join with 'labs' collection
+                    Aggregation.lookup(
+                            "labs",      // Collection to join
+                            "labIdObjectId",           // Local field
+                            "_id",             // Foreign field
+                            "lab"             // Alias for the joined field
+                    ),
+                    // flatten 'lab' array
+                    Aggregation.unwind("lab", true),
+                    Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("labId")
+                            .and("lab.name").as("labName")
+                            .andInclude(
+                                    "positionId",
+                                    "positionName",
+                                    "positionDescription",
+                                    "status",
+                                    "postedTimeStamp",
+                                    "lastUpdatedTimeStamp")
+                            .andExclude("_id")
+            );
+
+            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
+                    aggregation, "positions", Map.class);
+
+            if (results.getMappedResults().isEmpty()){
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+            }
+            return results.getMappedResults().get(0);
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+
     }
 
 

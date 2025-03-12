@@ -44,6 +44,10 @@ public class Position {
     @NotNull(message = "Posted timestamp is required")
     private Date postedTimeStamp;
 
+    @Field("lastUpdatedTimeStamp")
+    @NotNull(message = "Last updated timestamp is required")
+    private Date lastUpdatedTimeStamp;
+
     @Field("status")
     @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'")
     private String status;

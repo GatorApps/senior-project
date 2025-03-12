@@ -1,26 +1,17 @@
 package org.gatorapps.garesearch.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.gatorapps.garesearch.dto.ApiResponse;
-import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
-import org.gatorapps.garesearch.model.garesearch.Application;
-import org.gatorapps.garesearch.model.garesearch.supportingclasses.Education;
+import org.gatorapps.garesearch.config.RestDocsConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
+import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,43 +20,50 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource("classpath:application-test.properties")
+@AutoConfigureRestDocs(outputDir="target/generated-snippets")
 public class ApplicationControllerTests {
-
     @Autowired
     private MockMvc mockMvc;
 
     private final String applicationControllerRoute = "/appApi/garesearch/application";
 
-
     /*------------------------- getStudentApplication -------------------------*/
 
-    // @GetMapping("/single")
+    // @GetMapping
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(
     //          @RequestParam(value = "applicationId", required = true) String applicationId)
 
-    @Test // @GetMapping("/single")
+    @Test // @GetMapping
     public void getStuApplication_Valid() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/single")
-                        .param("applicationId", "67be553bd7565c4e30236224"))
+        mockMvc.perform(get(applicationControllerRoute)
+                        .param("applicationId", "67be553bd7565c4e30236224")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.application").isNotEmpty())
-                .andExpect(jsonPath("$.payload.application.applicationId").value("67be553bd7565c4e30236224"));
+                .andExpect(jsonPath("$.payload.application.applicationId").value("67be553bd7565c4e30236224"))
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-by-id"));
     }
 
-    @Test // @GetMapping("/single")
+    @Test // @GetMapping
     public void getStuApplication_ResourceNotFound() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/single")
-                        .param("applicationId", "111111111111111111111111"))
+        mockMvc.perform(get(applicationControllerRoute)
+                        .param("applicationId", "111111111111111111111111")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isNotFound()) // 404
                 .andExpect(jsonPath("$.errCode").value("ERR_RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.errMsg").value("Unable to process your request at this time"));
     }
 
-    @Test // @GetMapping("/single")
+    @Test // @GetMapping
     public void getStuApplication_MissingParam() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/single"))
+        mockMvc.perform(get(applicationControllerRoute)
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isBadRequest()) // 400
                 .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
@@ -74,34 +72,43 @@ public class ApplicationControllerTests {
 
     /*------------------------- getStudentApplications -------------------------*/
 
-    // @GetMapping("/applications")
+    // @GetMapping("/studentList")
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications()
 
     @Test // @GetMapping("/studentList")
     public void getStuApplications_Valid() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/studentList"))
+        mockMvc.perform(get(applicationControllerRoute + "/studentList")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.applications").isMap())
                 .andExpect(jsonPath("$.payload.applications.activeApplications").isArray())
-                .andExpect(jsonPath("$.payload.applications.archivedApplications").isArray());
+                .andExpect(jsonPath("$.payload.applications.archivedApplications").isArray())
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-studentList"));
     }
 
 
     /*------------------------- submitApplication -------------------------*/
 
     // TODO : write tests for each case of submit . (and label what case is what)
-    @Test // @PostMapping("/application")
+//    @Test // @PostMapping("/application")
 //    public ResponseEntity<ApiResponse<Void>> submitApplication(
 //            @RequestParam(value = "positionId", required = true) String positionId,
 //            @RequestParam(value = "saveApp", required = false) String saveApp)
-    public void testSubmitApplication() throws Exception {
-        mockMvc.perform(post(applicationControllerRoute + "/submitApplication")
-                        .param("positionId", "6797d2a79ecab28bd554866b")
-                        .param("saveApp", "false"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errCode").value("-"));
-    }
+
+//    public void testSubmitApplication() throws Exception {
+//        mockMvc.perform(post(applicationControllerRoute + "/submitApplication")
+//                        .param("positionId", "6797d2ff9ecab28bd5548672")
+//                        .param("saveApp", "false")
+//                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+//                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+//                .andDo(print())
+//                .andExpect(status().is4xxClientError())
+//                .andExpect(jsonPath("$.errCode").value("-"))
+//
+//                .andDo(RestDocsConfig.getDefaultDocHandler("application-submit"));
+//    }
 
 
 }

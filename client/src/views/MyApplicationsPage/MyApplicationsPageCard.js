@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { axiosPrivate } from '../../apis/backend';
 import { useSelector } from 'react-redux';
 import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
 import Header from '../../components/Header/Header';
@@ -15,55 +16,8 @@ import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
-const response = {
-  errCode: '0',
-  payload: {
-    applications: {
-      activeApplications: [
-        {
-          labName: "Demo Lab 1",
-          positionName: "Demo Position 1",
-          submissionTimeStamp: "2024-04-19T06:56:20.544+00:00",
-          status: "Submitted"
-        },
-        {
-          labName: "Demo Lab 2",
-          positionName: "Demo Position 2",
-          submissionTimeStamp: "2024-04-20T06:56:20.544+00:00",
-          status: "Submitted"
-        },
-        {
-          labName: "Demo Lab 3",
-          positionName: "Demo Position 3",
-          submissionTimeStamp: "2024-04-21T06:56:20.544+00:00",
-          status: "Submitted"
-        }
-      ],
-      archivedApplications: [
-        {
-          labName: "Demo Lab 1",
-          positionName: "Demo Position 1",
-          submissionTimeStamp: "2024-04-19T06:56:20.544+00:00",
-          status: "Archived"
-        },
-        {
-          labName: "Demo Lab 2",
-          positionName: "Demo Position 2",
-          submissionTimeStamp: "2024-04-20T06:56:20.544+00:00",
-          status: "Archived"
-        },
-        {
-          labName: "Demo Lab 3",
-          positionName: "Demo Position 3",
-          submissionTimeStamp: "2024-04-21T06:56:20.544+00:00",
-          status: "Archived"
-        }
-      ]
-    }
-  }
-};
 
-const GenericPage = ({ title }) => {
+const GenericPageCard = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -72,12 +26,18 @@ const GenericPage = ({ title }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(response.payload.applications);
-      setLoading(false);
-    }, 2000);
+    const fetchData = async () => {
+      try {
+        const response = await axiosPrivate.get('/application/studentList');
+        setData(response.data.payload.applications);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchData();
   }, []);
 
   const handleTabChange = (event, newValue) => {
@@ -91,14 +51,14 @@ const GenericPage = ({ title }) => {
   return (
     <Box sx={{ width: '100%' }}>
       <Card variant='outlined'>
-        <CardContent>
+        <CardContent sx={{ height: '250px', display: 'flex', flexDirection: 'column' }}>
           <Typography gutterBottom variant="h2" component="div" sx={{ lineHeight: 1.2, fontSize: '1.3125rem', fontWeight: 400 }}>My Applications</Typography>
           <Paper elevation={0} sx={{ marginTop: '16px' }}>
             {loading ? (
               <SkeletonGroup boxPadding={'0'} />
             ) : (
               <>
-                <Tabs value={tabValue} onChange={handleTabChange} aria-label="application tabs">
+                <Tabs value={tabValue} onChange={handleTabChange} aria-label="application tabs" sx={{ marginBottom: '16px' }}>
                   <Tab label="Active" />
                   <Tab label="Archived" />
                 </Tabs>
@@ -123,6 +83,6 @@ const GenericPage = ({ title }) => {
       </Card>
     </Box>
   );
-}
+};
 
-export default GenericPage;
+export default GenericPageCard;

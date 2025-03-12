@@ -1,0 +1,43 @@
+= GatorApps REST Documentation
+:doctype: book
+:icons: font
+:source-highlighter: highlight.js
+:toc: left
+:toclevels: 2
+:sectlinks:
+:stylesheet: ./asciidoctor-default-stylesheet.css
+
+
+[[index-get-application-student-list]]
+== GET StudentList
+A `GET` request to retrieve a list of applications associated with a particular user.
+
+operation::application-get-studentList[snippets='http-request,http-response']
+
+
+[[index-get-lab-by-id]]
+== GET Lab by ID
+A `GET` request used to retrieve a lab's details including associated open positions by its unique `labId`.
+
+operation::lab-get-by-id[snippets='http-request,http-response']
+
+
+[[index-get-position-by-id]]
+== GET Position by ID
+A `GET` request used to retrieve a position by its unique `positionId`.
+
+operation::position-get-posting-by-id[snippets='http-request,http-response']
+
+
+[[index-get-position-searchresults]]
+== GET Position Search Results
+A `GET` request to search for positions based on a search query.
+
+operation::position-get-searchresults[snippets='http-request,http-response']
+
+
+[[index-get-position-searchresults-indexer]]
+== GET Position Search Results (Indexer)
+A `GET` request to search for positions based on a search query. This request returns a condensed list of information.
+
+operation::position-get-searchresults_indexer[snippets='http-request,http-response']
