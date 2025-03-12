@@ -45,4 +45,6 @@ public class Application extends BaseApplicationProfileSchema {
     @Pattern(regexp = "draft|open|closed", message = "Position status must be one of 'draft', 'open', 'closed'")
     private String status;
 
+    @Field("supplementalResponses")
+    private String supplementalResponses;
 }

@@ -11,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/appApi/garesearch/posting")
@@ -68,8 +66,8 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/applicationQuestions")
-    public ResponseEntity<?> getApplicationQuestions(@Valid HttpServletRequest request, @RequestParam(value = "positionId") String positionId) {
+    @GetMapping("/supplementalQuestions")
+    public ResponseEntity<?> getSupplementalQuestions(@Valid HttpServletRequest request, @RequestParam(value = "positionId") String positionId) {
         Optional<Position> positionOptional = positionService.getPosting(positionId);
         if (positionOptional.isEmpty()) {
             ErrorResponse<Void> response = new ErrorResponse<>("-", "Position not found");
@@ -77,11 +75,12 @@ public class PositionController {
         }
         Position position = positionOptional.get();
 
-        Map<String, Object> responsePayload = Map.of(
-                "position", Map.of(
-                        "applicationQuestions", position.getApplicationQuestions()
-                )
-        );
+        Map<String, Object> responsePayload = new HashMap<>();
+        Map<String, Object> positionMap = new HashMap<>();
+
+        positionMap.put("applicationQuestions", position.getSupplementalQuestions());
+        responsePayload.put("position", positionMap);
+
         ApiResponse<Object> response = new ApiResponse<>("0", responsePayload);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

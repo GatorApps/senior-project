@@ -14,21 +14,27 @@ import java.util.List;
 @Getter
 @Setter
 public class BaseApplicationProfileSchema {
-    @Field("education")
-    private List<Education> education;
+    @Field("resumeId")
+    private String resumeId;
 
-    @Field("experiences")
-    private List<Experience> experiences;
+    @Field("transcriptId")
+    private String transcriptId;
 
-    @Field("projects")
-    private List<Project> projects;
-
-    @Field("skills")
-    private List<String> skills;
-
-    @Field("links")
-    private List<Link> links;
-
-    @Field("additionalInformation")
-    private String additionalInformation;
+//    @Field("education")
+//    private List<Education> education;
+//
+//    @Field("experiences")
+//    private List<Experience> experiences;
+//
+//    @Field("projects")
+//    private List<Project> projects;
+//
+//    @Field("skills")
+//    private List<String> skills;
+//
+//    @Field("links")
+//    private List<Link> links;
+//
+//    @Field("additionalInformation")
+//    private String additionalInformation;
 }

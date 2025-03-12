@@ -1,7 +1,10 @@
 package org.gatorapps.garesearch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
+import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
@@ -73,17 +76,16 @@ public class ApplicationController {
     }
 
     // TODO: tests
-    /*
-        follows old logic
-
-        no payload
-     */
-    @PostMapping("/application")
+    @PostMapping
     public ResponseEntity<ApiResponse<Void>> submitApplication(
+            @Valid HttpServletRequest request,
             @RequestParam(value = "positionId", required = true) String positionId,
-            @RequestParam(value = "saveApp", required = false) String saveApp) throws Exception {
+            @RequestBody(required = true) Map<String, Object> application) throws Exception {
+        // Retrieve authedUser from request attributes
+        User authedUser = ((ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth")).getAuthedUser();
 
-        applicationService.submitApplication(positionId, saveApp);
+        // Submit application
+        applicationService.submitApplication(authedUser.getOpid(), positionId, application);
 
         ApiResponse<Void> response = new ApiResponse<>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);

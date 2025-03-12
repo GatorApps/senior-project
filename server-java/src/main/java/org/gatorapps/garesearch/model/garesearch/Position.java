@@ -52,8 +52,8 @@ public class Position {
     @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'")
     private String status;
 
-    @Field("applicationQuestions")
-    private String applicationQuestions;
+    @Field("supplementalQuestions")
+    private String supplementalQuestions;
 
     public void setDescription(String description) {
         this.description = description;

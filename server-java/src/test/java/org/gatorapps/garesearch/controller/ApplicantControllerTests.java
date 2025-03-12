@@ -85,7 +85,7 @@ public class ApplicantControllerTests {
         List<Education> educations = new ArrayList<>();
         educations.add(new Education("UF", new Date(), new Date(new Date().getTime() + 600000), "BS", "CS", "TESTING"));
         educations.add(new Education("NYU", new Date(), new Date(new Date().getTime() + 600000), "Masters of Science", "Cyber", "TESTING"));
-        applicantProfile.setEducation(educations);
+//        applicantProfile.setEducation(educations);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequest = objectMapper.writeValueAsString(applicantProfile);
