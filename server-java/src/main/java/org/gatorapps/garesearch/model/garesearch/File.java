@@ -1,7 +1,5 @@
 package org.gatorapps.garesearch.model.garesearch;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,16 +34,16 @@ public class File {
     @Pattern(regexp = "resume|transcript", message = "File category must be one of 'resume', 'transcript'")
     private String category;
 
-    @Field("fileName")
-    private String fileName;
+    @Field("name")
+    private String name;
 
-    @Field("fileS3Path")
-    private String fileS3Path;
+    @Field("s3Path")
+    private String s3Path;
 
-    public File(String opid, String category, String fileName, String fileS3Path) {
+    public File(String opid, String category, String name, String s3Path) {
         this.opid = opid;
         this.category = category;
-        this.fileName = fileName;
-        this.fileS3Path = fileS3Path;
+        this.name = name;
+        this.s3Path = s3Path;
     }
 }

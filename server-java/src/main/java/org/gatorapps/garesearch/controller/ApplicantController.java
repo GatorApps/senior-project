@@ -56,7 +56,7 @@ public class ApplicantController {
         Map<String, Object> responsePayload = Map.of(
                 "resumeMetadata", Map.of(
                         "fileId", resumeFile.getId(),
-                        "fileName", resumeFile.getFileName(),
+                        "fileName", resumeFile.getName(),
                         "uploadedTimeStamp", resumeFile.getUploadedTimeStamp().getTime()
                 )
         );
@@ -85,7 +85,7 @@ public class ApplicantController {
         Map<String, Object> responsePayload = Map.of(
                 "transcriptMetadata", Map.of(
                         "fileId", transcriptFile.getId(),
-                        "fileName", transcriptFile.getFileName(),
+                        "fileName", transcriptFile.getName(),
                         "uploadedTimeStamp", transcriptFile.getUploadedTimeStamp().getTime()
                 )
         );

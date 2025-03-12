@@ -1,6 +1,5 @@
 package org.gatorapps.garesearch.controller;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.service.ApplicantService;
