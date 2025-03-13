@@ -8,9 +8,11 @@ import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Application;
+import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
+import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,8 @@ public class ApplicationService {
 
     @Autowired
     ValidateUserAuthInterceptor validateUserAuthInterceptor;
+    @Autowired
+    private FileRepository fileRepository;
 
     public Map<String, Object> convertToMap(Object object) {
         return objectMapper.convertValue(object, Map.class);
@@ -201,21 +205,37 @@ public class ApplicationService {
 //            }
         }
 
-        // TODO: Validate resumeId and transcriptId
+        // Validate resumeId and transcriptId
+        String resumeId = (String) application.get("resumeId");
+        File resumeFile = fileRepository.findById(resumeId)
+                .orElseThrow(() -> new ResourceNotFoundException("-", "Invalid resumeId (" + resumeId + "), please try again"));
+        if (!resumeFile.getOpid().equals(opid)){
+            throw new UnwantedResult("-", "Invalid resumeId (" + resumeId + "), please try again");
+        }
+
+        String transcriptId = (String) application.get("transcriptId");
+        File transcriptFile = fileRepository.findById(transcriptId)
+                .orElseThrow(() -> new ResourceNotFoundException("-", "Invalid transcriptId (" + transcriptId + "), please try again"));
+        if (!transcriptFile.getOpid().equals(opid)){
+            throw new UnwantedResult("-", "Invalid transcriptId (" + transcriptId + "), please try again");
+        }
 
         // Submit application
         try {
             Application newApp = new Application();
             newApp.setOpid(opid);
             newApp.setPositionId(positionId);
-            newApp.setResumeId((String) application.get("resumeId"));
-            newApp.setTranscriptId((String) application.get("transcriptId"));
+            newApp.setResumeId(resumeId);
+            newApp.setTranscriptId(transcriptId);
             newApp.setSupplementalResponses((String) application.get("supplementalResponses"));
             newApp.setStatus("submitted");
 
-            validationUtil.validate(newApp);
+            System.out.println(application);
+
+//            validationUtil.validate(newApp);
             garesearchMongoTemplate.save(newApp);
         } catch (Exception e){
+//            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
 
@@ -266,6 +286,10 @@ public class ApplicationService {
 //            throw new Exception("Unable to process your request at this time", e);
 //        }
 
+    }
+
+    public boolean alreadyApplied(String opid, String positionId) {
+        return applicationRepository.existsByOpidAndPositionId(opid, positionId);
     }
 
 }

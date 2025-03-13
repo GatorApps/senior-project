@@ -80,14 +80,28 @@ public class ApplicationController {
     public ResponseEntity<ApiResponse<Void>> submitApplication(
             @Valid HttpServletRequest request,
             @RequestParam(value = "positionId", required = true) String positionId,
-            @RequestBody(required = true) Map<String, Object> application) throws Exception {
+            @RequestBody(required = true) Map<String, Object> requestBody) throws Exception {
         // Retrieve authedUser from request attributes
         User authedUser = ((ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth")).getAuthedUser();
+
+        // Retrieve application json from request body
+        Map<String, Object> application = (Map<String, Object>) requestBody.get("application");
 
         // Submit application
         applicationService.submitApplication(authedUser.getOpid(), positionId, application);
 
         ApiResponse<Void> response = new ApiResponse<>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/alreadyApplied")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> alreadyApplied(HttpServletRequest request, @RequestParam(value = "positionId", required = true) String positionId) throws Exception {
+        boolean alreadyApplied = applicationService.alreadyApplied(userAuthUtil.retrieveOpid(request), positionId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "alreadyApplied", alreadyApplied);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

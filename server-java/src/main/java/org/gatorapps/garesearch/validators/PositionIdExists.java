@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /** This is creating a custom annotation for the endDate field using custom validation logic from EndDateValidator **/
-@Constraint(validatedBy = EndDateValidator.class)
+//@Constraint(validatedBy = EndDateValidator.class)
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PositionIdExists {
