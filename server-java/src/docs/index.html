@@ -504,32 +504,8 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "errCode" : "0",
   "payload" : {
     "applications" : {
-      "archivedApplications" : [ {
-        "submissionTimeStamp" : "2021-08-19T06:56:20.544+00:00",
-        "status" : "archived",
-        "positionName" : "Ava's Testing Position biology 2",
-        "applicationId" : "67bcea174fd911479ff3e2a6",
-        "labName" : "Ava's Testing Lab"
-      }, {
-        "submissionTimeStamp" : "2021-10-19T06:56:20.544+00:00",
-        "status" : "archived",
-        "positionName" : "Ava's Testing Position biology 2",
-        "applicationId" : "67be553bd7565c4e30236224",
-        "labName" : "Ava's Testing Lab"
-      } ],
-      "activeApplications" : [ {
-        "submissionTimeStamp" : "2024-04-19T06:56:20.544+00:00",
-        "status" : "submitted",
-        "positionName" : "Ava's Testing Position",
-        "applicationId" : "6797d2359ecab28bd5548664",
-        "labName" : "Ava's Testing Lab"
-      }, {
-        "submissionTimeStamp" : "2024-10-19T06:56:20.544+00:00",
-        "status" : "submitted",
-        "positionName" : "Ava's Testing Position",
-        "applicationId" : "67be552bd7565c4e30236223",
-        "labName" : "Ava's Testing Lab"
-      } ]
+      "activeApplications" : [ ],
+      "archivedApplications" : [ ]
     }
   }
 }</code></pre>
@@ -661,15 +637,9 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "errCode" : "0",
   "payload" : {
     "positions" : [ {
-      "postedTimeStamp" : "2024-04-19T18:32:56.523+00:00",
-      "positionId" : "6622b8d8ceb54473205d08b0",
-      "positionName" : "Luke's Testing Position 6",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab"
-    }, {
-      "postedTimeStamp" : "2024-04-10T19:27:09.573+00:00",
-      "positionId" : "6616e80db011bd7cff112a25",
-      "positionName" : "Luke's Testing Position",
+      "postedTimeStamp" : "2024-04-19T06:11:08.984+00:00",
+      "positionId" : "66220afc9aee0d2ebb58db67",
+      "positionName" : "Luke's Testing Position 2",
       "positionDescription" : "This is a testing position.",
       "labName" : "Luke's Testing Lab"
     }, {
@@ -679,23 +649,29 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
       "positionDescription" : "This is a testing position.",
       "labName" : "Luke's Testing Lab"
     }, {
+      "postedTimeStamp" : "2024-04-19T18:32:56.523+00:00",
+      "positionId" : "6622b8d8ceb54473205d08b0",
+      "positionName" : "Luke's Testing Position 6",
+      "positionDescription" : "This is a testing position.",
+      "labName" : "Luke's Testing Lab"
+    }, {
       "postedTimeStamp" : "2024-04-19T06:11:46.499+00:00",
       "positionId" : "66220b229aee0d2ebb58db72",
       "positionName" : "Luke's Testing Position 4",
       "positionDescription" : "This is a testing position.",
       "labName" : "Luke's Testing Lab 2"
     }, {
-      "postedTimeStamp" : "2024-04-19T06:11:08.984+00:00",
-      "positionId" : "66220afc9aee0d2ebb58db67",
-      "positionName" : "Luke's Testing Position 2",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab"
-    }, {
       "postedTimeStamp" : "2025-03-02T02:19:05.806+00:00",
       "positionId" : "67c3c01ab87e185493ae9c10",
       "positionName" : "Ava's Testing Position electrical 3",
       "positionDescription" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
       "labName" : "Ava's Testing Lab"
+    }, {
+      "postedTimeStamp" : "2024-04-10T19:27:09.573+00:00",
+      "positionId" : "6616e80db011bd7cff112a25",
+      "positionName" : "Luke's Testing Position",
+      "positionDescription" : "This is a testing position.",
+      "labName" : "Luke's Testing Lab"
     } ]
   }
 }</code></pre>
@@ -714,7 +690,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 <h3 id="index-get-position-searchresults-indexer_http_request"><a class="link" href="#index-get-position-searchresults-indexer_http_request">HTTP request</a></h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/searchIndexer?q=lu+8 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/searchIndexer?q=lu+7 HTTP/1.1
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;</code></pre>
 </div>
@@ -730,23 +706,23 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "errCode" : "0",
   "payload" : {
     "positions" : [ {
-      "positionId" : "6622b8d8ceb54473205d08b0",
-      "positionName" : "Luke's Testing Position 6"
-    }, {
-      "positionId" : "6616e80db011bd7cff112a25",
-      "positionName" : "Luke's Testing Position"
-    }, {
       "positionId" : "6622b8dbceb54473205d08b6",
       "positionName" : "Luke's Testing Position 7"
-    }, {
-      "positionId" : "66220b229aee0d2ebb58db72",
-      "positionName" : "Luke's Testing Position 4"
     }, {
       "positionId" : "66220afc9aee0d2ebb58db67",
       "positionName" : "Luke's Testing Position 2"
     }, {
+      "positionId" : "6622b8d8ceb54473205d08b0",
+      "positionName" : "Luke's Testing Position 6"
+    }, {
+      "positionId" : "66220b229aee0d2ebb58db72",
+      "positionName" : "Luke's Testing Position 4"
+    }, {
       "positionId" : "67c3c01ab87e185493ae9c10",
       "positionName" : "Ava's Testing Position electrical 3"
+    }, {
+      "positionId" : "6616e80db011bd7cff112a25",
+      "positionName" : "Luke's Testing Position"
     } ]
   }
 }</code></pre>
@@ -758,7 +734,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-06 22:31:58 -0500
+Last updated 2025-03-13 01:39:22 -0400
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

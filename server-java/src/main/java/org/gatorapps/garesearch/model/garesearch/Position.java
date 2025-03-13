@@ -8,6 +8,7 @@ import org.gatorapps.garesearch.validators.LabIdExists;
 import org.jsoup.Jsoup;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -41,14 +42,15 @@ public class Position {
     private String rawDescription;
 
     @Field("postedTimeStamp")
-    @NotNull(message = "Posted timestamp is required")
+    @CreatedDate
     private Date postedTimeStamp;
 
     @Field("lastUpdatedTimeStamp")
-    @NotNull(message = "Last updated timestamp is required")
+    @LastModifiedDate // will update automatically whenever entity is updated
     private Date lastUpdatedTimeStamp;
 
     @Field("status")
+    @NotBlank(message = "Status is required")
     @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'")
     private String status;
 
@@ -64,7 +66,7 @@ public class Position {
         this.rawDescription = Jsoup.parse(description).text();
     }
 
-    public void setPostedTimeStamp(){
-        this.postedTimeStamp = new Date();
+    public void setLastUpdatedTimeStamp(){
+        this.lastUpdatedTimeStamp = new Date();
     }
 }

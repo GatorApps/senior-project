@@ -85,6 +85,34 @@ public class LabService {
 
     }
 
+    public List<Map> getLabNames(String opid) throws Exception {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(
+                            Criteria.where("users.opid").is(opid)
+                    ),
+                    Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("labId")
+                            .and("name").as("labName")
+                            .andExclude("_id")
+            );
+
+            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
+                    aggregation, "labs", Map.class);
+
+            if (results.getMappedResults().isEmpty()){
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+            }
+
+            return results.getMappedResults();
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
     public Optional<Lab> getProfile (String id){
         // TODO
 

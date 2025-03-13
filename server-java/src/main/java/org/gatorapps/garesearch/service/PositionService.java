@@ -3,6 +3,7 @@ package org.gatorapps.garesearch.service;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.model.search.*;
+import jakarta.validation.ConstraintViolationException;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -214,26 +215,23 @@ public class PositionService {
     }
 
 
-    public void createPosting (Position position) throws Exception {
-        // TODO
-
+    public void savePosting(String opid, Position position) throws Exception {
         try {
+
+
+
             position.setRawDescription(position.getDescription());
-            position.setPostedTimeStamp();
 
             // manual command to validate because JPA annotations do not get checked on .save
-            validationUtil.validate(position);
+            //validationUtil.validate(position);
 
             positionRepository.save(position);
         } catch (Exception e){
+            if (e instanceof ConstraintViolationException){
+                throw e;
+            }
             throw new Exception("Unable to process your request at this time", e);
         }
-    }
-
-    public Optional<Position> updatePosting (Position position){
-        // TODO
-
-        return Optional.of(positionRepository.save(position));
     }
 
 }

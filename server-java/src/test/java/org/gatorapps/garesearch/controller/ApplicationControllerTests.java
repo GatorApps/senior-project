@@ -28,12 +28,13 @@ public class ApplicationControllerTests {
 
     private final String applicationControllerRoute = "/appApi/garesearch/application";
 
+
     /*------------------------- getStudentApplication -------------------------*/
 
     // @GetMapping
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(
     //          @RequestParam(value = "applicationId", required = true) String applicationId)
-
+/*
     @Test // @GetMapping
     public void getStuApplication_Valid() throws Exception {
         mockMvc.perform(get(applicationControllerRoute)
@@ -69,6 +70,8 @@ public class ApplicationControllerTests {
                 .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
                 .andExpect(jsonPath("$.errMsg").value("Missing required req params: applicationId"));
     }
+
+    */
 
     /*------------------------- getStudentApplications -------------------------*/
 

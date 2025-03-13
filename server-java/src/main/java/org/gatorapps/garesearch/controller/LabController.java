@@ -1,13 +1,16 @@
 package org.gatorapps.garesearch.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.service.LabService;
+import org.gatorapps.garesearch.utils.UserAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -15,6 +18,9 @@ import java.util.Map;
 public class LabController {
     @Autowired
     LabService labService;
+
+    @Autowired
+    UserAuthUtil userAuthUtil;
 
     /*
         response.payload returns: lab profile by labId
@@ -25,6 +31,21 @@ public class LabController {
 
         Map<String, Object> payloadResponse = Map.of(
                 "lab", lab);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        response.payload returns: list of labs a faculty is part of
+     */
+    @GetMapping("/labsList")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabsList(HttpServletRequest request) throws Exception {
+        List<Map> labs = labService.getLabNames(userAuthUtil.retrieveOpid(request));
+
+        Map<String, Object> payloadResponse = Map.of(
+                "labs", labs);
 
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 

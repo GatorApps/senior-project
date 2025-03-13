@@ -55,7 +55,7 @@ public class PositionControllerTests {
     @Test // @GetMapping("/searchList")
     public void getSearchIndexerResults_Valid() throws Exception {
         mockMvc.perform(get(positionControllerRoute + "/searchIndexer")
-                        .param("q", "lu 8")
+                        .param("q", "lu 7")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())

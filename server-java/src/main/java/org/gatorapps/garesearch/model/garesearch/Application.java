@@ -41,7 +41,7 @@ public class Application extends BaseApplicationProfileSchema {
     private Date submissionTimeStamp;
 
     @Field("status")
-    @NotBlank(message = "status is required")
+    @NotBlank(message = "Status is required")
     @Pattern(regexp = "draft|open|closed", message = "Position status must be one of 'draft', 'open', 'closed'")
     private String status;
 

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 /** Custom validator function checking if positionId exists in Position **/
 @Component
 public class LabIdExistsValidator implements ConstraintValidator<LabIdExists, String> {
+
     @Autowired
     private LabRepository labRepository;
-
     @Override
     public boolean isValid(String labId, ConstraintValidatorContext context) {
         try {
