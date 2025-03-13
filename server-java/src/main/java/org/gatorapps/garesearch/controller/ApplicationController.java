@@ -1,8 +1,10 @@
 package org.gatorapps.garesearch.controller;
 
-
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
+import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
@@ -74,19 +76,32 @@ public class ApplicationController {
     }
 
     // TODO: tests
-    /*
-        follows old logic
-
-        no payload
-     */
-    @PostMapping("/application")
+    @PostMapping
     public ResponseEntity<ApiResponse<Void>> submitApplication(
+            @Valid HttpServletRequest request,
             @RequestParam(value = "positionId", required = true) String positionId,
-            @RequestParam(value = "saveApp", required = false) String saveApp) throws Exception {
+            @RequestBody(required = true) Map<String, Object> requestBody) throws Exception {
+        // Retrieve authedUser from request attributes
+        User authedUser = ((ValidateUserAuthInterceptor.UserAuth) request.getAttribute("userAuth")).getAuthedUser();
 
-        applicationService.submitApplication(positionId, saveApp);
+        // Retrieve application json from request body
+        Map<String, Object> application = (Map<String, Object>) requestBody.get("application");
+
+        // Submit application
+        applicationService.submitApplication(authedUser.getOpid(), positionId, application);
 
         ApiResponse<Void> response = new ApiResponse<>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/alreadyApplied")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> alreadyApplied(HttpServletRequest request, @RequestParam(value = "positionId", required = true) String positionId) throws Exception {
+        boolean alreadyApplied = applicationService.alreadyApplied(userAuthUtil.retrieveOpid(request), positionId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "alreadyApplied", alreadyApplied);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

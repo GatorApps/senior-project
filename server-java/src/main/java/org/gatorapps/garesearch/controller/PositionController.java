@@ -1,6 +1,9 @@
 package org.gatorapps.garesearch.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.dto.ErrorResponse;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/appApi/garesearch/posting")
@@ -64,6 +66,24 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/supplementalQuestions")
+    public ResponseEntity<?> getSupplementalQuestions(@Valid HttpServletRequest request, @RequestParam(value = "positionId") String positionId) {
+        Optional<Position> positionOptional = positionService.getPosting(positionId);
+        if (positionOptional.isEmpty()) {
+            ErrorResponse<Void> response = new ErrorResponse<>("-", "Position not found");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        Position position = positionOptional.get();
+
+        Map<String, Object> responsePayload = new HashMap<>();
+        Map<String, Object> positionMap = new HashMap<>();
+
+        positionMap.put("applicationQuestions", position.getSupplementalQuestions());
+        responsePayload.put("position", positionMap);
+
+        ApiResponse<Object> response = new ApiResponse<>("0", responsePayload);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     // TODO : all of these below
 

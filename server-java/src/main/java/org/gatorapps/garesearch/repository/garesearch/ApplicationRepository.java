@@ -9,5 +9,5 @@ public interface ApplicationRepository extends MongoRepository<Application, Stri
     // Custom query methods can be defined here if needed
     Optional<Application> findByOpidAndId(String opid, String id);
     Optional<Application> findByOpidAndPositionId(String opid, String positionId);
-
+    boolean existsByOpidAndPositionId(String opid, String positionId);
 }

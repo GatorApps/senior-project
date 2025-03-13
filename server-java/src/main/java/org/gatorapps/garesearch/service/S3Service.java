@@ -102,11 +102,11 @@ public class S3Service {
     }
 
     public ResponseEntity<InputStreamResource> downloadFile(File file) throws IOException {
-        S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, file.getFileS3Path()));
+        S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, file.getS3Path()));
 
         // Prepare response headers
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFileName());
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
         headers.add(HttpHeaders.CONTENT_TYPE, s3Object.getObjectMetadata().getContentType());
 
         return ResponseEntity.ok()
