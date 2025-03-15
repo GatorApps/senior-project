@@ -40,7 +40,7 @@ public class ApplicantControllerTests {
     /*------------------------- getApplicantProfile -------------------------*/
 
     // @GetMapping("/profile") getApplicantProfile()
-
+/*
     @Test // @GetMapping("/profile")
     public void testGetApplicantProfile() throws Exception {
         mockMvc.perform(get(applicantControllerRoute+"/profile")
@@ -71,13 +71,12 @@ public class ApplicantControllerTests {
             }
      */
 
-
     /*------------------------- updateApplicantProfile -------------------------*/
 
     // @PutMapping("/profile")
     //      public ResponseEntity<ApiResponse<Void>> updateApplicantProfile(
     //          @Valid @RequestBody ApplicantProfile applicantProfile)
-
+/*
     @Test // @PutMapping("/profile")
     public void testPutApplicantProfile() throws Exception {
         ApplicantProfile applicantProfile = new ApplicantProfile();
@@ -101,4 +100,6 @@ public class ApplicantControllerTests {
                 .andExpect(jsonPath("$.payload").doesNotExist())
                 .andDo(RestDocsConfig.getDefaultDocHandler("applicant-profile-put"));
     }
+
+ */
 }

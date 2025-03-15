@@ -3,14 +3,11 @@ package org.gatorapps.garesearch.validators;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /** This is creating a custom annotation for the labId field using custom validation logic from LabIdExistsValidator **/
 @Constraint(validatedBy = LabIdExistsValidator.class)
-@Target({ ElementType.FIELD })
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LabIdExists {
     String message() default "Lab with provided ID does not exist";

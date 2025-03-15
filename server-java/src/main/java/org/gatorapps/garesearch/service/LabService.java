@@ -1,16 +1,20 @@
 package org.gatorapps.garesearch.service;
 
+import jakarta.validation.ConstraintViolationException;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.garesearch.Lab;
+import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
 import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @Service
@@ -85,22 +89,64 @@ public class LabService {
 
     }
 
+    public List<Map> getLabNames(String opid) throws Exception {
+        try {
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(
+                            Criteria.where("users.opid").is(opid)
+                    ),
+                    Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("labId")
+                            .and("name").as("labName")
+                            .andExclude("_id")
+            );
+
+            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
+                    aggregation, "labs", Map.class);
+
+            if (results.getMappedResults().isEmpty()){
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+            }
+
+            return results.getMappedResults();
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
+    public void saveProfile(String opid, Lab lab) throws Exception {
+        try {
+            if (lab.getId() != null){
+                checkPermission(opid, lab.getId());
+            } else {
+                lab.setUsers(Arrays.asList(
+                        new User(opid, "Admin")
+                ));
+            }
+
+            labRepository.save(lab);
+        } catch (Exception e){
+            if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException){
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
     public Optional<Lab> getProfile (String id){
         // TODO
 
         return labRepository.findById(id);
     }
 
-
-    public Optional<Lab> createProfile (Lab lab){
-        // TODO
-
-        return Optional.of(labRepository.save(lab));
-    }
-
-    public Optional<Lab> updateProfile (Lab lab){
-        // TODO
-
-        return Optional.of(labRepository.save(lab));
+    public void checkPermission(String opid, String labId) throws Exception {
+        Query query = new Query(Criteria.where("_id").is(labId)
+                .and("users.opid").is(opid));
+        if (!garesearchMongoTemplate.exists(query, Lab.class)){
+            throw new AccessDeniedException("Insufficient permissions for the requested lab");
+        }
     }
 }

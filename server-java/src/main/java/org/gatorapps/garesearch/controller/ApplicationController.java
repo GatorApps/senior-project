@@ -2,6 +2,7 @@ package org.gatorapps.garesearch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.account.User;
@@ -104,4 +105,57 @@ public class ApplicationController {
         ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    /**
+     Exclusively Faculty Routes
+     */
+
+    // TODO : finish this. (service file)
+    //      - formatting,
+    //      - excluding unnecessary fields
+    //      - and will need to get user from AccountMongoTemplate . a simple get by opid to retrieve name and email
+
+    /*
+        response.payload returns: list of applications students have submitted for particular position
+     */
+    @GetMapping("/applicationManagement")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicationList(HttpServletRequest request, @RequestParam (value="positionId") String positionId) throws Exception {
+        List<Map> foundApplications = applicationService.getApplicationList(userAuthUtil.retrieveOpid(request), positionId);
+
+        List<Map> submittedApps = foundApplications.stream()
+                .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
+                .toList();
+        List<Map> archivedApps = foundApplications.stream()
+                .filter(app -> "Archived".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
+                .toList();
+
+
+        Map<String, Object> payloadResponse = Map.of(
+                "applications", Map.of(
+                        "activeApplications", submittedApps,
+                        "archivedApplications", archivedApps
+                ));
+
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        updates application status
+     */
+    @PutMapping("/applicationStatus")
+    public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(@Valid HttpServletRequest request,
+                                                                     @RequestParam(value = "positionId") String positionId,
+                                                                     @RequestParam(value = "applicationId") String applicationId,
+                                                                     @RequestParam(value = "status") @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'") String status) throws Exception {
+        applicationService.updateStatus(userAuthUtil.retrieveOpid(request), positionId, applicationId, status);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 }

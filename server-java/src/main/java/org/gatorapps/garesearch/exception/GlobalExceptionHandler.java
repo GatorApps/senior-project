@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,12 +22,13 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
         }
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        ErrorResponse<Map<String, String>> errResponse = new ErrorResponse<>("ERR_INPUT_FAIL_VALIDATION", "Please fix the following errors and try again", errors);
+        return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -56,6 +58,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse<Void>> handleUnwantedResult(UnwantedResult ex) {
         ErrorResponse<Void> errResponse = new ErrorResponse<>(ex.getErrCode(), ex.getMessage());
         return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse<Void>> handleAccessDeniedException(AccessDeniedException ex){
+        ErrorResponse<Void> errResponse = new ErrorResponse<>("ERR_INVALID_ACCESS", ex.getMessage());
+        return new ResponseEntity<>(errResponse, HttpStatus.FORBIDDEN);
     }
 
     // when @RequestParam is required but missing

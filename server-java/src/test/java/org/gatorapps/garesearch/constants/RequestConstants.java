@@ -18,11 +18,13 @@ public class RequestConstants {
     @Value("${test.user.cookie}")
     public static String testUserCookie;
     public static String VALID_COOKIE_VALUE;
+    public static String TEST_USER_OPID;
     public static final String HEADER_NAME = "GATORAPPS_APP";
     public static final String VALID_HEADER_VALUE = "garesearch";
 
     @PostConstruct
     public void init() {
         VALID_COOKIE_VALUE = "Bearer " + testUserOpid;
+        TEST_USER_OPID = testUserOpid;
     }
 }

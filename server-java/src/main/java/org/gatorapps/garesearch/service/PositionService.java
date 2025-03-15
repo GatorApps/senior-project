@@ -3,11 +3,14 @@ package org.gatorapps.garesearch.service;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.model.search.*;
+import jakarta.validation.ConstraintViolationException;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
+import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
+import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +19,19 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @Service
 public class PositionService {
     @Autowired
     PositionRepository positionRepository;
+
+    @Autowired
+    LabService labService;
 
     @Autowired
     @Qualifier("garesearchMongoTemplate")
@@ -155,7 +163,7 @@ public class PositionService {
 
     public Map getPublicPosting (String positionId) throws Exception {
         try {
-            // must match 'opid'
+            // must match 'id'
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(
                             Criteria.where("_id").is(new ObjectId(positionId))
@@ -203,37 +211,91 @@ public class PositionService {
             }
             throw new Exception("Unable to process your request at this time", e);
         }
-
     }
 
-
     public Optional<Position> getPosting (String id){
-        // TODO
-
         return positionRepository.findById(id);
     }
 
 
-    public void createPosting (Position position) throws Exception {
-        // TODO
-
+    public List<Map> getPostingsList (String opid) throws Exception {
         try {
-            position.setRawDescription(position.getDescription());
-            position.setPostedTimeStamp();
+            // lab must have user with 'opid'
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(
+                            Criteria.where("users.opid").is(opid)
+                    ),
+                    Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("labId")
+                            .and("name").as("labName"),
+                    // join with 'positions' collection
+                    Aggregation.lookup(
+                            "positions",      // Collection to join
+                            "labId",                 // Local field
+                            "labId",               // Foreign field
+                            "position"             // Alias for the joined field
+                    ),
+                    // flatten 'position' array
+                    Aggregation.unwind("position", false),
+                    Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("positionId")
+                            .and("position.name").as("name")
+                            .and("position.lastUpdatedTimeStamp").as("lastUpdatedTimeStamp")
+                            .and("position.status").as("status")
+                            .andInclude("labName")
+                            .andInclude("labId")
+                            .andExclude("_id")
+            );
 
-            // manual command to validate because JPA annotations do not get checked on .save
-            validationUtil.validate(position);
+            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
+                    aggregation, "labs", Map.class);
 
-            positionRepository.save(position);
-        } catch (Exception e){
+            return results.getMappedResults();
+        } catch (Exception e) {
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
             throw new Exception("Unable to process your request at this time", e);
         }
     }
 
-    public Optional<Position> updatePosting (Position position){
-        // TODO
+    public void updateStatus(String opid, String positionId, String status) throws Exception {
+        try {
+            Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
 
-        return Optional.of(positionRepository.save(position));
+            labService.checkPermission(opid, position.getLabId());
+
+            position.setStatus(status);
+            positionRepository.save(position);
+        } catch (Exception e){
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
+
+    public void savePosting(String opid, Position position) throws Exception {
+        try {
+            labService.checkPermission(opid, position.getLabId());
+
+            if (position.getDescription() != null) {
+                position.setRawDescription(position.getDescription());
+            }
+            positionRepository.save(position);
+        } catch (Exception e){
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
     }
 
 }
