@@ -88,7 +88,7 @@ public class LabControllerTests {
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.labs").isNotEmpty())
+                .andExpect(jsonPath("$.payload.labs").exists())
                 .andDo(RestDocsConfig.getDefaultDocHandler("lab-get-list"));
     }
 

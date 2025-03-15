@@ -476,6 +476,7 @@ p{margin-bottom:1.25rem}
 </li>
 <li><a href="#_position_faculty_only_routes">Position Faculty Only Routes</a>
 <ul class="sectlevel2">
+<li><a href="#index-get-position-list">GET PositionList</a></li>
 <li><a href="#index-get-position-management-list">GET PositionManagementList</a></li>
 <li><a href="#index-post-position">POST Create New Position</a></li>
 <li><a href="#index-update-position">PUT Update Existing Position</a></li>
@@ -672,16 +673,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
       "labName" : "Ava's Testing Lab 2"
     }, {
       "labId" : "67d5cc4dfd43841f90c4d7cb",
-      "labName" : "Ava's Updated Lab 691"
-    }, {
-      "labId" : "67d5e6d37855fd216256b6cd",
-      "labName" : "Ava's Test Lab 281"
-    }, {
-      "labId" : "67d5e7283bf1d1783e99d041",
-      "labName" : "Ava's Test Lab 392"
-    }, {
-      "labId" : "67d5e7789228d662201b9bd1",
-      "labName" : "Ava's Test Lab 672"
+      "labName" : "Ava's Updated Lab 606"
     } ]
   }
 }</code></pre>
@@ -705,7 +697,7 @@ Authorization: &lt;Authentication Token&gt;
 Content-Length: 288
 
 {
-  "name" : "Ava's Test Lab 411",
+  "name" : "Ava's Test Lab 170",
   "description" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
   "email" : "testEmail@gmail.com",
   "website" : "https://testlab.gatorapps.org"
@@ -748,7 +740,7 @@ Content-Length: 411
     "opid" : "&lt;User OPID&gt;",
     "role" : "&lt;User Role&gt;"
   } ],
-  "name" : "Ava's Updated Lab 370",
+  "name" : "Ava's Updated Lab 289",
   "description" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
   "email" : "testEmail@gmail.com",
   "website" : "https://testlab.gatorapps.org"
@@ -802,6 +794,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
     "position" : {
       "lastUpdatedTimeStamp" : "2025-03-15T17:20:24.231+00:00",
       "status" : "open",
+      "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
       "positionId" : "67c3c01ab87e185493ae9c10",
       "positionName" : "Ava's Testing Position electrical 3.2",
       "positionDescription" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
@@ -869,13 +862,15 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
       "positionDescription" : "This is a testing position.",
       "labName" : "Luke's Testing Lab"
     }, {
+      "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
       "positionId" : "67c3c01ab87e185493ae9c10",
       "positionName" : "Ava's Testing Position electrical 3.2",
       "positionDescription" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
       "labName" : "Ava's Testing Lab 2"
     }, {
+      "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
       "positionId" : "67d5d23345ad7501f03159cf",
-      "positionName" : "Ava's Test Position 907",
+      "positionName" : "Ava's Test Position 39",
       "positionDescription" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
       "labName" : "Ava's Testing Lab 2"
     } ]
@@ -929,7 +924,10 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
       "positionName" : "Ava's Testing Position electrical 3.2"
     }, {
       "positionId" : "67d5d23345ad7501f03159cf",
-      "positionName" : "Ava's Test Position 907"
+      "positionName" : "Ava's Test Position 39"
+    }, {
+      "positionId" : "67d5f157e6da170bd67bdc1f",
+      "positionName" : "Ava's Testing Position electrical 797"
     } ]
   }
 }</code></pre>
@@ -942,6 +940,58 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 <div class="sect1">
 <h2 id="_position_faculty_only_routes"><a class="link" href="#_position_faculty_only_routes">Position Faculty Only Routes</a></h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="index-get-position-list"><a class="link" href="#index-get-position-list">GET PositionList</a></h3>
+<div class="paragraph">
+<p>A <code>GET</code> request to retrieve a list of positions (only names) posted by the labs a user is in.</p>
+</div>
+<div class="sect3">
+<h4 id="index-get-position-list_http_request"><a class="link" href="#index-get-position-list_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/postingsList HTTP/1.1
+GATORAPPS_APP: garesearch
+Authorization: &lt;Authentication Token&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="index-get-position-list_http_response"><a class="link" href="#index-get-position-list_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+
+{
+  "errCode" : "0",
+  "payload" : {
+    "positions" : [ {
+      "positionId" : "6797d2ff9ecab28bd5548672",
+      "name" : "Ava's Testing Position"
+    }, {
+      "positionId" : "6797d2ff9ecab28bd5548672",
+      "name" : "Ava's Testing Position biology 2"
+    }, {
+      "positionId" : "6797d2ff9ecab28bd5548672",
+      "name" : "Ava's Testing CLOSED Position electrical 4"
+    }, {
+      "positionId" : "67d27e5be0587166932d7984",
+      "name" : "Ava's Testing Position electrical 3.2"
+    }, {
+      "positionId" : "67d27e5be0587166932d7984",
+      "name" : "Ava's Test Position 39"
+    }, {
+      "positionId" : "67d27e5be0587166932d7984",
+      "name" : "Ava's Testing Position electrical 797"
+    }, {
+      "positionId" : "67d27e5be0587166932d7984",
+      "name" : "Ava's Test Position 830"
+    } ]
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
 <div class="sect2">
 <h3 id="index-get-position-management-list"><a class="link" href="#index-get-position-management-list">GET PositionManagementList</a></h3>
 <div class="paragraph">
@@ -966,40 +1016,56 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 {
   "errCode" : "0",
   "payload" : {
-    "postingsList" : [ {
-      "labId" : "6797d2ff9ecab28bd5548672",
-      "labName" : "Ava's Testing Lab",
-      "positionId" : "6797d2ff9ecab28bd5548672",
-      "name" : "Ava's Testing Position",
-      "status" : "open"
-    }, {
-      "labId" : "6797d2ff9ecab28bd5548672",
-      "labName" : "Ava's Testing Lab",
-      "positionId" : "6797d2ff9ecab28bd5548672",
-      "name" : "Ava's Testing Position biology 2",
-      "status" : "open"
-    }, {
-      "labId" : "6797d2ff9ecab28bd5548672",
-      "labName" : "Ava's Testing Lab",
-      "positionId" : "6797d2ff9ecab28bd5548672",
-      "name" : "Ava's Testing CLOSED Position electrical 4",
-      "lastUpdatedTimeStamp" : "2025-03-15T17:20:24.231+00:00",
-      "status" : "closed"
-    }, {
-      "labId" : "67d27e5be0587166932d7984",
-      "labName" : "Ava's Testing Lab 2",
-      "positionId" : "67d27e5be0587166932d7984",
-      "name" : "Ava's Testing Position electrical 3.2",
-      "lastUpdatedTimeStamp" : "2025-03-15T17:20:24.231+00:00",
-      "status" : "open"
-    }, {
-      "labId" : "67d27e5be0587166932d7984",
-      "labName" : "Ava's Testing Lab 2",
-      "positionId" : "67d27e5be0587166932d7984",
-      "name" : "Ava's Test Position 907",
-      "lastUpdatedTimeStamp" : "2025-03-15T20:47:54.646+00:00",
-      "status" : "open"
-    } ]
+    "postingsList" : {
+      "closedPositions" : [ {
+        "labId" : "6797d2ff9ecab28bd5548672",
+        "labName" : "Ava's Testing Lab",
+        "positionId" : "6797d2ff9ecab28bd5548672",
+        "name" : "Ava's Testing CLOSED Position electrical 4",
+        "lastUpdatedTimeStamp" : "2025-03-15T17:20:24.231+00:00",
+        "postedTimeStamp" : "2025-03-02T02:19:05.806+00:00",
+        "status" : "closed"
+      } ],
+      "openPositions" : [ {
+        "labId" : "6797d2ff9ecab28bd5548672",
+        "labName" : "Ava's Testing Lab",
+        "positionId" : "6797d2ff9ecab28bd5548672",
+        "name" : "Ava's Testing Position",
+        "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
+        "status" : "open"
+      }, {
+        "labId" : "67d27e5be0587166932d7984",
+        "labName" : "Ava's Testing Lab 2",
+        "positionId" : "67d27e5be0587166932d7984",
+        "name" : "Ava's Testing Position electrical 3.2",
+        "lastUpdatedTimeStamp" : "2025-03-15T17:20:24.231+00:00",
+        "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
+        "status" : "open"
+      }, {
+        "labId" : "67d27e5be0587166932d7984",
+        "labName" : "Ava's Testing Lab 2",
+        "positionId" : "67d27e5be0587166932d7984",
+        "name" : "Ava's Test Position 39",
+        "lastUpdatedTimeStamp" : "2025-03-15T21:29:59.709+00:00",
+        "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
+        "status" : "open"
+      }, {
+        "labId" : "67d27e5be0587166932d7984",
+        "labName" : "Ava's Testing Lab 2",
+        "positionId" : "67d27e5be0587166932d7984",
+        "name" : "Ava's Testing Position electrical 797",
+        "lastUpdatedTimeStamp" : "2025-03-15T22:40:50.279+00:00",
+        "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
+        "status" : "open"
+      }, {
+        "labId" : "6797d2ff9ecab28bd5548672",
+        "labName" : "Ava's Testing Lab",
+        "positionId" : "6797d2ff9ecab28bd5548672",
+        "name" : "Ava's Testing Position biology 2",
+        "postedTimeStamp" : "2025-05-10T19:27:09.573+00:00",
+        "status" : "open"
+      } ]
+    }
   }
 }</code></pre>
 </div>
@@ -1019,14 +1085,15 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 Content-Type: application/json;charset=UTF-8
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
-Content-Length: 645
+Content-Length: 700
 
 {
     "labId": "67d27e5be0587166932d7984",
-    "name": "Ava's Test Position 796",
+    "name": "Ava's Test Position 830",
     "description": "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;
 nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
     "supplementalQuestions": "&lt;ol&gt;&lt;li&gt;&lt;strong&gt;Tell us about your current interests and any related extracurricular ?&lt;/strong&gt;&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Do you have previous research experience?&lt;/strong&gt;&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Why are you interested in this position ?&lt;/strong&gt;&lt;/li&gt;&lt;/ol&gt;",
+    "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
     "status": "open"
 }</code></pre>
 </div>
@@ -1059,15 +1126,16 @@ nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt
 Content-Type: application/json;charset=UTF-8
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
-Content-Length: 682
+Content-Length: 738
 
 {
     "id": "67d5d23345ad7501f03159cf",
     "labId": "67d27e5be0587166932d7984",
-    "name": "Ava's Test Position 39",
+    "name": "Ava's Test Position 914",
     "description": "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;
 nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
     "supplementalQuestions": "&lt;ol&gt;&lt;li&gt;&lt;strong&gt;Tell us about your current interests and any related extracurricular ?&lt;/strong&gt;&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Do you have previous research experience?&lt;/strong&gt;&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Why are you interested in this position ?&lt;/strong&gt;&lt;/li&gt;&lt;/ol&gt;",
+    "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
     "status": "open"
 }</code></pre>
 </div>
@@ -1126,7 +1194,7 @@ status=open</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-03-15 17:22:49 -0400
+Last updated 2025-03-15 19:01:49 -0400
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

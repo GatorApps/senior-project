@@ -85,6 +85,12 @@ operation::position-get-searchresults_indexer[snippets='http-request,http-respon
 
 == Position Faculty Only Routes
 
+[[index-get-position-list]]
+=== GET PositionList
+A `GET` request to retrieve a list of positions (only names) posted by the labs a user is in.
+
+operation::position-get-list[snippets='http-request,http-response']
+
 [[index-get-position-management-list]]
 === GET PositionManagementList
 A `GET` request to retrieve a list of positions posted by the labs a user is in.
