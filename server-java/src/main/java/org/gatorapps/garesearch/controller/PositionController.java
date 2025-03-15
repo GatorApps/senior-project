@@ -105,16 +105,44 @@ public class PositionController {
      */
 
     /*
+        response.payload returns: list of positions a faculty has access to
+     */
+    @GetMapping("/postingsList")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionsNamesList(HttpServletRequest request) throws Exception {
+        List<Map> positions = positionService.getPostingNames(userAuthUtil.retrieveOpid(request));
+
+        Map<String, Object> payloadResponse = Map.of(
+                "positions", positions);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /*
         response.payload returns: list of positions for faculty
      */
     @GetMapping("/postingManagement")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getFacultyPostingsList(@Valid HttpServletRequest request) throws Exception {
         List<Map> positions = positionService.getPostingsList(userAuthUtil.retrieveOpid(request));
 
-        Map<String, Object> payloadResponse = Map.of(
-                "postingsList", positions);
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+        List<Map> openPositions = positions.stream()
+                .filter(app -> "open".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("postedTimeStamp")))
+                .toList();
 
+        List<Map> closedPositions = positions.stream()
+                .filter(app -> "closed".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("postedTimeStamp")))
+                .toList();
+
+        Map<String, Object> payloadResponse = Map.of(
+                "postingsList", Map.of(
+                        "openPositions", openPositions,
+                        "closedPositions", closedPositions
+                ));
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

@@ -48,7 +48,7 @@ public class LabController {
         response.payload returns: list of labs a faculty is part of
      */
     @GetMapping("/labsList")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabsList(HttpServletRequest request) throws Exception {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabsNameList(HttpServletRequest request) throws Exception {
         List<Map> labs = labService.getLabNames(userAuthUtil.retrieveOpid(request));
 
         Map<String, Object> payloadResponse = Map.of(

@@ -6,12 +6,14 @@ import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
 import org.gatorapps.garesearch.repository.garesearch.LabRepository;
+import org.gatorapps.garesearch.utils.MongoUpdateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
@@ -121,17 +123,20 @@ public class LabService {
         try {
             if (lab.getId() != null){
                 checkPermission(opid, lab.getId());
+                Update update = MongoUpdateUtil.createUpdate(lab);
+
+                garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(lab.getId()))), update, Lab.class);
             } else {
                 lab.setUsers(Arrays.asList(
                         new User(opid, "Admin")
                 ));
+                labRepository.save(lab);
             }
-
-            labRepository.save(lab);
         } catch (Exception e){
             if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException){
                 throw e;
             }
+            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }

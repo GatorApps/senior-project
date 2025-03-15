@@ -110,6 +110,20 @@ public class PositionControllerTests {
                 .andExpect(jsonPath("$.errMsg").value("Missing required req params: positionId"));
     }
 
+    /*------------------------- getPositionsNamesList -------------------------*/
+    // @GetMapping("/postingsList")
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionsNamesList(HttpServletRequest request)
+
+    @Test // @GetMapping("/postingsList")
+    public void getLabsList_Valid() throws Exception {
+        mockMvc.perform(get(positionControllerRoute + "/postingsList")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk())  // 200
+                .andExpect(jsonPath("$.payload.positions").exists())
+                .andDo(RestDocsConfig.getDefaultDocHandler("position-get-list"));
+    }
 
     /*------------------------- getFacultyPostingsList -------------------------*/
     // @GetMapping("/postingManagement")
@@ -162,6 +176,7 @@ public class PositionControllerTests {
                         "name": "Ava's Test Position %d",
                         "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
                         "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
+                        "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
                         "status": "open"
                     }
                     """, new Random().nextInt(1000));
@@ -185,6 +200,7 @@ public class PositionControllerTests {
                         "name": "Ava's Test Position %d",
                         "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
                         "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
+                        "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
                         "status": "open"
                     }
                     """, new Random().nextInt(1000));
@@ -205,7 +221,8 @@ public class PositionControllerTests {
                     {
                         "labId": "",
                         "name": "new position %d",
-                        "status": "open"
+                        "status": "open",
+                        "postedTimeStamp":"2025-03-15T21:29:59.062+00:00"
                     }
                     """, new Random().nextInt(1000));
         mockMvc.perform(post(positionControllerRoute + "/postingEditor")
@@ -226,7 +243,8 @@ public class PositionControllerTests {
                         "id": "67d5bcd9f7ef8c4aece255ae",
                         "labId": "67d5c0f411bf542d9f56f648",
                         "name": "new position %d",
-                        "status": "open"
+                        "status": "open",
+                        "postedTimeStamp":"2025-03-15T21:29:59.062+00:00"
                     }
                     """, new Random().nextInt(1000));
         mockMvc.perform(post(positionControllerRoute + "/postingEditor")
