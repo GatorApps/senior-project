@@ -26,6 +26,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 
 @Service
@@ -38,6 +39,9 @@ public class ApplicationService {
 
     @Autowired
     PositionRepository positionRepository;
+
+    @Autowired
+    private LabService labService;
 
     @Autowired
     @Qualifier("garesearchMongoTemplate")
@@ -58,8 +62,6 @@ public class ApplicationService {
         return objectMapper.convertValue(object, Map.class);
     }
 
-
-    // TODO : write in the manual validation commands where needed
 
     public Map getStudentApplication (String opid, String applicationId) throws Exception {
         // find by both opid and applicationId to ensure correct user is accessing the application
@@ -290,6 +292,65 @@ public class ApplicationService {
 
     public boolean alreadyApplied(String opid, String positionId) {
         return applicationRepository.existsByOpidAndPositionId(opid, positionId);
+    }
+
+
+    // TODO : finish this.
+    //      - formatting,
+    //      - excluding unnecessary fields,
+    //      - and will need to get user from AccountMongoTemplate . a simple get by opid to retrieve name and email
+    public List<Map> getApplicationList(String opid, String positionId) throws Exception {
+        try {
+            Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
+
+            labService.checkPermission(opid, position.getLabId());
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.match(
+                            Criteria.where("positionId").is(positionId)
+                    ),
+                    Aggregation.lookup(
+                            "applicantprofiles",
+                            "opid",
+                            "opid",
+                            "applicant"
+                    ),
+                    Aggregation.unwind("applicant", true),
+                    Aggregation.project()
+                            .andExclude("_id")
+            );
+
+            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(aggregation, "applications", Map.class);
+            return results.getMappedResults();
+
+        } catch (Exception e){
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to view these applications");
+            }
+
+            throw new Exception("Unable to process your request at this time");
+        }
+    }
+
+    public void updateStatus(String opid, String positionId, String applicationId, String status) throws Exception {
+        try {
+            Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
+            labService.checkPermission(opid, position.getLabId());
+
+            Application application = applicationRepository.findById(applicationId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application " + applicationId + " not found"));
+
+            application.setStatus(status);
+            applicationRepository.save(application);
+        } catch (Exception e){
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested application");
+            }
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
+            System.out.println(e.getMessage());
+            throw new Exception("Unable to process your request at this time", e);
+        }
     }
 
 }

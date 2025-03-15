@@ -114,4 +114,27 @@ public class ApplicationControllerTests {
 //    }
 
 
+
+    /*------------------------- updatePositionStatus -------------------------*/
+    // @PutMapping("/applicationStatus")
+    //    public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(
+    //          @Valid HttpServletRequest request,
+    //          @RequestParam(value = "positionId") String positionId,
+    //          @RequestParam(value = "applicationId") String applicationId,
+    //          @RequestParam(value = "status") @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'") String status)
+
+    @Test // @PutMapping("/applicationStatus")
+    public void updatePostingStatus_Valid() throws Exception {
+        mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
+                        .param("applicationId", "67d5e22d11bf542d9f56f66b")
+                        .param("positionId", "67c3c01ab87e185493ae9c10")
+                        .param("status", "submitted")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk())  // 200
+                .andExpect(jsonPath("$.payload").isEmpty())
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-update-status"));
+    }
+
 }

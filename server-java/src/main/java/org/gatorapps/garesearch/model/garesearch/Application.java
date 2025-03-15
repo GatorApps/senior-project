@@ -42,7 +42,7 @@ public class Application extends BaseApplicationProfileSchema {
 
     @Field("status")
     @NotBlank(message = "Status is required")
-    @Pattern(regexp = "draft|open|closed", message = "Position status must be one of 'draft', 'open', 'closed'")
+    @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'")
     private String status;
 
     @Field("supplementalResponses")

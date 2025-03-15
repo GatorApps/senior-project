@@ -1,8 +1,10 @@
 package org.gatorapps.garesearch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.model.garesearch.Lab;
+import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.LabService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,11 @@ public class LabController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     Exclusively Faculty Routes
+     */
+
+
     /*
         response.payload returns: list of labs a faculty is part of
      */
@@ -51,6 +58,19 @@ public class LabController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    /*
+        updates existing or creates new lab
+    */
+    @PostMapping("/profileEditor")
+    public ResponseEntity<ApiResponse<Void>> saveLabProfile(@Valid HttpServletRequest request, @Valid @RequestBody Lab lab) throws Exception {
+        labService.saveProfile(userAuthUtil.retrieveOpid(request), lab);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 
     // TODO : all of these below
 
@@ -69,38 +89,4 @@ public class LabController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-    @PostMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> createLabProfile(){
-        // Lab lab = labService.createProfile();
-        Lab lab = new Lab();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "labProfile", lab);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-    @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> updateLabProfile(){
-        // Lab lab = labService.updateProfile();
-        Lab lab = new Lab();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "labProfile", lab);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
 }

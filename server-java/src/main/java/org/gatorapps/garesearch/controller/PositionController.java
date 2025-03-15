@@ -2,6 +2,7 @@ package org.gatorapps.garesearch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.dto.ErrorResponse;
@@ -11,6 +12,7 @@ import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.gatorapps.garesearch.service.PositionService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
 import org.gatorapps.garesearch.validators.LabIdExists;
+import org.gatorapps.garesearch.validators.PositionIdExists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -103,81 +105,42 @@ public class PositionController {
      */
 
     /*
+        response.payload returns: list of positions for faculty
+     */
+    @GetMapping("/postingManagement")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getFacultyPostingsList(@Valid HttpServletRequest request) throws Exception {
+        List<Map> positions = positionService.getPostingsList(userAuthUtil.retrieveOpid(request));
+
+        Map<String, Object> payloadResponse = Map.of(
+                "postingsList", positions);
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        updates posting status
+     */
+    @PutMapping("/postingStatus")
+    public ResponseEntity<ApiResponse<Void>> updatePositionStatus(@Valid HttpServletRequest request,
+                                                                  @RequestParam(value = "positionId") String positionId,
+                                                                  @RequestParam(value = "status") @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'") String status) throws Exception {
+        positionService.updateStatus(userAuthUtil.retrieveOpid(request), positionId, status);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
         updates existing or creates new posting
      */
     @PostMapping("/postingEditor")
     public ResponseEntity<ApiResponse<Void>> savePositionPosting(@Valid HttpServletRequest request, @Valid @RequestBody Position position) throws Exception {
-
-        // TODO: check opid is user of the labId provided in position
-
         positionService.savePosting(userAuthUtil.retrieveOpid(request),position);
-        //Position position = new Position();
 
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
         ApiResponse<Void> response = new ApiResponse<Void>("0");
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-
-    // TODO : all of these below
-
-    /*
-        response.payload returns: list of positions for faculty
-     */
-    @GetMapping("/postingsList")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getFacultyPostingsList(){
-        // Position position = positionService.getPosting();
-        Position position = new Position();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "positionPosting", position);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    // TODO : all of these below
-
-    /*
-        response.payload returns: list of positions. similar to above, but only returns position id , name
-     */
-    @GetMapping("/posting")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPosting(){
-        // Position position = positionService.getPosting();
-        Position position = new Position();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "positionPosting", position);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-
-
-    @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> updatePositionPosting(){
-        // Position position = positionService.updatePosting();
-        Position position = new Position();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "positionPosting", position);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
 
 }
 
