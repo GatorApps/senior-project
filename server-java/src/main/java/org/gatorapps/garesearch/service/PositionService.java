@@ -216,8 +216,8 @@ public class PositionService {
         }
     }
 
-    public Optional<Position> getPosting(String id) {
-        return positionRepository.findById(id);
+    public Position getPosting(String id) throws Exception {
+        return positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found"));
     }
 
 

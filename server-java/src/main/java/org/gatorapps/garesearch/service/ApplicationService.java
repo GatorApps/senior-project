@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplicationService {
@@ -46,6 +47,11 @@ public class ApplicationService {
     @Autowired
     @Qualifier("garesearchMongoTemplate")
     private MongoTemplate garesearchMongoTemplate;
+
+    @Autowired
+    @Qualifier("accountMongoTemplate")
+    private MongoTemplate accountMongoTemplate;
+
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -75,7 +81,10 @@ public class ApplicationService {
                     Aggregation.project()
                             .andExpression("toObjectId(positionId)").as("positionIdObjectId")
                             .andInclude("status",
-                                    "submissionTimeStamp"),
+                                    "submissionTimeStamp",
+                                    "supplementalResponses",
+                                    "resumeId",
+                                    "transcriptId"),
 
                     // join with 'positions' collection
                     Aggregation.lookup(
@@ -90,7 +99,10 @@ public class ApplicationService {
                             .andExpression("toObjectId(position.labId)").as("labIdObjectId")
                             .and("position.name").as("positionName")
                             .andInclude("status",
-                                    "submissionTimeStamp"),
+                                    "submissionTimeStamp",
+                                    "supplementalResponses",
+                                    "resumeId",
+                                    "transcriptId"),
                     // join with 'labs' collection
                     Aggregation.lookup(
                             "labs",
@@ -104,7 +116,10 @@ public class ApplicationService {
                             .and("lab.name").as("labName")
                             .andInclude("positionName",
                                     "status",
-                                    "submissionTimeStamp")
+                                    "submissionTimeStamp",
+                                    "supplementalResponses",
+                                    "resumeId",
+                                    "transcriptId")
                             .andExclude("_id")
             );
 
@@ -112,7 +127,7 @@ public class ApplicationService {
                     aggregation, "applications", Map.class);
 
             if (results.getMappedResults().isEmpty()){
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to find application");
             }
             return results.getMappedResults().get(0);
         } catch (Exception e) {
@@ -294,11 +309,11 @@ public class ApplicationService {
         return applicationRepository.existsByOpidAndPositionId(opid, positionId);
     }
 
+    public Application getApplication(String opid, String labId, String applicationId) throws Exception {
+        labService.checkPermission(opid, labId);
+        return applicationRepository.findById(applicationId).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
+    }
 
-    // TODO : finish this.
-    //      - formatting,
-    //      - excluding unnecessary fields,
-    //      - and will need to get user from AccountMongoTemplate . a simple get by opid to retrieve name and email
     public List<Map> getApplicationList(String opid, String positionId) throws Exception {
         try {
             Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
@@ -309,29 +324,57 @@ public class ApplicationService {
                     Aggregation.match(
                             Criteria.where("positionId").is(positionId)
                     ),
-                    Aggregation.lookup(
-                            "applicantprofiles",
-                            "opid",
-                            "opid",
-                            "applicant"
-                    ),
-                    Aggregation.unwind("applicant", true),
                     Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("applicationId")
+                            .andInclude("opid",
+                                    "positionId",
+                                    "submissionTimeStamp",
+                                    "status")
                             .andExclude("_id")
             );
 
-            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(aggregation, "applications", Map.class);
-            return results.getMappedResults();
+            List<Map> applications = garesearchMongoTemplate.aggregate(aggregation, "applications", Map.class).getMappedResults();
+
+            // extract unique opid from applications
+            Set<String> opids = applications.stream()
+                    .map(app -> (String) app.get("opid"))
+                    .collect(Collectors.toSet());
+
+            // find associated user
+            Query query = new Query(Criteria.where("opid").in(opids));
+            List<Map> users = accountMongoTemplate.find(query, Map.class, "users");
+
+            // key : opid , value: user details
+            Map<String, Map> userMap = users.stream()
+                    .collect(Collectors.toMap(user -> (String) user.get("opid"), user -> user));
+
+            // combine user info and applications
+            for (Map app : applications){
+                String appOpid = (String) app.get("opid");
+                Map user = userMap.get(appOpid);
+                if (user != null) {
+                    app.put("labId", position.getLabId());
+                    app.put("firstName", userMap.get(appOpid).get("firstName"));
+                    app.put("lastName", userMap.get(appOpid).get("lastName"));
+
+                    List<String> emails = (List<String>) user.get("emails");
+                    if (emails != null && !emails.isEmpty()){
+                        app.put("email", emails.get(0));
+                    } else {
+                        app.put("email", null);
+                    }
+                }
+            }
+
+            return applications;
 
         } catch (Exception e){
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to view these applications");
             }
-
             throw new Exception("Unable to process your request at this time");
         }
     }
-
     public void updateStatus(String opid, String positionId, String applicationId, String status) throws Exception {
         try {
             Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.account.User;
+import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
@@ -110,13 +111,25 @@ public class ApplicationController {
      Exclusively Faculty Routes
      */
 
-    // TODO : finish this. (service file)
-    //      - formatting,
-    //      - excluding unnecessary fields
-    //      - and will need to get user from AccountMongoTemplate . a simple get by opid to retrieve name and email
+    /*
+        response.payload returns: application by applicationId
+     */
+    @GetMapping("/application")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplication(@Valid HttpServletRequest request,
+                                                                     @RequestParam(value = "labId") String labId,
+                                                                     @RequestParam(value = "applicationId") String applicationId) throws Exception {
+        Application application = applicationService.getApplication(userAuthUtil.retrieveOpid(request), labId, applicationId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "application", application);
+
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     /*
-        response.payload returns: list of applications students have submitted for particular position
+        response.payload returns: 2 lists of applications students have submitted for particular position
      */
     @GetMapping("/applicationManagement")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicationList(HttpServletRequest request, @RequestParam (value="positionId") String positionId) throws Exception {
@@ -156,6 +169,4 @@ public class ApplicationController {
         ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 }

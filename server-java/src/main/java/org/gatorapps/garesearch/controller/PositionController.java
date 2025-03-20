@@ -82,13 +82,8 @@ public class PositionController {
     }
 
     @GetMapping("/supplementalQuestions")
-    public ResponseEntity<?> getSupplementalQuestions(@Valid HttpServletRequest request, @RequestParam(value = "positionId") String positionId) {
-        Optional<Position> positionOptional = positionService.getPosting(positionId);
-        if (positionOptional.isEmpty()) {
-            ErrorResponse<Void> response = new ErrorResponse<>("-", "Position not found");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-        Position position = positionOptional.get();
+    public ResponseEntity<?> getSupplementalQuestions(@RequestParam(value = "positionId") String positionId) throws Exception {
+        Position position = positionService.getPosting(positionId);
 
         Map<String, Object> responsePayload = new HashMap<>();
         Map<String, Object> positionMap = new HashMap<>();
@@ -103,6 +98,20 @@ public class PositionController {
     /**
      Exclusively Faculty Routes
      */
+
+    /*
+        response.payload returns: retrieve position to edit
+     */
+    @GetMapping("/postingEditor")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPosting(@Valid HttpServletRequest request, @RequestParam(value = "positionId")String positionId) throws Exception {
+        Position position = positionService.getPosting(positionId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "position", position);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     /*
         response.payload returns: list of positions a faculty has access to
