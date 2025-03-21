@@ -41,13 +41,13 @@ public class LabControllerTests {
     @Test // @GetMapping
     public void getPublicProfile_Valid() throws Exception {
         mockMvc.perform(get(labControllerRoute)
-                        .param("labId", "6797d2ff9ecab28bd5548672")
+                        .param("labId", "88dcf5a77621f49532e47b52")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload.lab").isNotEmpty())
-                .andExpect(jsonPath("$.payload.lab.labId").value("6797d2ff9ecab28bd5548672"))
+                .andExpect(jsonPath("$.payload.lab.labId").value("88dcf5a77621f49532e47b52"))
                 .andDo(RestDocsConfig.getDefaultDocHandler("lab-get-by-id"));
     }
 
@@ -103,7 +103,7 @@ public class LabControllerTests {
     public void createNewLab_Valid() throws Exception {
         String requestBody = String.format("""
                     {
-                        "name": "Ava's Test Lab %d",
+                        "name": "Ava's New Test Lab %d",
                         "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
                         "email": "testEmail@gmail.com",
                         "website": "https://testlab.gatorapps.org"
@@ -124,7 +124,7 @@ public class LabControllerTests {
     public void updateLab_Valid() throws Exception {
         String requestBody = String.format("""
                     {   
-                        "id": "67d5cc4dfd43841f90c4d7cb",
+                        "id": "p7dd015e481a0b5b0bccbaa7",
                         "users": [
                             {
                                 "opid": "%s",
@@ -174,7 +174,7 @@ public class LabControllerTests {
     public void updateNewLab_invalidLabAccess() throws Exception {
         String requestBody = String.format("""
                     {
-                        "id": "67d5c0f411bf542d9f56f648",
+                        "id": "67dd015e481a0b5b0bccbaa7",
                         "name": "test lab",
                         "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
                         "email": "testEmail@gmail.com",

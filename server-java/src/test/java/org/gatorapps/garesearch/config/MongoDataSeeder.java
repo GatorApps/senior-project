@@ -2,8 +2,10 @@ package org.gatorapps.garesearch.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.gatorapps.garesearch.utils.DateDeserializer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,10 +41,12 @@ public class MongoDataSeeder {
     @Qualifier("accountMongoTemplate")
     private MongoTemplate accountMongoTemplate;
 
+    ObjectMapper objectMapper = new ObjectMapper();
+    SimpleModule module = new SimpleModule();
+
+
 
     public void insertJsonData(String databaseName, String collectionName, String filePath) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         List<Map<String, Object>> data = objectMapper.readValue(
                 new ClassPathResource(filePath).getInputStream(),
                 new TypeReference<>() {}
@@ -62,10 +67,13 @@ public class MongoDataSeeder {
             ObjectId objId = new ObjectId();
             if (doc.containsKey("_id") && doc.get("_id") instanceof Map){
                 Map<String, Object> idMap = (Map<String, Object>) doc.get("_id");
+                System.out.println("collection: " + collectionName + "  id: " + idMap.get("$oid").toString());
                 if (idMap.containsKey("$oid")){
                     objId = new ObjectId(idMap.get("$oid").toString());
                 }
             }
+
+            doc.remove("_id");
             doc.put("_id", objId);
 
             if (mongotemp != null) {
@@ -78,6 +86,9 @@ public class MongoDataSeeder {
     }
 
     public void populateDatabase() throws IOException {
+        module.addDeserializer(Date.class, new DateDeserializer());
+        objectMapper.registerModule(module);
+
         insertJsonData("test_global", "apps", "/data/global/apps.json");
         insertJsonData("test_account", "users", "/data/account/users.json");
         insertJsonData("test_garesearch", "applicantprofiles", "/data/garesearch/applicantProfiles.json");
@@ -88,4 +99,10 @@ public class MongoDataSeeder {
         insertJsonData("test_garesearch", "positions", "/data/garesearch/positions.json");
     }
 
+
+    public void deleteDatabase() {
+        globalMongoTemplate.getMongoDatabaseFactory().getMongoDatabase().drop();
+        accountMongoTemplate.getMongoDatabaseFactory().getMongoDatabase().drop();
+        garesearchMongoTemplate.getMongoDatabaseFactory().getMongoDatabase().drop();
+    }
 }

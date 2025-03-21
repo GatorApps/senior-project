@@ -76,6 +76,9 @@
     "__v": 0
   },
   {
+    "_id": {
+      "$oid": "67dd015e481a0b5b0bccbaa7"
+    },
     "users": [],
     "name": "Lab with no users",
     "website": "https://testlab.gatorapps.org",
@@ -83,6 +86,9 @@
     "__v": 0
   },
   {
+    "_id": {
+      "$oid": "p7dd015e481a0b5b0bccbaa7"
+    },
     "users": [
       {
         "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",

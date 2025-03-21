@@ -20,24 +20,29 @@ import java.io.IOException;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseTest {
     @Autowired
-    MongoDataSeeder mongoDataSeeder;
+    static MongoDataSeeder mongoDataSeeder;
 
     static final MongoDBContainer mongoContainer = new MongoDBContainer("mongo:latest");
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        mongoContainer.start();
+        registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
+    }
+
 
     @BeforeAll
     void insertData() throws IOException {
         mongoDataSeeder.populateDatabase();
     }
 
+
     @AfterAll
     static void stopContainer() {
+        mongoDataSeeder.deleteDatabase();
+
         mongoContainer.stop();
     }
 
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        mongoContainer.start();
-        System.out.println("in set properties");
-        registry.add("spring.data.mongodb.uri", mongoContainer::getReplicaSetUrl);
-    }
+
 }
