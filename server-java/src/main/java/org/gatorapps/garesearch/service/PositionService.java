@@ -109,6 +109,7 @@ public class PositionService {
             if (e instanceof ResourceNotFoundException) {
                 throw e;
             }
+            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }

@@ -1,0 +1,232 @@
+[{
+  "_id": {
+    "$oid": "6616e80db011bd7cff112a25"
+  },
+  "labId": "6616be4c511f9c6619446ac0",
+  "name": "Luke's Testing Position",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-10T19:27:09.573Z"
+  },
+  "status": "open",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66220afc9aee0d2ebb58db67"
+  },
+  "labId": "6616be4c511f9c6619446ac0",
+  "name": "Luke's Testing Position 2",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-19T06:11:08.984Z"
+  },
+  "status": "open",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66220b229aee0d2ebb58db72"
+  },
+  "labId": "66220b0f9aee0d2ebb58db6c",
+  "name": "Luke's Testing Position 4",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-19T06:11:46.499Z"
+  },
+  "status": "open",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6622b8c7ceb54473205d08aa"
+  },
+  "labId": "6616be4c511f9c6619446ac0",
+  "name": "Luke's Testing Position 5",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-19T18:32:39.250Z"
+  },
+  "status": "draft",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6622b8d8ceb54473205d08b0"
+  },
+  "labId": "6616be4c511f9c6619446ac0",
+  "name": "Luke's Testing Position 6",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-19T18:32:56.523Z"
+  },
+  "status": "open",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6622b8dbceb54473205d08b6"
+  },
+  "labId": "6616be4c511f9c6619446ac0",
+  "name": "Luke's Testing Position 7",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-19T18:32:59.047Z"
+  },
+  "status": "open",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6622b8fcceb54473205d08bf"
+  },
+  "labId": "6616be4c511f9c6619446ac0",
+  "name": "Luke's Testing Position 8",
+  "description": "This is a testing position.",
+  "rawDescription": "This is a testing position",
+  "postedTimeStamp": {
+    "$date": "2024-04-19T18:33:32.090Z"
+  },
+  "status": "closed",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6797d2a79ecab28bd554866b"
+  },
+  "labId": "6797d2ff9ecab28bd5548672",
+  "name": "Ava's Testing Position",
+  "description": "test position",
+  "postedTimeStamp": {
+    "$date": "2025-01-10T19:27:09.573Z"
+  },
+  "status": "open",
+  "__v": 0,
+  "rawDescription": "test position"
+},
+{
+  "_id": {
+    "$oid": "67be52b8d7565c4e30236218"
+  },
+  "labId": "6797d2ff9ecab28bd5548672",
+  "name": "Ava's Testing Position biology 2",
+  "description": "test position chemistry",
+  "postedTimeStamp": {
+    "$date": "2025-05-10T19:27:09.573Z"
+  },
+  "status": "open",
+  "__v": 0,
+  "rawDescription": "test position chemistry"
+},
+{
+  "_id": {
+    "$oid": "67c3c01ab87e185493ae9c10"
+  },
+  "labId": "67d27e5be0587166932d7984",
+  "name": "Ava's Testing Position electrical 3.2",
+  "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
+  "rawDescription": "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
+  "lastUpdatedTimeStamp": {
+    "$date": "2025-03-15T17:20:24.231Z"
+  },
+  "status": "open",
+  "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
+  "_class": "org.gatorapps.garesearch.model.garesearch.Position",
+  "postedTimeStamp": {
+    "$date": "2025-01-10T19:27:09.573Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67c7a40b321fed8c352ef0c1"
+  },
+  "labId": "6797d2ff9ecab28bd5548672",
+  "name": "Ava's Testing CLOSED Position electrical 4",
+  "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
+  "rawDescription": "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
+  "postedTimeStamp": {
+    "$date": "2025-03-02T02:19:05.806Z"
+  },
+  "status": "closed",
+  "_class": "org.gatorapps.garesearch.model.garesearch.Position",
+  "lastUpdatedTimeStamp": {
+    "$date": "2025-03-15T17:20:24.231Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67d5d23345ad7501f03159cf"
+  },
+  "labId": "67d27e5be0587166932d7984",
+  "name": "Ava's Test Position 134",
+  "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
+  "rawDescription": "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
+  "postedTimeStamp": {
+    "$date": "2025-01-10T19:27:09.573Z"
+  },
+  "lastUpdatedTimeStamp": {
+    "$date": "2025-03-18T21:07:41.888Z"
+  },
+  "status": "open",
+  "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
+  "_class": "org.gatorapps.garesearch.model.garesearch.Position"
+},
+{
+  "_id": {
+    "$oid": "67d5f157e6da170bd67bdc1f"
+  },
+  "labId": "67d27e5be0587166932d7984",
+  "name": "Ava's Testing Position electrical 797",
+  "description": "test",
+  "rawDescription": "test",
+  "lastUpdatedTimeStamp": {
+    "$date": "2025-03-15T22:40:50.279Z"
+  },
+  "status": "open",
+  "_class": "org.gatorapps.garesearch.model.garesearch.Position",
+  "postedTimeStamp": {
+    "$date": "2025-01-10T19:27:09.573Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "67d6065842a2df78b8428456"
+  },
+  "labId": "67d27e5be0587166932d7984",
+  "name": "Ava's Test Position 830",
+  "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
+  "rawDescription": "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
+  "postedTimeStamp": {
+    "$date": "2025-03-15T22:59:36.712Z"
+  },
+  "lastUpdatedTimeStamp": {
+    "$date": "2025-03-15T22:59:36.712Z"
+  },
+  "status": "open",
+  "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
+  "_class": "org.gatorapps.garesearch.model.garesearch.Position"
+},
+{
+  "_id": {
+    "$oid": "67d9e09d58035a1e10da1464"
+  },
+  "labId": "67d27e5be0587166932d7984",
+  "name": "Ava's Test Position 708",
+  "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
+  "rawDescription": "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
+  "postedTimeStamp": {
+    "$date": "2025-03-18T21:07:40.964Z"
+  },
+  "lastUpdatedTimeStamp": {
+    "$date": "2025-03-18T21:07:40.964Z"
+  },
+  "status": "open",
+  "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
+  "_class": "org.gatorapps.garesearch.model.garesearch.Position"
+}]

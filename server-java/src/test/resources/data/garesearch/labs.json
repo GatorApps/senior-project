@@ -1,0 +1,111 @@
+[
+  {
+    "_id": {
+      "$oid": "99dcf5a77621f49532e47b52"
+    },
+    "users": [
+      {
+        "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+        "role": "admin"
+      }
+    ],
+    "name": "Luke's Testing Lab 1",
+    "department": "Department of Testing",
+    "website": "https://testlab.gatorapps.org",
+    "email": "testlab@gatorapps.org",
+    "description": "Testing description",
+    "__v": 0
+  },
+  {
+    "users": [
+      {
+        "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+        "role": "admin"
+      }
+    ],
+    "name": "Luke's Testing Lab",
+    "department": "Department of Testing",
+    "website": "https://testlab.gatorapps.org",
+    "email": "testlab@gatorapps.org",
+    "description": "Testing description",
+    "__v": 0
+  },
+  {
+    "users": [
+      {
+        "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+        "role": "admin"
+      }
+    ],
+    "name": "Luke's Testing Lab 2",
+    "department": "Department of Testing",
+    "website": "https://testlab.gatorapps.org",
+    "email": "testlab@gatorapps.org",
+    "description": "Testing description",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "88dcf5a77621f49532e47b52"
+    },
+    "users": [
+      {
+        "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "role": "admin"
+      }
+    ],
+    "name": "Ava's Testing Lab",
+    "department": "Department of Mongo Testing",
+    "website": "https://testlab.gatorapps.org",
+    "email": "testlab@gatorapps.org",
+    "description": "Testing description",
+    "__v": 0
+  },
+  {
+    "users": [
+      {
+        "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "role": "admin"
+      }
+    ],
+    "name": "Ava's Testing Lab 2",
+    "department": "Department of Mongooose",
+    "website": "https://testlab.gatorapps.org",
+    "email": "labtest73@gatorapps.org",
+    "description": "this is a lab for testing.",
+    "__v": 0
+  },
+  {
+    "users": [],
+    "name": "Lab with no users",
+    "website": "https://testlab.gatorapps.org",
+    "email": "labtest73@gatorapps.org",
+    "__v": 0
+  },
+  {
+    "users": [
+      {
+        "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "role": "admin"
+      }
+    ],
+    "name": "Ava's Updated Lab 640",
+    "website": "https://testlab.gatorapps.org",
+    "email": "testEmail@gmail.com",
+    "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
+    "_class": "org.gatorapps.garesearch.model.garesearch.Lab"
+  },
+  {
+    "users": [
+      {
+        "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "role": "Admin"
+      }
+    ],
+    "name": "Ava's Test Lab 170",
+    "website": "https://testlab.gatorapps.org",
+    "email": "testEmail@gmail.com",
+    "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
+    "_class": "org.gatorapps.garesearch.model.garesearch.Lab"
+  }
+]
