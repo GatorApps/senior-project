@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface MessageRepository extends MongoRepository<Message, String> {
-    List<Message> findByRecipientOpidOrderByCreatedAtDesc(String recipientOpid);
+//    List<Message> findByRecipientOpidOrderByCreatedAtDesc(String recipientOpid);
 }

@@ -29,9 +29,9 @@ public class MessageService {
         sesService.sendEmailToOpid(recipientOpid, title, content);
     }
 
-    public List<Message> getUserMessages(String recipientOpid) {
-        return messageRepository.findByRecipientOpidOrderByCreatedAtDesc(recipientOpid);
-    }
+//    public List<Message> getUserMessages(String recipientOpid) {
+//        return messageRepository.findByRecipientOpidOrderByCreatedAtDesc(recipientOpid);
+//    }
 
     public void markAsRead(String messageId) {
         Message message = messageRepository.findById(messageId)

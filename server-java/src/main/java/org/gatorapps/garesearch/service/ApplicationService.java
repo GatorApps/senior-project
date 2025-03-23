@@ -284,7 +284,9 @@ public class ApplicationService {
 //        }
 
         // Send applicant confirmation message
-        messageService.sendMessage("", "", "[RESEARCH.UF] Your application is in!" , "Way to go! You have successfully submitted an application for " + foundPosition.getName() + ". Good luck!");
+        messageService.sendMessage("", "", "[RESEARCH.UF] Your application is in!" ,
+                String.format("Way to go!\n\nYou have successfully submitted an application to %s. Please remember to track your application status on the \"My Applications\" module and reach out directly to the lab you're applying to should you have any questions.\n\nBest of luck!",
+                        foundPosition.getName()));
     }
 
     public boolean alreadyApplied(String opid, String positionId) {

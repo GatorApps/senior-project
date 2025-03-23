@@ -13,7 +13,10 @@ public class SESService {
 
     private final SesClient sesClient;
 
-    @Value("${aws.ses.default-outbound-address}")
+    @Value("${aws.ses.default-sender-name}")
+    private String senderName;
+
+    @Value("${aws.ses.default-sender-address}")
     private String senderEmail;
 
     public SESService(
@@ -38,7 +41,7 @@ public class SESService {
                                     .html(Content.builder().data(body).charset("UTF-8").build())
                                     .build())
                             .build())
-                    .source(senderEmail)
+                    .source(String.format("%s <%s>", senderName, senderEmail))
                     .build();
 
             sesClient.sendEmail(request);

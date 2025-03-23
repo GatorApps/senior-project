@@ -21,4 +21,5 @@ aws:
     bucket-name: "research-dev-gatorapps-org"
   ses:
     region: "us-east-1"
-    default-outbound-address: ""
+    default-sender-name: "GatorApps"
+    default-sender-address: "research-no-reply@gatorapps.org"
