@@ -1,12 +1,10 @@
 package org.gatorapps.garesearch.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
-import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.model.garesearch.Position;
@@ -17,13 +15,11 @@ import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
@@ -72,7 +68,7 @@ public class ApplicationService {
     public Application getStudentApplication (String opid, String applicationId) throws Exception {
         // find by both opid and applicationId to ensure correct user is accessing the application
         try {
-            return applicationRepository.findByOpidAndId(opid, applicationId).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
+            return applicationRepository.findByOpidAndId(opid, applicationId.trim()).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
         } catch (Exception e) {
             if (e instanceof ResourceNotFoundException){
                 throw e;

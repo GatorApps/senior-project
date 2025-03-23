@@ -8,10 +8,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
-import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
-import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
-import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.gatorapps.garesearch.utils.MongoUpdateUtil;
 import org.gatorapps.garesearch.utils.ValidationUtil;
@@ -189,7 +186,7 @@ public class PositionService {
                     // flatten 'lab' array
                     Aggregation.unwind("lab", true),
                     Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("labId")
+                            .andExpression("{ $toString: '$lab._id' }").as("labId")
                             .and("lab.name").as("labName")
                             .andInclude(
                                     "positionId",

@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.model.garesearch.Lab;
-import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.LabService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
