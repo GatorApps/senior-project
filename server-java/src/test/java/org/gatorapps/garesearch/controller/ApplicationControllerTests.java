@@ -1,15 +1,21 @@
 package org.gatorapps.garesearch.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gatorapps.garesearch.config.RestDocsConfig;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.ResourceUtils;
 
+
+import java.nio.file.Files;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -17,15 +23,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// TODO : redo tests to accomodate testcontainer (change out ids)
+// TODO : submitApplication
 
-// TODO : applicationManagement, single application (faculty)
+// TODO : check the database for get, create, and update to ensure actually gets the correct get / updated / created
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureRestDocs(outputDir="target/generated-snippets")
-public class ApplicationControllerTests {
+public class ApplicationControllerTests  extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -33,22 +39,24 @@ public class ApplicationControllerTests {
 
 
     /*------------------------- getStudentApplication -------------------------*/
-
     // @GetMapping
-    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(
-    //          @RequestParam(value = "applicationId", required = true) String applicationId)
-/*
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(HttpServletRequest request,
+    //          @RequestParam(value = "applicationId", required = true) String applicationId) throws Exception
+
     @Test // @GetMapping
     public void getStuApplication_Valid() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute)
-                        .param("applicationId", "67be553bd7565c4e30236224")
+        String response = mockMvc.perform(get(applicationControllerRoute)
+                        .param("applicationId", "b1c9c01ab87e195493ae9b56")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
-                .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.application").isNotEmpty())
-                .andExpect(jsonPath("$.payload.application.applicationId").value("67be553bd7565c4e30236224"))
-                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-by-id"));
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-by-id"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/application/get_application_by_id.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
     @Test // @GetMapping
@@ -60,7 +68,7 @@ public class ApplicationControllerTests {
                 .andDo(print())
                 .andExpect(status().isNotFound()) // 404
                 .andExpect(jsonPath("$.errCode").value("ERR_RESOURCE_NOT_FOUND"))
-                .andExpect(jsonPath("$.errMsg").value("Unable to process your request at this time"));
+                .andExpect(jsonPath("$.errMsg").value("Application Not Found"));
     }
 
     @Test // @GetMapping
@@ -74,7 +82,7 @@ public class ApplicationControllerTests {
                 .andExpect(jsonPath("$.errMsg").value("Missing required req params: applicationId"));
     }
 
-    */
+
 
     /*------------------------- getStudentApplications -------------------------*/
 
@@ -83,15 +91,17 @@ public class ApplicationControllerTests {
 
     @Test // @GetMapping("/studentList")
     public void getStuApplications_Valid() throws Exception {
-        mockMvc.perform(get(applicationControllerRoute + "/studentList")
+        String response = mockMvc.perform(get(applicationControllerRoute + "/studentList")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
-                .andExpect(status().isOk())  // 200
-                .andExpect(jsonPath("$.payload.applications").isMap())
-                .andExpect(jsonPath("$.payload.applications.activeApplications").isArray())
-                .andExpect(jsonPath("$.payload.applications.archivedApplications").isArray())
-                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-studentList"));
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-studentList"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/application/get_student_list.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
 
@@ -117,21 +127,105 @@ public class ApplicationControllerTests {
 //    }
 
 
+    /*------------------------- alreadyApplied -------------------------*/
+    // @GetMapping("/alreadyApplied")
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> alreadyApplied(HttpServletRequest request,
+    //          @RequestParam(value = "positionId", required = true) String positionId) throws Exception {
 
-    /*------------------------- updatePositionStatus -------------------------*/
+    @Test
+    public void getAlreadyApplied_Valid() throws Exception {
+        mockMvc.perform(get(applicationControllerRoute + "/alreadyApplied")
+                        .param("positionId", "67dcf54ab42f269d2da84622")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.payload.alreadyApplied").value(true))
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-alreadyApplied"));
+    }
+
+
+    /*------------------------- getApplication -------------------------*/
+    // @GetMapping("/application")
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplication(@Valid HttpServletRequest request,
+    //          @RequestParam(value = "labId") String labId,
+    //          @RequestParam(value = "applicationId") String applicationId) throws Exception {
+
+
+    @Test // @GetMapping("/application")
+    public void getApplication_Valid() throws Exception {
+        String response = mockMvc.perform(get(applicationControllerRoute + "/application")
+                        .param("labId", "88dcf5a77621f49532e47b52")
+                        .param("applicationId", "abc0c01ab87e195493ae9c10")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get_faculty"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/application/get_application_faculty.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
+    }
+
+
+    @Test // @GetMapping("/application")
+    public void getApplication_InvalidLabAccess() throws Exception {
+        String response = mockMvc.perform(get(applicationControllerRoute + "/application")
+                        .param("labId", "99dcf5a77621f49532e47b52")
+                        .param("applicationId", "b6c9c01ab87e195493ae9c10")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
+    }
+
+
+    /*------------------------- getApplicationList -------------------------*/
+    // @GetMapping("/applicationManagement")
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicationList(HttpServletRequest request,
+    //          @RequestParam (value="positionId") String positionId) throws Exception {
+
+    @Test // @GetMapping("/applicationManagement")
+    public void getApplicationManagement_Valid() throws Exception {
+        String response = mockMvc.perform(get(applicationControllerRoute + "/applicationManagement")
+                        .param("positionId", "87d0c01ab87e195493ae9c10")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-mgmt-list"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/application/get_application_mgmt_list.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
+    }
+
+
+    /*------------------------- updateApplicationStatus -------------------------*/
     // @PutMapping("/applicationStatus")
-    //    public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(
-    //          @Valid HttpServletRequest request,
+    //    public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(@Valid HttpServletRequest request,
     //          @RequestParam(value = "positionId") String positionId,
     //          @RequestParam(value = "applicationId") String applicationId,
-    //          @RequestParam(value = "status") @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'") String status)
+    //          @RequestParam(value = "status") @Pattern(regexp = "submitted|archived|moving forward", message = "Application status must be one of 'submitted', 'archived', or 'moving forward'") String status) throws Exception {
 
     @Test // @PutMapping("/applicationStatus")
-    public void updatePostingStatus_Valid() throws Exception {
+    public void updateApplicationStatus_Valid() throws Exception {
         mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
-                        .param("applicationId", "67d5e22d11bf542d9f56f66b")
-                        .param("positionId", "67c3c01ab87e185493ae9c10")
-                        .param("status", "submitted")
+                        .param("applicationId", "abc0c01ab87e195493ae9c10")
+                        .param("labId", "88dcf5a77621f49532e47b52")
+                        .param("status", "moving forward")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
@@ -140,4 +234,35 @@ public class ApplicationControllerTests {
                 .andDo(RestDocsConfig.getDefaultDocHandler("application-update-status"));
     }
 
+    @Test // @PutMapping("/applicationStatus")
+    public void updateApplicationStatus_InvalidParam() throws Exception {
+        mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
+                        .param("applicationId", "abc0c01ab87e195493ae9c10")
+                        .param("labId", "88dcf5a77621f49532e47b52")
+                        .param("status", "delete")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andExpect(status().isBadRequest())  // 400
+                .andExpect(jsonPath("$.errCode").value("ERR_INPUT_FAIL_VALIDATION"))
+                .andExpect(jsonPath("$.errMsg").value("Application status must be one of 'submitted', 'archived', or 'moving forward'"))
+                .andExpect(jsonPath("$.payload").isEmpty());
+    }
+
+    @Test // @GetMapping("/application")
+    public void updateApplicationStatus_InvalidLabAccess() throws Exception {
+        String response = mockMvc.perform(get(applicationControllerRoute + "/application")
+                        .param("labId", "99dcf5a77621f49532e47b52")
+                        .param("applicationId", "b6c9c01ab87e195493ae9c10")
+                        .param("status", "submitted")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
+    }
 }

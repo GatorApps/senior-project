@@ -43,7 +43,6 @@ public class LabController {
      Exclusively Faculty Routes
      */
 
-
     /*
         response.payload returns: list of labs a faculty is part of
      */
@@ -54,6 +53,25 @@ public class LabController {
         Map<String, Object> payloadResponse = Map.of(
                 "labs", labs);
 
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /*
+        response.payload returns: retrieve position to edit
+     */
+    @GetMapping("/profileEditor")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabProfile(@Valid HttpServletRequest request, @RequestParam(value="labId") String labId) throws Exception {
+
+        Lab lab = labService.getProfile(userAuthUtil.retrieveOpid(request), labId);
+
+        // Define Payload Structure first
+        Map<String, Object> payloadResponse = Map.of(
+                "lab", lab);
+
+        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -78,21 +96,6 @@ public class LabController {
         labService.updateProfile(userAuthUtil.retrieveOpid(request), lab);
 
         ApiResponse<Void> response = new ApiResponse<Void>("0");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/profileEditor")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabProfile(@Valid HttpServletRequest request, @RequestParam(value="labId") String labId) throws Exception {
-
-        Lab lab = labService.getProfile(userAuthUtil.retrieveOpid(request), labId);
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "lab", lab);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

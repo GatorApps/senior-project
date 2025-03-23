@@ -1,4 +1,4 @@
-package org.gatorapps.garesearch.config;
+package org.gatorapps.garesearch.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,6 +27,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+
+// TODO : fix how dates are uploaded . maybe just reformat jsons
 @Component
 @TestPropertySource("classpath:application-test.properties")
 public class MongoDataSeeder {
@@ -44,9 +47,10 @@ public class MongoDataSeeder {
     ObjectMapper objectMapper = new ObjectMapper();
     SimpleModule module = new SimpleModule();
 
-
-
     public void insertJsonData(String databaseName, String collectionName, String filePath) throws IOException {
+
+        System.out.println("dbName: " + databaseName + " collection: " + collectionName + " filepath: " + filePath);
+
         List<Map<String, Object>> data = objectMapper.readValue(
                 new ClassPathResource(filePath).getInputStream(),
                 new TypeReference<>() {}

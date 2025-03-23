@@ -109,7 +109,6 @@ public class PositionService {
             if (e instanceof ResourceNotFoundException) {
                 throw e;
             }
-            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }
@@ -206,7 +205,7 @@ public class PositionService {
                     aggregation, "positions", Map.class);
 
             if (results.getMappedResults().isEmpty()) {
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found");
             }
             return results.getMappedResults().get(0);
         } catch (Exception e) {
@@ -219,6 +218,13 @@ public class PositionService {
 
     public Position getPosting(String id) throws Exception {
         return positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found"));
+    }
+
+    public Position getPosting(String opid, String id) throws Exception {
+        Position position = positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found"));
+
+        labService.checkPermission(opid, position.getLabId());
+        return position;
     }
 
 
@@ -332,7 +338,6 @@ public class PositionService {
             if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException) {
                 throw e;
             }
-            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }
@@ -347,10 +352,12 @@ public class PositionService {
 
             garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(position.getId()))), update, Position.class);
         } catch (Exception e) {
-            if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException) {
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            if (e instanceof ConstraintViolationException) {
                 throw e;
             }
-            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }

@@ -100,20 +100,6 @@ public class PositionController {
      */
 
     /*
-        response.payload returns: retrieve position to edit
-     */
-    @GetMapping("/postingEditor")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPosting(@Valid HttpServletRequest request, @RequestParam(value = "positionId")String positionId) throws Exception {
-        Position position = positionService.getPosting(positionId);
-
-        Map<String, Object> payloadResponse = Map.of(
-                "position", position);
-
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    /*
         response.payload returns: list of positions a faculty has access to
      */
     @GetMapping("/postingsList")
@@ -127,7 +113,6 @@ public class PositionController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 
     /*
         response.payload returns: list of positions for faculty
@@ -155,18 +140,21 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    /*
-        updates posting status
-     */
-    @PutMapping("/postingStatus")
-    public ResponseEntity<ApiResponse<Void>> updatePositionStatus(@Valid HttpServletRequest request,
-                                                                  @RequestParam(value = "positionId") String positionId,
-                                                                  @RequestParam(value = "status") @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'") String status) throws Exception {
-        positionService.updateStatus(userAuthUtil.retrieveOpid(request), positionId, status);
 
-        ApiResponse<Void> response = new ApiResponse<Void>("0");
+    /*
+        response.payload returns: retrieve position to edit
+     */
+    @GetMapping("/postingEditor")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPosting(@Valid HttpServletRequest request, @RequestParam(value = "positionId")String positionId) throws Exception {
+        Position position = positionService.getPosting(userAuthUtil.retrieveOpid(request), positionId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "position", position);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     /*
         creates new posting
@@ -190,5 +178,18 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    /*
+        updates posting status only
+     */
+    @PutMapping("/postingStatus")
+    public ResponseEntity<ApiResponse<Void>> updatePositionStatus(@Valid HttpServletRequest request,
+                                                                  @RequestParam(value = "positionId") String positionId,
+                                                                  @RequestParam(value = "status") @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'") String status) throws Exception {
+        positionService.updateStatus(userAuthUtil.retrieveOpid(request), positionId, status);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
 

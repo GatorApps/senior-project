@@ -1,0 +1,36 @@
+{
+  "errCode": "0",
+  "payload": {
+    "applications": {
+      "activeApplications": [
+        {
+          "opid": "c1fc3a9b-66ac-4a84-937c-3ffb4bebbd25",
+          "positionId": "87d0c01ab87e195493ae9c10",
+          "submissionTimeStamp": {
+            "$date": "2025-03-20T02:33:47.184Z"
+          },
+          "status": "submitted",
+          "applicationId": "67dfa4af71ae1d77ad48b316",
+          "labId": "88dcf5a77621f49532e47b52",
+          "firstName": "Eric",
+          "lastName": "Zhou",
+          "email": "ericzhou@ufl.edu"
+        }
+      ],
+      "archivedApplications": [],
+      "movingApplications": [
+        {
+          "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+          "positionId": "87d0c01ab87e195493ae9c10",
+          "submissionTimeStamp": "2025-03-13T02:09:00.451+00:00",
+          "status": "moving forward",
+          "applicationId": "abc0c01ab87e195493ae9c10",
+          "labId": "88dcf5a77621f49532e47b52",
+          "firstName": "Luke",
+          "lastName": "Li",
+          "email": "luke.li@ufl.edu"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "errCode": "0",
+  "payload": {
+    "lab": {
+      "labId": "99dcf5a77621f49532e47b52",
+      "labName": "Luke's Testing Lab 1",
+      "labDescription": "Testing description",
+      "department": "Department of Testing",
+      "website": "https://testlab.gatorapps.org",
+      "email": "testlab@gatorapps.org",
+      "positions": [
+        {
+          "positionName": "Luke's Testing Position",
+          "positionDescription": "This is a testing position.",
+          "postedTimeStamp": {
+            "$date": "2024-04-10T19:27:09.573Z"
+          },
+          "positionId": "67dcf54ab42f269d2da84622"
+        },
+        {
+          "positionName": "Luke's Testing Position 2",
+          "positionDescription": "This is a testing position.",
+          "postedTimeStamp": {
+            "$date": "2024-04-19T06:11:08.984Z"
+          },
+          "positionId": "67dcf555237a412943ec26be"
+        },
+        {
+          "positionName": "Luke's Testing Position 4",
+          "positionDescription": "This is a testing position.",
+          "postedTimeStamp": {
+            "$date": "2024-04-19T06:11:46.499Z"
+          },
+          "positionId": "67dcf55ce8e62d8cafd302ee"
+        },
+        {
+          "positionName": "Luke's Testing Position 6",
+          "positionDescription": "This is a testing position.",
+          "postedTimeStamp": {
+            "$date": "2024-04-19T18:32:56.523Z"
+          },
+          "positionId": "67dcf56a264b9db3ef415cb2"
+        },
+        {
+          "positionName": "Luke's Testing Position 7",
+          "positionDescription": "This is a testing position.",
+          "postedTimeStamp": {
+            "$date": "2024-04-19T18:32:59.047Z"
+          },
+          "positionId": "67dcf572d600cb3d03968c0f"
+        }
+      ]
+    }
+  }
+}

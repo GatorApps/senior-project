@@ -318,10 +318,9 @@ public class ApplicationService {
             throw new Exception("Unable to process your request at this time");
         }
     }
-    public void updateStatus(String opid, String positionId, String applicationId, String status) throws Exception {
+    public void updateStatus(String opid, String labId, String applicationId, String status) throws Exception {
         try {
-            Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
-            labService.checkPermission(opid, position.getLabId());
+            labService.checkPermission(opid, labId);
 
             Application application = applicationRepository.findById(applicationId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application " + applicationId + " not found"));
 
