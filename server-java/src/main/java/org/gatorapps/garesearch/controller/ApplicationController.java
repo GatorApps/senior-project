@@ -39,7 +39,7 @@ public class ApplicationController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(HttpServletRequest request, @RequestParam(value = "applicationId", required = true) String applicationId) throws Exception{
-        Map application = applicationService.getStudentApplication(userAuthUtil.retrieveOpid(request), applicationId);
+        Application application = applicationService.getStudentApplication(userAuthUtil.retrieveOpid(request), applicationId);
 
         Map<String, Object> payloadResponse = Map.of(
                 "application", application);
@@ -60,6 +60,10 @@ public class ApplicationController {
                 .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
                 .toList();
+        List<Map> movingApps = foundApplications.stream()
+                .filter(app -> "Moving Forward".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
+                .toList();
         List<Map> archivedApps = foundApplications.stream()
                 .filter(app -> "Archived".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
@@ -69,6 +73,7 @@ public class ApplicationController {
         Map<String, Object> payloadResponse = Map.of(
                 "applications", Map.of(
                         "activeApplications", submittedApps,
+                        "movingApplications", movingApps,
                         "archivedApplications", archivedApps
                 ));
 
@@ -139,6 +144,10 @@ public class ApplicationController {
                 .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
                 .toList();
+        List<Map> movingApps = foundApplications.stream()
+                .filter(app -> "Moving Forward".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
+                .toList();
         List<Map> archivedApps = foundApplications.stream()
                 .filter(app -> "Archived".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
@@ -148,6 +157,7 @@ public class ApplicationController {
         Map<String, Object> payloadResponse = Map.of(
                 "applications", Map.of(
                         "activeApplications", submittedApps,
+                        "movingApplications", movingApps,
                         "archivedApplications", archivedApps
                 ));
 
@@ -163,7 +173,7 @@ public class ApplicationController {
     public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(@Valid HttpServletRequest request,
                                                                      @RequestParam(value = "positionId") String positionId,
                                                                      @RequestParam(value = "applicationId") String applicationId,
-                                                                     @RequestParam(value = "status") @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'") String status) throws Exception {
+                                                                     @RequestParam(value = "status") @Pattern(regexp = "submitted|archived|moving forward", message = "Application status must be one of 'submitted', 'archived', or 'moving forward'") String status) throws Exception {
         applicationService.updateStatus(userAuthUtil.retrieveOpid(request), positionId, applicationId, status);
 
         ApiResponse<Void> response = new ApiResponse<Void>("0");

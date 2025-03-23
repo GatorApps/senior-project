@@ -169,11 +169,22 @@ public class PositionController {
     }
 
     /*
-        updates existing or creates new posting
+        creates new posting
      */
     @PostMapping("/postingEditor")
-    public ResponseEntity<ApiResponse<Void>> savePositionPosting(@Valid HttpServletRequest request, @Valid @RequestBody Position position) throws Exception {
-        positionService.savePosting(userAuthUtil.retrieveOpid(request),position);
+    public ResponseEntity<ApiResponse<Void>> createPositionPosting(@Valid HttpServletRequest request, @Valid @RequestBody Position position) throws Exception {
+        positionService.createPosting(userAuthUtil.retrieveOpid(request), position);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        updates existing posting
+     */
+    @PutMapping("/postingEditor")
+    public ResponseEntity<ApiResponse<Void>> updatePositionPosting(@Valid HttpServletRequest request, @RequestBody Position position) throws Exception {
+        positionService.updatePosting(userAuthUtil.retrieveOpid(request), position);
 
         ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);

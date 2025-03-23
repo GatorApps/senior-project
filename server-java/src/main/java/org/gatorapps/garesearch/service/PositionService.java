@@ -241,7 +241,7 @@ public class PositionService {
                     // flatten 'position' array
                     Aggregation.unwind("position", false),
                     Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("positionId")
+                            .andExpression("{ $toString: '$position._id' }").as("positionId")
                             .and("position.name").as("name")
                             .andExclude("_id")
             );
@@ -279,7 +279,7 @@ public class PositionService {
                     // flatten 'position' array
                     Aggregation.unwind("position", false),
                     Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("positionId")
+                            .andExpression("{ $toString: '$position._id' }").as("positionId")
                             .and("position.name").as("name")
                             .and("position.lastUpdatedTimeStamp").as("lastUpdatedTimeStamp")
                             .and("position.postedTimeStamp").as("postedTimeStamp")
@@ -320,19 +320,14 @@ public class PositionService {
         }
     }
 
-    public void savePosting(String opid, Position position) throws Exception {
+    public void createPosting(String opid, Position position) throws Exception {
         try {
             labService.checkPermission(opid, position.getLabId());
             if (position.getDescription() != null) {
                 position.setRawDescription(position.getDescription());
             }
-            if (position.getId() != null) {
-                Update update = MongoUpdateUtil.createUpdate(position);
 
-                garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(position.getId()))), update, Position.class);
-            } else {
-                positionRepository.save(position);
-            }
+            positionRepository.save(position);
         } catch (Exception e) {
             if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException) {
                 throw e;
@@ -341,4 +336,23 @@ public class PositionService {
             throw new Exception("Unable to process your request at this time", e);
         }
     }
+
+    public void updatePosting(String opid, Position position) throws Exception {
+        try {
+            labService.checkPermission(opid, position.getLabId());
+            if (position.getDescription() != null) {
+                position.setRawDescription(position.getDescription());
+            }
+            Update update = MongoUpdateUtil.createUpdate(position);
+
+            garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(position.getId()))), update, Position.class);
+        } catch (Exception e) {
+            if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException) {
+                throw e;
+            }
+            System.out.println(e.getMessage());
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
 }

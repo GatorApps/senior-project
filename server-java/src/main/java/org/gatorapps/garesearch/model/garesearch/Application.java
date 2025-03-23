@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Date;
 
@@ -42,7 +43,7 @@ public class Application extends BaseApplicationProfileSchema {
 
     @Field("status")
     @NotBlank(message = "Status is required")
-    @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'")
+    @Pattern(regexp = "submitted|archived|moving forward", message = "Application status must be one of 'submitted', 'archived', or 'moving forward'")
     private String status;
 
     @Field("supplementalResponses")

@@ -69,67 +69,10 @@ public class ApplicationService {
     }
 
 
-    public Map getStudentApplication (String opid, String applicationId) throws Exception {
+    public Application getStudentApplication (String opid, String applicationId) throws Exception {
         // find by both opid and applicationId to ensure correct user is accessing the application
         try {
-            // must match 'opid'
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(
-                            Criteria.where("opid").is(opid)
-                                    .and("_id").is(new ObjectId(applicationId))
-                    ),
-                    Aggregation.project()
-                            .andExpression("toObjectId(positionId)").as("positionIdObjectId")
-                            .andInclude("status",
-                                    "submissionTimeStamp",
-                                    "supplementalResponses",
-                                    "resumeId",
-                                    "transcriptId"),
-
-                    // join with 'positions' collection
-                    Aggregation.lookup(
-                            "positions",      // Collection to join
-                            "positionIdObjectId",  // Local field
-                            "_id",                 // Foreign field
-                            "position"             // Alias for the joined field
-                    ),
-                    // flatten 'position' array
-                    Aggregation.unwind("position", true),
-                    Aggregation.project()
-                            .andExpression("toObjectId(position.labId)").as("labIdObjectId")
-                            .and("position.name").as("positionName")
-                            .andInclude("status",
-                                    "submissionTimeStamp",
-                                    "supplementalResponses",
-                                    "resumeId",
-                                    "transcriptId"),
-                    // join with 'labs' collection
-                    Aggregation.lookup(
-                            "labs",
-                            "labIdObjectId",
-                            "_id",
-                            "lab"
-                    ),
-                    Aggregation.unwind("lab", true),
-                    Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("applicationId")
-                            .and("lab.name").as("labName")
-                            .andInclude("positionName",
-                                    "status",
-                                    "submissionTimeStamp",
-                                    "supplementalResponses",
-                                    "resumeId",
-                                    "transcriptId")
-                            .andExclude("_id")
-            );
-
-            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
-                    aggregation, "applications", Map.class);
-
-            if (results.getMappedResults().isEmpty()){
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to find application");
-            }
-            return results.getMappedResults().get(0);
+            return applicationRepository.findByOpidAndId(opid, applicationId).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
         } catch (Exception e) {
             if (e instanceof ResourceNotFoundException){
                 throw e;

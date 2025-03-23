@@ -60,29 +60,35 @@ public class LabController {
     }
 
     /*
-        updates existing or creates new lab
+        creates new lab
     */
     @PostMapping("/profileEditor")
-    public ResponseEntity<ApiResponse<Void>> saveLabProfile(@Valid HttpServletRequest request, @Valid @RequestBody Lab lab) throws Exception {
-        labService.saveProfile(userAuthUtil.retrieveOpid(request), lab);
+    public ResponseEntity<ApiResponse<Void>> createLabProfile(@Valid HttpServletRequest request, @Valid @RequestBody Lab lab) throws Exception {
+        labService.createProfile(userAuthUtil.retrieveOpid(request), lab);
 
         ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /*
+        updates existing lab
+    */
+    @PutMapping("/profileEditor")
+    public ResponseEntity<ApiResponse<Void>> updateLabProfile(@Valid HttpServletRequest request, @RequestBody Lab lab) throws Exception {
+        labService.updateProfile(userAuthUtil.retrieveOpid(request), lab);
 
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
-    // TODO : all of these below
+    @GetMapping("/profileEditor")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabProfile(@Valid HttpServletRequest request, @RequestParam(value="labId") String labId) throws Exception {
 
-    @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabProfile(){
-
-        // Lab lab = labService.getProfile();
-        Lab lab = new Lab();
+        Lab lab = labService.getProfile(userAuthUtil.retrieveOpid(request), labId);
 
         // Define Payload Structure first
         Map<String, Object> payloadResponse = Map.of(
-                "labProfile", lab);
+                "lab", lab);
 
         // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
