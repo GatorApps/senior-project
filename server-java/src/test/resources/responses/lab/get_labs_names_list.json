@@ -1,0 +1,23 @@
+{
+  "errCode": "0",
+  "payload": {
+    "labs": [
+      {
+        "labId": "88dcf5a77621f49532e47b52",
+        "labName": "Ava's Testing Lab"
+      },
+      {
+        "labId": "e7dcf5a77621f49532e47b53",
+        "labName": "Ava's Testing Lab 2"
+      },
+      {
+        "labId": "e7dd015e481a0b5b0bccbaa7",
+        "labName": "Ava's Updated Lab 640"
+      },
+      {
+        "labId": "e7dcf5a77621f49532e47b1c",
+        "labName": "Ava's Test Lab 170"
+      }
+    ]
+  }
+}

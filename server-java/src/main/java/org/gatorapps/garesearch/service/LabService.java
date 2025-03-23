@@ -119,19 +119,24 @@ public class LabService {
         }
     }
 
-    public void saveProfile(String opid, Lab lab) throws Exception {
+    public void createProfile(String opid, Lab lab) throws Exception {
         try {
-            if (lab.getId() != null){
-                checkPermission(opid, lab.getId());
-                Update update = MongoUpdateUtil.createUpdate(lab);
+            lab.setUsers(Arrays.asList(
+                    new User(opid, "Admin")
+            ));
+            labRepository.save(lab);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
 
-                garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(lab.getId()))), update, Lab.class);
-            } else {
-                lab.setUsers(Arrays.asList(
-                        new User(opid, "Admin")
-                ));
-                labRepository.save(lab);
-            }
+    public void updateProfile(String opid, Lab lab) throws Exception {
+        try {
+            checkPermission(opid, lab.getId());
+            Update update = MongoUpdateUtil.createUpdate(lab);
+
+            garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(lab.getId()))), update, Lab.class);
         } catch (Exception e){
             if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException){
                 throw e;
@@ -141,10 +146,9 @@ public class LabService {
         }
     }
 
-    public Optional<Lab> getProfile (String id){
-        // TODO
-
-        return labRepository.findById(id);
+    public Lab getProfile (String opid, String id) throws Exception {
+        checkPermission(opid, id);
+        return labRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Lab Not Found"));
     }
 
     public void checkPermission(String opid, String labId) throws Exception {

@@ -1,0 +1,65 @@
+[
+  {
+    "code": 4,
+    "name": "templateapp",
+    "displayName": "GA Template App",
+    "origins": [
+      "https://templateapp.dev-local.gatorapps.org:3300"
+    ],
+    "userInfoScope": [
+      "opid",
+      "roles",
+      "primaryEmail",
+      "firstName",
+      "lastName",
+      "nickname"
+    ],
+    "alert": {
+      "maintenanceMode": false,
+      "severity": "info",
+      "title": "Scheduled Maintenance",
+      "message": "GatorApps is scheduled for necessary maintenance on Saturday, September 2nd, 2023 from 2AM to 6AM EST. Apps will have limited availability. We are always working hard for your better experience!",
+      "displayAlert": false,
+      "alertId": "1"
+    }
+  },
+  {
+    "code": 3,
+    "displayName": "GatorApps Account",
+    "name": "account",
+    "origins": [
+      "http://account.dev-local.gatorapps.org:3200",
+      "https://account.dev.gatorapps.org",
+      "http://localhost:3200",
+      "http://localhost:8200"
+    ],
+    "userInfoScope": [
+      "opid",
+      "roles",
+      "primaryEmail",
+      "firstName",
+      "lastName",
+      "nickname"
+    ]
+  },
+  {
+    "code": 5,
+    "name": "garesearch",
+    "displayName": "RESEARCH.UF",
+    "origins": [
+      "https://research.dev-local.gatorapps.org:3500",
+      "http://localhost:3400",
+      "http://localhost:8400"
+    ],
+    "userInfoScope": [
+      "opid",
+      "roles",
+      "primaryEmail",
+      "firstName",
+      "lastName",
+      "nickname",
+      "emails"
+    ]
+  }
+]
+

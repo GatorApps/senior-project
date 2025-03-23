@@ -1,0 +1,5 @@
+{
+  "errCode": "ERR_INVALID_ACCESS",
+  "errMsg": "Insufficient permissions for the requested lab",
+  "payload": null
+}

@@ -14,9 +14,6 @@ public class RequestConstants {
     @Value("${test.user.opid}")
     public String testUserOpid;
 
-
-    @Value("${test.user.cookie}")
-    public static String testUserCookie;
     public static String VALID_COOKIE_VALUE;
     public static String TEST_USER_OPID;
     public static final String HEADER_NAME = "GATORAPPS_APP";

@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.model.garesearch.Lab;
-import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.service.LabService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,6 @@ public class LabController {
      Exclusively Faculty Routes
      */
 
-
     /*
         response.payload returns: list of labs a faculty is part of
      */
@@ -59,34 +57,44 @@ public class LabController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
     /*
-        updates existing or creates new lab
+        response.payload returns: retrieve position to edit
+     */
+    @GetMapping("/profileEditor")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabProfile(@Valid HttpServletRequest request, @RequestParam(value="labId") String labId) throws Exception {
+
+        Lab lab = labService.getProfile(userAuthUtil.retrieveOpid(request), labId);
+
+        // Define Payload Structure first
+        Map<String, Object> payloadResponse = Map.of(
+                "lab", lab);
+
+        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        creates new lab
     */
     @PostMapping("/profileEditor")
-    public ResponseEntity<ApiResponse<Void>> saveLabProfile(@Valid HttpServletRequest request, @Valid @RequestBody Lab lab) throws Exception {
-        labService.saveProfile(userAuthUtil.retrieveOpid(request), lab);
+    public ResponseEntity<ApiResponse<Void>> createLabProfile(@Valid HttpServletRequest request, @Valid @RequestBody Lab lab) throws Exception {
+        labService.createProfile(userAuthUtil.retrieveOpid(request), lab);
 
         ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /*
+        updates existing lab
+    */
+    @PutMapping("/profileEditor")
+    public ResponseEntity<ApiResponse<Void>> updateLabProfile(@Valid HttpServletRequest request, @RequestBody Lab lab) throws Exception {
+        labService.updateProfile(userAuthUtil.retrieveOpid(request), lab);
 
-
-    // TODO : all of these below
-
-    @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabProfile(){
-
-        // Lab lab = labService.getProfile();
-        Lab lab = new Lab();
-
-        // Define Payload Structure first
-        Map<String, Object> payloadResponse = Map.of(
-                "labProfile", lab);
-
-        // Predefined ApiResponse class : { errCode: xyz, payload: xyz}
-        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
-
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
