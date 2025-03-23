@@ -109,7 +109,7 @@ const GenericPage = ({ title }) => {
                                         <Typography variant="h6">{app.labName}</Typography>
                                         <Typography variant="body1">{app.positionName}</Typography>
                                         <Typography variant="caption">Submitted: {new Date(app.submissionTimeStamp).toLocaleDateString()}</Typography>
-                                        <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold', color: app.status === "Submitted" ? "green" : "gray" }}>
+                                        <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold', color: app.status === "submitted" ? "green" : "gray" }}>
                                             {app.status}
                                         </Typography>
                                     </Box>

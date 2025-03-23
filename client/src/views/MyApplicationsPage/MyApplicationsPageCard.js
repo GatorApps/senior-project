@@ -67,7 +67,7 @@ const GenericPageCard = ({ title }) => {
                   .map((app, index) => (
                     <div key={index} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="h7">{app.positionName}</Typography>
-                      <Typography sx={{ marginX: '8px', fontWeight: '100', fontSize: '12px', color: app.status === "Submitted" ? "green" : "gray" }}>
+                      <Typography sx={{ marginX: '8px', fontWeight: '100', fontSize: '12px', color: app.status === "submitted" ? "green" : "gray" }}>
                         {app.status}
                       </Typography>
                     </div>
