@@ -35,13 +35,13 @@ public class ApplicationService {
     ApplicationRepository applicationRepository;
 
     @Autowired
-    ApplicantProfileRepository applicantProfileRepository;
-
-    @Autowired
     PositionRepository positionRepository;
 
     @Autowired
     private LabService labService;
+
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     @Qualifier("garesearchMongoTemplate")
@@ -50,11 +50,6 @@ public class ApplicationService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private ValidationUtil validationUtil;
-
-    @Autowired
-    ValidateUserAuthInterceptor validateUserAuthInterceptor;
     @Autowired
     private FileRepository fileRepository;
 
@@ -288,6 +283,8 @@ public class ApplicationService {
 //            throw new Exception("Unable to process your request at this time", e);
 //        }
 
+        // Send applicant confirmation message
+        messageService.sendMessage("", "", "[RESEARCH.UF] Your application is in!" , "Way to go! You have successfully submitted an application for " + foundPosition.getName() + ". Good luck!");
     }
 
     public boolean alreadyApplied(String opid, String positionId) {
