@@ -2,8 +2,14 @@ package org.gatorapps.garesearch.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gatorapps.garesearch.config.RestDocsConfig;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureRestDocs(outputDir="target/generated-snippets")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LabControllerTests extends BaseTest {
 
     @Autowired
@@ -46,6 +53,7 @@ public class LabControllerTests extends BaseTest {
     //          @RequestParam(value = "labId", required = true) String labId)
 
     @Test // @GetMapping
+    @Order(1)
     public void getPublicProfile_Valid() throws Exception {
         String response = mockMvc.perform(get(labControllerRoute)
                         .param("labId", "99dcf5a77621f49532e47b52")
@@ -58,12 +66,16 @@ public class LabControllerTests extends BaseTest {
                 .getContentAsString();
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/lab/get_public_lab.json").toPath());
+
+        response = response.replaceAll("\"lastUpdatedTimeStamp\":\".*?\"", "\"lastUpdatedTimeStamp\": \"<timestamp>\"");
+
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
 
 
     @Test // @GetMapping
+    @Order(1)
     public void getPublicProfile_ResourceNotFound() throws Exception {
         mockMvc.perform(get(labControllerRoute)
                         .param("labId", "111111111111111111111111")
@@ -76,6 +88,7 @@ public class LabControllerTests extends BaseTest {
     }
 
     @Test // @GetMapping
+    @Order(1)
     public void getPublicProfile_MissingParam() throws Exception {
         mockMvc.perform(get(labControllerRoute)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -92,6 +105,7 @@ public class LabControllerTests extends BaseTest {
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getLabsNamesList(HttpServletRequest request)
 
     @Test // @GetMapping("/labsList")
+    @Order(2)
     public void getLabsNamesList_Valid() throws Exception {
         String response = mockMvc.perform(get(labControllerRoute + "/labsList")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -112,6 +126,7 @@ public class LabControllerTests extends BaseTest {
     //          @RequestParam(value="labId") String labId) throws Exception {
 
     @Test // @GetMapping("/profileEditor")
+    @Order(2)
     public void getProfile_Valid() throws Exception {
         String response = mockMvc.perform(get(labControllerRoute + "/profileEditor")
                         .param("labId", "88dcf5a77621f49532e47b52")
@@ -128,6 +143,7 @@ public class LabControllerTests extends BaseTest {
     }
 
     @Test // @GetMapping("/profileEditor")
+    @Order(2)
     public void getProfile_InvalidLabAccess() throws Exception {
         String response = mockMvc.perform(get(labControllerRoute  + "/profileEditor")
                         .param("labId", "99dcf5a77621f49532e47b52")
@@ -143,6 +159,7 @@ public class LabControllerTests extends BaseTest {
     }
 
     @Test // @GetMapping("/profileEditor")
+    @Order(2)
     public void getProfile_MissingParam() throws Exception {
         mockMvc.perform(get(labControllerRoute + "/profileEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -161,6 +178,7 @@ public class LabControllerTests extends BaseTest {
     //          @Valid @RequestBody Lab lab) throws Exception {
 
     @Test // @PostMapping("/profileEditor")
+    @Order(3)
     public void createNewLab_Valid() throws Exception {
         String requestBody = String.format("""
                     {
@@ -183,6 +201,7 @@ public class LabControllerTests extends BaseTest {
 
 
     @Test // @PostMapping("/profileEditor")
+    @Order(3)
     public void createNewLab_invalid() throws Exception {
         String requestBody = String.format("""
                     {
@@ -211,6 +230,7 @@ public class LabControllerTests extends BaseTest {
     //          @RequestBody Lab lab) throws Exception {
 
     @Test // @PutMapping("/profileEditor")
+    @Order(4)
     public void updateLab_Valid() throws Exception {
         String requestBody = String.format("""
                     {   
@@ -240,6 +260,7 @@ public class LabControllerTests extends BaseTest {
 
 
     @Test // @PutMapping("/profileEditor")
+    @Order(4)
     public void updateLab_InvalidLabAccess() throws Exception {
         String requestBody = String.format("""
                     {

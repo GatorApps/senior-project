@@ -2,7 +2,10 @@ package org.gatorapps.garesearch.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gatorapps.garesearch.config.RestDocsConfig;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -31,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureRestDocs(outputDir="target/generated-snippets")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ApplicationControllerTests  extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
@@ -44,6 +48,7 @@ public class ApplicationControllerTests  extends BaseTest {
     //          @RequestParam(value = "applicationId", required = true) String applicationId) throws Exception
 
     @Test // @GetMapping
+    @Order(1)
     public void getStuApplication_Valid() throws Exception {
         String response = mockMvc.perform(get(applicationControllerRoute)
                         .param("applicationId", "b1c9c01ab87e195493ae9b56")
@@ -60,6 +65,7 @@ public class ApplicationControllerTests  extends BaseTest {
     }
 
     @Test // @GetMapping
+    @Order(1)
     public void getStuApplication_ResourceNotFound() throws Exception {
         mockMvc.perform(get(applicationControllerRoute)
                         .param("applicationId", "111111111111111111111111")
@@ -72,6 +78,7 @@ public class ApplicationControllerTests  extends BaseTest {
     }
 
     @Test // @GetMapping
+    @Order(1)
     public void getStuApplication_MissingParam() throws Exception {
         mockMvc.perform(get(applicationControllerRoute)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -90,6 +97,7 @@ public class ApplicationControllerTests  extends BaseTest {
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications()
 
     @Test // @GetMapping("/studentList")
+    @Order(2)
     public void getStuApplications_Valid() throws Exception {
         String response = mockMvc.perform(get(applicationControllerRoute + "/studentList")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -109,6 +117,7 @@ public class ApplicationControllerTests  extends BaseTest {
 
     // TODO : write tests for each case of submit . (and label what case is what)
 //    @Test // @PostMapping("/application")
+    //  @Order(7)
 //    public ResponseEntity<ApiResponse<Void>> submitApplication(
 //            @RequestParam(value = "positionId", required = true) String positionId,
 //            @RequestParam(value = "saveApp", required = false) String saveApp)
@@ -133,6 +142,7 @@ public class ApplicationControllerTests  extends BaseTest {
     //          @RequestParam(value = "positionId", required = true) String positionId) throws Exception {
 
     @Test
+    @Order(3)
     public void getAlreadyApplied_Valid() throws Exception {
         mockMvc.perform(get(applicationControllerRoute + "/alreadyApplied")
                         .param("positionId", "67dcf54ab42f269d2da84622")
@@ -153,6 +163,7 @@ public class ApplicationControllerTests  extends BaseTest {
 
 
     @Test // @GetMapping("/application")
+    @Order(4)
     public void getApplication_Valid() throws Exception {
         String response = mockMvc.perform(get(applicationControllerRoute + "/application")
                         .param("labId", "88dcf5a77621f49532e47b52")
@@ -171,6 +182,7 @@ public class ApplicationControllerTests  extends BaseTest {
 
 
     @Test // @GetMapping("/application")
+    @Order(4)
     public void getApplication_InvalidLabAccess() throws Exception {
         String response = mockMvc.perform(get(applicationControllerRoute + "/application")
                         .param("labId", "99dcf5a77621f49532e47b52")
@@ -193,6 +205,7 @@ public class ApplicationControllerTests  extends BaseTest {
     //          @RequestParam (value="positionId") String positionId) throws Exception {
 
     @Test // @GetMapping("/applicationManagement")
+    @Order(5)
     public void getApplicationManagement_Valid() throws Exception {
         String response = mockMvc.perform(get(applicationControllerRoute + "/applicationManagement")
                         .param("positionId", "87d0c01ab87e195493ae9c10")
@@ -221,6 +234,7 @@ public class ApplicationControllerTests  extends BaseTest {
     //          @RequestParam(value = "status") @Pattern(regexp = "submitted|archived|moving forward", message = "Application status must be one of 'submitted', 'archived', or 'moving forward'") String status) throws Exception {
 
     @Test // @PutMapping("/applicationStatus")
+    @Order(6)
     public void updateApplicationStatus_Valid() throws Exception {
         mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
                         .param("applicationId", "abc0c01ab87e195493ae9c10")
@@ -235,6 +249,7 @@ public class ApplicationControllerTests  extends BaseTest {
     }
 
     @Test // @PutMapping("/applicationStatus")
+    @Order(6)
     public void updateApplicationStatus_InvalidParam() throws Exception {
         mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
                         .param("applicationId", "abc0c01ab87e195493ae9c10")
@@ -249,9 +264,10 @@ public class ApplicationControllerTests  extends BaseTest {
                 .andExpect(jsonPath("$.payload").isEmpty());
     }
 
-    @Test // @GetMapping("/application")
+    @Test // @PutMapping("/applicationStatus")
+    @Order(6)
     public void updateApplicationStatus_InvalidLabAccess() throws Exception {
-        String response = mockMvc.perform(get(applicationControllerRoute + "/application")
+        String response = mockMvc.perform(get(applicationControllerRoute + "/applicationStatus")
                         .param("labId", "99dcf5a77621f49532e47b52")
                         .param("applicationId", "b6c9c01ab87e195493ae9c10")
                         .param("status", "submitted")

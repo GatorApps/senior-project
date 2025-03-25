@@ -2,15 +2,15 @@
   "errCode": "0",
   "payload": {
     "position": {
-      "id": "d162c110ed0a40bea3393855",
+      "id": "67dcf586c42dde901cd44ef2",
       "labId": "88dcf5a77621f49532e47b52",
-      "name": "Ava's Testing Position electrical 3.2",
+      "name": "Ava's Testing CLOSED Position electrical 4",
       "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
       "rawDescription": "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
-      "postedTimeStamp": "2025-01-10T19:27:09.573+00:00",
-      "lastUpdatedTimeStamp": "2025-03-15T17:20:24.231+00:00",
-      "status": "open",
-      "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>"
+      "postedTimeStamp": "2025-03-02T02:19:05.806+00:00",
+      "lastUpdatedTimeStamp": "<timestamp>",
+      "status": "closed",
+      "supplementalQuestions": null
     }
   }
 }

@@ -12,41 +12,36 @@
         {
           "positionName": "Luke's Testing Position",
           "positionDescription": "This is a testing position.",
-          "postedTimeStamp": {
-            "$date": "2024-04-10T19:27:09.573Z"
-          },
+          "postedTimeStamp": "2024-04-10T19:27:09.573+00:00",
+          "lastUpdatedTimeStamp": "<timestamp>",
           "positionId": "67dcf54ab42f269d2da84622"
         },
         {
           "positionName": "Luke's Testing Position 2",
           "positionDescription": "This is a testing position.",
-          "postedTimeStamp": {
-            "$date": "2024-04-19T06:11:08.984Z"
-          },
+          "postedTimeStamp": "2024-04-19T06:11:08.984+00:00",
+          "lastUpdatedTimeStamp": "<timestamp>",
           "positionId": "67dcf555237a412943ec26be"
         },
         {
           "positionName": "Luke's Testing Position 4",
           "positionDescription": "This is a testing position.",
-          "postedTimeStamp": {
-            "$date": "2024-04-19T06:11:46.499Z"
-          },
+          "postedTimeStamp": "2024-04-19T06:11:46.499+00:00",
+          "lastUpdatedTimeStamp": "<timestamp>",
           "positionId": "67dcf55ce8e62d8cafd302ee"
         },
         {
           "positionName": "Luke's Testing Position 6",
           "positionDescription": "This is a testing position.",
-          "postedTimeStamp": {
-            "$date": "2024-04-19T18:32:56.523Z"
-          },
+          "postedTimeStamp": "2024-04-19T18:32:56.523+00:00",
+          "lastUpdatedTimeStamp": "<timestamp>",
           "positionId": "67dcf56a264b9db3ef415cb2"
         },
         {
           "positionName": "Luke's Testing Position 7",
           "positionDescription": "This is a testing position.",
-          "postedTimeStamp": {
-            "$date": "2024-04-19T18:32:59.047Z"
-          },
+          "postedTimeStamp": "2024-04-19T18:32:59.047+00:00",
+          "lastUpdatedTimeStamp": "<timestamp>",
           "positionId": "67dcf572d600cb3d03968c0f"
         }
       ]
