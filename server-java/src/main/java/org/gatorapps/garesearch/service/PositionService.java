@@ -220,7 +220,15 @@ public class PositionService {
     public Position getPosting(String opid, String id) throws Exception {
         Position position = positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found"));
 
-        labService.checkPermission(opid, position.getLabId());
+        try {
+            labService.checkPermission(opid, position.getLabId());
+        } catch (Exception e) {
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+
         return position;
     }
 
@@ -313,6 +321,7 @@ public class PositionService {
             position.setStatus(status);
             positionRepository.save(position);
         } catch (Exception e) {
+            System.out.println("in exception");
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to modify the requested position");
             }
@@ -332,7 +341,10 @@ public class PositionService {
 
             positionRepository.save(position);
         } catch (Exception e) {
-            if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException) {
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            if (e instanceof ConstraintViolationException) {
                 throw e;
             }
             throw new Exception("Unable to process your request at this time", e);
@@ -349,6 +361,7 @@ public class PositionService {
 
             garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(position.getId()))), update, Position.class);
         } catch (Exception e) {
+            System.out.println("in exception");
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to modify the requested position");
             }

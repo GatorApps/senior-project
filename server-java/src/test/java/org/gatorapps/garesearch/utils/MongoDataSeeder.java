@@ -1,31 +1,28 @@
 package org.gatorapps.garesearch.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.mongodb.client.FindIterable;
+import org.bson.Document;
+
+import org.gatorapps.garesearch.model.garesearch.Application;
+
+import org.gatorapps.garesearch.model.account.User;
+import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
+import org.gatorapps.garesearch.model.garesearch.Lab;
+import org.gatorapps.garesearch.model.garesearch.Position;
+import org.gatorapps.garesearch.model.global.App;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.gatorapps.garesearch.utils.DateDeserializer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 
 // TODO : fix how dates are uploaded . maybe just reformat jsons
@@ -47,60 +44,58 @@ public class MongoDataSeeder {
     ObjectMapper objectMapper = new ObjectMapper();
     SimpleModule module = new SimpleModule();
 
-    public void insertJsonData(String databaseName, String collectionName, String filePath) throws IOException {
+    public <T> void insertJsonData(String databaseName, String collectionName, String filePath, Class<T> modelClass) throws IOException {
 
         System.out.println("dbName: " + databaseName + " collection: " + collectionName + " filepath: " + filePath);
 
-        List<Map<String, Object>> data = objectMapper.readValue(
+        List<T> data = objectMapper.readValue(
                 new ClassPathResource(filePath).getInputStream(),
-                new TypeReference<>() {}
+                objectMapper.getTypeFactory().constructCollectionType(List.class, modelClass)
         );
 
-        for (Map<String, Object> doc : data){
-            MongoTemplate mongotemp = null;
-            int count = 0;
-            switch(databaseName) {
-                case "test_global":
-                    mongotemp = globalMongoTemplate;
-                case "test_account":
-                    mongotemp = accountMongoTemplate;
-                case "test_garesearch":
-                    mongotemp = garesearchMongoTemplate;
-            }
+        MongoTemplate mongotemp = null;
+        switch (databaseName) {
+            case "test_global":
+                mongotemp = globalMongoTemplate;
+                break;
+            case "test_account":
+                mongotemp = accountMongoTemplate;
+                break;
+            case "test_garesearch":
+                mongotemp = garesearchMongoTemplate;
+                break;
+        }
 
-            ObjectId objId = new ObjectId();
-            if (doc.containsKey("_id") && doc.get("_id") instanceof Map){
-                Map<String, Object> idMap = (Map<String, Object>) doc.get("_id");
-                System.out.println("collection: " + collectionName + "  id: " + idMap.get("$oid").toString());
-                if (idMap.containsKey("$oid")){
-                    objId = new ObjectId(idMap.get("$oid").toString());
-                }
-            }
+        if (mongotemp != null) {
+            mongotemp.getMongoDatabaseFactory().getMongoDatabase(databaseName).createCollection(collectionName);
 
-            doc.remove("_id");
-            doc.put("_id", objId);
+            mongotemp.insertAll(data);
 
-            if (mongotemp != null) {
-                mongotemp.getMongoDatabaseFactory().getMongoDatabase(databaseName)
-                        .getCollection(collectionName)
-                        .insertOne(new Document(doc));
-            }
+
+            printCollection(mongotemp, databaseName, collectionName);
         }
 
     }
 
     public void populateDatabase() throws IOException {
+        System.out.println("--------------------------------------------");
+        System.out.println("populating");
+        System.out.println("--------------------------------------------");
+
         module.addDeserializer(Date.class, new DateDeserializer());
+        module.addDeserializer(org.gatorapps.garesearch.model.garesearch.supportingclasses.User.class, new UserDeserializer());
+        module.addDeserializer(String.class, new ObjectIdDeserializer());
         objectMapper.registerModule(module);
 
-        insertJsonData("test_global", "apps", "/data/global/apps.json");
-        insertJsonData("test_account", "users", "/data/account/users.json");
-        insertJsonData("test_garesearch", "applicantprofiles", "/data/garesearch/applicantProfiles.json");
-        insertJsonData("test_garesearch", "applications", "/data/garesearch/applications.json");
+        insertJsonData("test_global", "apps", "/data/global/apps.json", App.class);
+        insertJsonData("test_account", "users", "/data/account/users.json", User.class);
+        insertJsonData("test_garesearch", "applicantprofiles", "/data/garesearch/applicantProfiles.json", ApplicantProfile.class);
+        insertJsonData("test_garesearch", "applications", "/data/garesearch/applications.json", Application.class);
         // insertJsonData("test_garesearch", "files", "/data/garesearch/files.json");
 
-        insertJsonData("test_garesearch", "labs", "/data/garesearch/labs.json");
-        insertJsonData("test_garesearch", "positions", "/data/garesearch/positions.json");
+        insertJsonData("test_garesearch", "labs", "/data/garesearch/labs.json", Lab.class);
+        insertJsonData("test_garesearch", "positions", "/data/garesearch/positions.json", Position.class);
+
     }
 
 
@@ -109,4 +104,18 @@ public class MongoDataSeeder {
         accountMongoTemplate.getMongoDatabaseFactory().getMongoDatabase().drop();
         garesearchMongoTemplate.getMongoDatabaseFactory().getMongoDatabase().drop();
     }
+
+    private void printCollection(MongoTemplate mongotemp, String databaseName, String collectionName){
+
+        FindIterable<Document> documents = mongotemp.getMongoDatabaseFactory().getMongoDatabase(databaseName).getCollection(collectionName).find();
+
+        // Print each document
+        for (Document document : documents) {
+            System.out.println(document.toJson());
+        }
+
+
+    }
+
+
 }

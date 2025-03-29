@@ -1,6 +1,8 @@
 package org.gatorapps.garesearch.model.account;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -11,6 +13,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 @Document(collection = "users")
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
 public class User {
 
     @Id
@@ -47,101 +52,13 @@ public class User {
     private List<Session> sessions;
 
     // Nested Session class
+    @Getter
+    @Setter
     public static class Session {
         @Field("sessionID")
         private String sessionID;
 
         @Field("signInTimeStamp")
         private Date signInTimeStamp;
-
-        // Getters and Setters for Session
-        public String getSessionID() {
-            return sessionID;
-        }
-
-        public void setSessionID(String sessionID) {
-            this.sessionID = sessionID;
-        }
-
-        public Date getSignInTimeStamp() {
-            return signInTimeStamp;
-        }
-
-        public void setSignInTimeStamp(Date signInTimeStamp) {
-            this.signInTimeStamp = signInTimeStamp;
-        }
-    }
-
-    // Getters and Setters for User
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getOpid() {
-        return opid;
-    }
-
-    public void setOpid(String opid) {
-        this.opid = opid;
-    }
-
-    public Date getRegisterTimestamp() {
-        return registerTimestamp;
-    }
-
-    public void setRegisterTimestamp(Date registerTimestamp) {
-        this.registerTimestamp = registerTimestamp;
-    }
-
-    public List<Integer> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Integer> roles) {
-        this.roles = roles;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public List<String> getEmails() {
-        return emails;
-    }
-
-    public void setEmails(List<String> emails) {
-        this.emails = emails;
-    }
-
-    public List<Session> getSessions() {
-        return sessions;
-    }
-
-    public void setSessions(List<Session> sessions) {
-        this.sessions = sessions;
     }
 }

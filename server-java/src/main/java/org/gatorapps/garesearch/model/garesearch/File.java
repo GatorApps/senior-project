@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "files")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class File {
     @Id
     private String id;

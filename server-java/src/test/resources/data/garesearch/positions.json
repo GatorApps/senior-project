@@ -1,6 +1,6 @@
 [
   {
-    "_id": {
+    "id": {
       "$oid": "d162c110ed0a40bea3393855"
     },
     "labId": "88dcf5a77621f49532e47b52",
@@ -18,7 +18,7 @@
     }
   },
   {
-    "_id": {
+    "id": {
       "$oid": "87d0c01ab87e195493ae9c10"
     },
     "labId": "88dcf5a77621f49532e47b52",
@@ -27,26 +27,32 @@
     "postedTimeStamp": {
       "$date": "2025-05-10T19:27:09.573Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "open",
     "__v": 0,
     "rawDescription": "test position chemistry"
   },
   {
-  "_id": {
-    "$oid": "67dcf54ab42f269d2da84622"
+    "id": {
+      "$oid": "67dcf54ab42f269d2da84622"
+    },
+    "labId": "99dcf5a77621f49532e47b52",
+    "name": "Luke's Testing Position",
+    "description": "This is a testing position.",
+    "rawDescription": "This is a testing position",
+    "postedTimeStamp": {
+      "$date": "2024-04-10T19:27:09.573Z"
+    },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
+    "status": "open",
+    "__v": 0
   },
-  "labId": "99dcf5a77621f49532e47b52",
-  "name": "Luke's Testing Position",
-  "description": "This is a testing position.",
-  "rawDescription": "This is a testing position",
-  "postedTimeStamp": {
-    "$date": "2024-04-10T19:27:09.573Z"
-  },
-  "status": "open",
-  "__v": 0
-},
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf555237a412943ec26be"
     },
     "labId": "99dcf5a77621f49532e47b52",
@@ -56,11 +62,14 @@
     "postedTimeStamp": {
       "$date": "2024-04-19T06:11:08.984Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "open",
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf55ce8e62d8cafd302ee"
     },
     "labId": "99dcf5a77621f49532e47b52",
@@ -70,11 +79,14 @@
     "postedTimeStamp": {
       "$date": "2024-04-19T06:11:46.499Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "open",
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf564dad1269964ffa12e"
     },
     "labId": "99dcf5a77621f49532e47b52",
@@ -84,11 +96,14 @@
     "postedTimeStamp": {
       "$date": "2024-04-19T18:32:39.250Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "draft",
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf56a264b9db3ef415cb2"
     },
     "labId": "99dcf5a77621f49532e47b52",
@@ -98,11 +113,14 @@
     "postedTimeStamp": {
       "$date": "2024-04-19T18:32:56.523Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "open",
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf572d600cb3d03968c0f"
     },
     "labId": "99dcf5a77621f49532e47b52",
@@ -112,11 +130,14 @@
     "postedTimeStamp": {
       "$date": "2024-04-19T18:32:59.047Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "open",
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf578705c5f00403f2e85"
     },
     "labId": "99dcf5a77621f49532e47b52",
@@ -126,11 +147,14 @@
     "postedTimeStamp": {
       "$date": "2024-04-19T18:33:32.090Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "closed",
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf57f1d3d5f5c7fcc5645"
     },
     "labId": "88dcf5a77621f49532e47b52",
@@ -139,12 +163,15 @@
     "postedTimeStamp": {
       "$date": "2025-01-10T19:27:09.573Z"
     },
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-06-10T19:27:09.573Z"
+    },
     "status": "open",
     "__v": 0,
     "rawDescription": "test position"
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf586c42dde901cd44ef2"
     },
     "labId": "88dcf5a77621f49532e47b52",
@@ -161,7 +188,7 @@
     }
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dcf586c42dde901cd44edd"
     },
     "labId": "88dcf5a77621f49532e47b52",

@@ -47,6 +47,7 @@ public abstract class BaseTest implements ApplicationContextAware {
 
     @AfterAll
     static void stopContainer() {
+        System.out.println("being deleted");
         mongoDataSeeder = context.getBean(MongoDataSeeder.class);
         mongoDataSeeder.deleteDatabase();
     }

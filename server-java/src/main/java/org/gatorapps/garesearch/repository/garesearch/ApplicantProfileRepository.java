@@ -1,11 +1,9 @@
 package org.gatorapps.garesearch.repository.garesearch;
 
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
-import org.gatorapps.garesearch.model.garesearch.Application;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.Optional;
 @Repository
 public interface ApplicantProfileRepository extends MongoRepository<ApplicantProfile, String> {

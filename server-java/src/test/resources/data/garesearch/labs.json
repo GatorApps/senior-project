@@ -1,6 +1,6 @@
 [
   {
-    "_id": {
+    "id": {
       "$oid": "99dcf5a77621f49532e47b52"
     },
     "users": [
@@ -45,7 +45,7 @@
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "88dcf5a77621f49532e47b52"
     },
     "users": [
@@ -62,7 +62,7 @@
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "e7dcf5a77621f49532e47b53"
     },
     "users": [
@@ -79,7 +79,7 @@
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "67dd015e481a0b5b0bccbaa7"
     },
     "users": [],
@@ -89,7 +89,7 @@
     "__v": 0
   },
   {
-    "_id": {
+    "id": {
       "$oid": "e7dd015e481a0b5b0bccbaa7"
     },
     "users": [
@@ -105,7 +105,7 @@
     "_class": "org.gatorapps.garesearch.model.garesearch.Lab"
   },
   {
-    "_id": {
+    "id": {
       "$oid": "e7dcf5a77621f49532e47b1c"
     },
     "users": [

@@ -2,14 +2,16 @@ package org.gatorapps.garesearch.controller;
 
 import org.gatorapps.garesearch.config.RestDocsConfig;
 import org.gatorapps.garesearch.service.PositionService;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -17,14 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
 
 import java.nio.file.Files;
-import java.util.Random;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static reactor.core.publisher.Mono.when;
 
 // TODO : fix searching functionality. will have to mock service likely. since no atlas search index can be created for testing
 
@@ -35,6 +35,7 @@ import static reactor.core.publisher.Mono.when;
 @AutoConfigureMockMvc
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureRestDocs(outputDir = "target/generated-snippets")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PositionControllerTests extends BaseTest {
 
     @Autowired
@@ -91,6 +92,7 @@ public class PositionControllerTests extends BaseTest {
     //          @RequestParam(value = "positionId", required = true) String positionId)
 
     @Test // @GetMapping
+    @Order(1)
     public void getPublicPosting_Valid() throws Exception {
         String response = mockMvc.perform(get(positionControllerRoute)
                         .param("positionId", "d162c110ed0a40bea3393855")
@@ -103,11 +105,15 @@ public class PositionControllerTests extends BaseTest {
                 .getContentAsString();
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/position/get_public_posting.json").toPath());
-        JSONAssert.assertEquals(expectedResponse, response, false);
 
+        response = response.replaceAll("\"lastUpdatedTimeStamp\":\".*?\"", "\"lastUpdatedTimeStamp\": \"<timestamp>\"");
+
+
+        JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
     @Test // @GetMapping
+    @Order(1)
     public void getPublicPosting_ResourceNotFound() throws Exception {
         mockMvc.perform(get(positionControllerRoute)
                         .param("positionId", "111111111111111111111111")
@@ -120,6 +126,7 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @GetMapping
+    @Order(1)
     public void getPublicPosting_MissingParam() throws Exception {
         mockMvc.perform(get(positionControllerRoute)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -136,6 +143,7 @@ public class PositionControllerTests extends BaseTest {
     //          @RequestParam(value = "positionId") String positionId) throws Exception {
 
     @Test // @GetMapping("/supplementalQuestions")
+    @Order(2)
     public void getSupplementalQuestions_Valid() throws Exception {
         String response = mockMvc.perform(get(positionControllerRoute + "/supplementalQuestions")
                         .param("positionId", "d162c110ed0a40bea3393855")
@@ -153,6 +161,7 @@ public class PositionControllerTests extends BaseTest {
 
 
     @Test // @GetMapping("/supplementalQuestions")
+    @Order(2)
     public void getSupplementalQuestions_ResourceNotFound() throws Exception {
         mockMvc.perform(get(positionControllerRoute + "/supplementalQuestions")
                         .param("positionId", "111111111111111111111111")
@@ -165,6 +174,7 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @GetMapping("/supplementalQuestions")
+    @Order(2)
     public void getSupplementalQuestions_MissingParam() throws Exception {
         mockMvc.perform(get(positionControllerRoute)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -181,6 +191,7 @@ public class PositionControllerTests extends BaseTest {
     //    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionsNamesList(HttpServletRequest request)
 
     @Test // @GetMapping("/postingsList")
+    @Order(3)
     public void getPostingsNamesList_Valid() throws Exception {
         String response = mockMvc.perform(get(positionControllerRoute + "/postingsList")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -201,6 +212,7 @@ public class PositionControllerTests extends BaseTest {
     //          @Valid HttpServletRequest request)
 
     @Test // @GetMapping("/postingManagement")
+    @Order(4)
     public void getPostingManagement_Valid() throws Exception {
         String response = mockMvc.perform(get(positionControllerRoute + "/postingManagement")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -212,6 +224,9 @@ public class PositionControllerTests extends BaseTest {
                 .getContentAsString();
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/position/get_posting_mgmt_list.json").toPath());
+
+        response = response.replaceAll("\"lastUpdatedTimeStamp\":\".*?\"", "\"lastUpdatedTimeStamp\": \"<timestamp>\"");
+
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
@@ -221,9 +236,10 @@ public class PositionControllerTests extends BaseTest {
     //          @RequestParam(value = "positionId")String positionId)
 
     @Test // @GetMapping("/postingEditor")
+    @Order(5)
     public void getProfile_Valid() throws Exception {
         String response = mockMvc.perform(get(positionControllerRoute + "/postingEditor")
-                        .param("positionId", "d162c110ed0a40bea3393855")
+                        .param("positionId", "67dcf586c42dde901cd44ef2")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
@@ -233,10 +249,14 @@ public class PositionControllerTests extends BaseTest {
                 .getContentAsString();
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/position/get_posting_editor.json").toPath());
+
+        response = response.replaceAll("\"lastUpdatedTimeStamp\":\".*?\"", "\"lastUpdatedTimeStamp\": \"<timestamp>\"");
+
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
     @Test // @GetMapping("/postingEditor")
+    @Order(5)
     public void getProfile_InvalidLabAccess() throws Exception {
         String response = mockMvc.perform(get(positionControllerRoute + "/postingEditor")
                         .param("positionId", "67dcf54ab42f269d2da84622")
@@ -253,6 +273,7 @@ public class PositionControllerTests extends BaseTest {
 
 
     @Test // @GetMapping("/postingEditor")
+    @Order(5)
     public void getProfile_ResourceNotFound() throws Exception {
         mockMvc.perform(get(positionControllerRoute + "/postingEditor")
                         .param("positionId", "111111111111111111111111")
@@ -265,6 +286,7 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @GetMapping("/postingEditor")
+    @Order(5)
     public void getProfile_MissingParam() throws Exception {
         mockMvc.perform(get(positionControllerRoute + "/postingEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -284,17 +306,18 @@ public class PositionControllerTests extends BaseTest {
 
 
     @Test // @PostMapping("/postingEditor")
+    @Order(6)
     public void createNewPosition_Valid() throws Exception {
         String requestBody = String.format("""
                 {
                     "labId": "88dcf5a77621f49532e47b52",
-                    "name": "Ava's Test Position %d",
+                    "name": "Literature Review: Mechanical",
                     "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
                     "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
                     "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
                     "status": "open"
                 }
-                """, new Random().nextInt(1000));
+                """);
         mockMvc.perform(post(positionControllerRoute + "/postingEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
@@ -307,15 +330,16 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @PostMapping("/postingEditor")
+    @Order(6)
     public void createNewPosition_Invalid() throws Exception {
         String requestBody = String.format("""
                 {
                     "labId": "",
-                    "name": "new position %d",
+                    "name": "new position",
                     "status": "open",
                     "postedTimeStamp":"2025-03-15T21:29:59.062+00:00"
                 }
-                """, new Random().nextInt(1000));
+                """);
         mockMvc.perform(post(positionControllerRoute + "/postingEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
@@ -328,15 +352,16 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @PostMapping("/postingEditor")
+    @Order(6)
     public void createNewPosition_InvalidLabAccess() throws Exception {
         String requestBody = String.format("""
                 {
                     "labId": "99dcf5a77621f49532e47b52",
-                    "name": "New position %d",
+                    "name": "New position",
                     "status": "open",
                     "postedTimeStamp":"2025-03-15T21:29:59.062+00:00"
                 }
-                """, new Random().nextInt(1000));
+                """);
         String response = mockMvc.perform(post(positionControllerRoute + "/postingEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
@@ -358,18 +383,19 @@ public class PositionControllerTests extends BaseTest {
     //          @RequestBody Position position) throws Exception {
 
     @Test // @PostMapping("/postingEditor")
+    @Order(7)
     public void updatePosition_Valid() throws Exception {
         String requestBody = String.format("""
                 {
                     "id": "67dcf57f1d3d5f5c7fcc5645",
                     "labId": "88dcf5a77621f49532e47b52",
-                    "name": "Ava's Updated Test Position %d",
+                    "name": "Ava's Updated Test Position: 55",
                     "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
                     "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
                     "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
                     "status": "open"
                 }
-                """, new Random().nextInt(1000));
+                """);
         mockMvc.perform(put(positionControllerRoute + "/postingEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
@@ -383,6 +409,7 @@ public class PositionControllerTests extends BaseTest {
 
 
     @Test // @PostMapping("/postingEditor")
+    @Order(7)
     public void updateNewPosition_invalidLabAccess() throws Exception {
         String requestBody = String.format("""
                 {
@@ -416,6 +443,7 @@ public class PositionControllerTests extends BaseTest {
     //          @RequestParam(value = "status") @Pattern(regexp = "open|closed|archived", message = "Position status must be one of 'open', 'closed', 'archived'") String status)
 
     @Test // @PutMapping("/postingStatus")
+    @Order(8)
     public void updatePostingStatus_Valid() throws Exception {
         mockMvc.perform(put(positionControllerRoute + "/postingStatus")
                         .param("positionId", "d162c110ed0a40bea3393855")
@@ -429,6 +457,7 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @PutMapping("/postingStatus")
+    @Order(8)
     public void updatePostingStatus_InvalidParam() throws Exception {
         mockMvc.perform(put(positionControllerRoute + "/postingStatus")
                         .param("positionId", "d162c110ed0a40bea3393855")
@@ -443,6 +472,7 @@ public class PositionControllerTests extends BaseTest {
     }
 
     @Test // @PutMapping("/postingStatus")
+    @Order(8)
     public void updatePostingStatus_InvalidLabAccess() throws Exception {
         String response = mockMvc.perform(put(positionControllerRoute + "/postingStatus")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)

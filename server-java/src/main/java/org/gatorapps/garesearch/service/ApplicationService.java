@@ -311,6 +311,7 @@ public class ApplicationService {
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to view these applications");
             }
+            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time");
         }
     }

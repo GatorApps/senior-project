@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "applicantprofiles")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ApplicantProfile extends BaseApplicationProfileSchema {
 
     @Id
@@ -32,8 +34,4 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     @Field("lastUpdateTimeStamp")
     @NotNull(message = "lastUpdateTimeStamp is required")
     private Date lastUpdateTimeStamp;
-
-    public void setLastUpdateTimeStampToNow() {
-        this.lastUpdateTimeStamp = new Date();
-    }
 }
