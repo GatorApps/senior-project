@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "positions")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Position {
 
     @Id
@@ -64,9 +66,5 @@ public class Position {
 
     public void setRawDescription(String description) {
         this.rawDescription = Jsoup.parse(description).text();
-    }
-
-    public void setLastUpdatedTimeStamp(){
-        this.lastUpdatedTimeStamp = new Date();
     }
 }

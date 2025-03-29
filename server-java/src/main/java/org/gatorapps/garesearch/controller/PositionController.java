@@ -121,10 +121,16 @@ public class PositionController {
                 .sorted(Comparator.comparing(app -> (Date) app.get("postedTimeStamp")))
                 .toList();
 
+        List<Map> archivedPositions = positions.stream()
+                .filter(app -> "archived".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("postedTimeStamp")))
+                .toList();
+
         Map<String, Object> payloadResponse = Map.of(
                 "postingsList", Map.of(
                         "openPositions", openPositions,
-                        "closedPositions", closedPositions
+                        "closedPositions", closedPositions,
+                        "archivedPositions", archivedPositions
                 ));
         ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);

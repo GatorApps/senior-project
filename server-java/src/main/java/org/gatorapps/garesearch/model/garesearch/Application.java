@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -21,6 +22,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "applications")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Application extends BaseApplicationProfileSchema {
 
     @Id

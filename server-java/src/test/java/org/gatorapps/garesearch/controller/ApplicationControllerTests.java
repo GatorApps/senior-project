@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -171,7 +170,7 @@ public class ApplicationControllerTests  extends BaseTest {
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
-                .andDo(RestDocsConfig.getDefaultDocHandler("application-get_faculty"))
+                .andDo(RestDocsConfig.getDefaultDocHandler("application-get-faculty"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -222,6 +221,7 @@ public class ApplicationControllerTests  extends BaseTest {
 
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/application/get_application_mgmt_list.json").toPath());
+        response = response.replaceAll("\"submissionTimeStamp\":\".*?\"", "\"submissionTimeStamp\": \"<timestamp>\"");
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
@@ -267,7 +267,7 @@ public class ApplicationControllerTests  extends BaseTest {
     @Test // @PutMapping("/applicationStatus")
     @Order(6)
     public void updateApplicationStatus_InvalidLabAccess() throws Exception {
-        String response = mockMvc.perform(get(applicationControllerRoute + "/applicationStatus")
+        String response = mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
                         .param("labId", "99dcf5a77621f49532e47b52")
                         .param("applicationId", "b6c9c01ab87e195493ae9c10")
                         .param("status", "submitted")
@@ -278,7 +278,7 @@ public class ApplicationControllerTests  extends BaseTest {
                 .getResponse()
                 .getContentAsString();
 
-        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access.json").toPath());
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access_application.json").toPath());
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
 }

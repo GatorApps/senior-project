@@ -3,7 +3,7 @@ package org.gatorapps.garesearch.utils;
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
-import org.gatorapps.garesearch.testModel.garesearch.Application;
+import org.gatorapps.garesearch.model.garesearch.Application;
 
 import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
@@ -78,8 +78,12 @@ public class MongoDataSeeder {
     }
 
     public void populateDatabase() throws IOException {
+        System.out.println("--------------------------------------------");
+        System.out.println("populating");
+        System.out.println("--------------------------------------------");
+
         module.addDeserializer(Date.class, new DateDeserializer());
-        module.addDeserializer(org.gatorapps.garesearch.testModel.garesearch.supportingclasses.User.class, new UserDeserializer());
+        module.addDeserializer(org.gatorapps.garesearch.model.garesearch.supportingclasses.User.class, new UserDeserializer());
         module.addDeserializer(String.class, new ObjectIdDeserializer());
         objectMapper.registerModule(module);
 

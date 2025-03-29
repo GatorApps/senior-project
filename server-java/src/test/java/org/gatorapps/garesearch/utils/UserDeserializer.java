@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.gatorapps.garesearch.testModel.garesearch.supportingclasses.User;
+import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
 
 import java.io.IOException;
 

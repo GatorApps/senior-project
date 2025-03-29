@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -20,14 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
 
 import java.nio.file.Files;
-import java.util.Random;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static reactor.core.publisher.Mono.when;
 
 // TODO : fix searching functionality. will have to mock service likely. since no atlas search index can be created for testing
 

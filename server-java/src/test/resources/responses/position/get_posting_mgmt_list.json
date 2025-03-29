@@ -2,6 +2,7 @@
   "errCode": "0",
   "payload": {
     "postingsList": {
+      "archivedPositions": [],
       "closedPositions": [
         {
           "labId": "88dcf5a77621f49532e47b52",
