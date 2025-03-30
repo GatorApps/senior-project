@@ -20,8 +20,8 @@ public class UserService {
     }
 
     // Read: Get a User by ID
-    public Optional<User> getUserById(String id) {
-        return userRepository.findById(id);
+    public Optional<User> getUserByOpid(String opid) {
+        return userRepository.findByOpid(opid);
     }
 
     // Read: Get all Users
