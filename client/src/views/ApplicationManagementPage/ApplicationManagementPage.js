@@ -17,7 +17,7 @@ import { FormControl, InputLabel } from '@mui/material';
 import ApplicationViewer from '../../components/ApplicationViewerPopup/ApplicationViewerPopup';
 
 const ApplicationManagement = () => {
-    const [applications, setApplications] = useState({ activeApplications: [], archivedApplications: [] });
+    const [applications, setApplications] = useState({ activeApplications: [], movingApplications: [], archivedApplications: [] });
     const [positions, setPositions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,52 +25,29 @@ const ApplicationManagement = () => {
     const [selectedPosition, setSelectedPosition] = useState('');
     const [selectedApplication, setSelectedApplication] = useState(null);
 
-    // Fetch positions from API
-    useEffect(() => {
-        // axiosPrivate.get('/posting/postingsList')
-        //     .then((response) => {
-        //         console.log(response.data);
-        //         if (response.data && response.data.errCode === "0" && response.data.payload.positions) {
-        //             setPositions(response.data.payload.positions);
-        //         } else {
-        //             setError("No positions found");
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         setError(error.message || "Error fetching positions");
-        //     });
-        // Mock data for positions
-        const mockPositions = [
-            {
-                "positionId": "67ddeb5144c53033691a78ff",
-                "name": "Eric's Testing Position"
-            },
-            {
-                "positionId": "67ddf20744c53033691a7906",
-                "name": "Eric's Testing Position 2"
-            },
-            {
-                "positionId": "67ddf22f44c53033691a7907",
-                "name": "Eric's Testing Position 3"
-            },
-            {
-                "positionId": "67ddf24344c53033691a7908",
-                "name": "Eric's Testing Position 4"
-            }
-        ]
-        setPositions(mockPositions);
-        setSelectedPosition(mockPositions[0].positionId);
-        setLoading(false);
-    }, []);
+    const updateApplicationStatus = async (app, newStatus) => {
+        try {
+            await axiosPrivate.put(`/application/applicationStatus`, null, {
+                params: {
+                    labId: app.labId,
+                    applicationId: app.applicationId,
+                    status: newStatus
+                }
+            });
+            fetchApplications();
+        } catch (error) {
+            setError("Error updating status");
+        }
+    };
 
-    // Fetch applications when a position is selected
-    useEffect(() => {
+    const fetchApplications = async () => {
         if (selectedPosition) {
             setLoading(true);
             axiosPrivate.get(`/application/applicationManagement?positionId=${selectedPosition}`)
                 .then((response) => {
                     if (response.data && response.data.errCode === "0" && response.data.payload.applications) {
                         setApplications(response.data.payload.applications);
+                        // console.log(response.data.payload.applications);
                     } else {
                         setError("No applications found");
                     }
@@ -81,7 +58,35 @@ const ApplicationManagement = () => {
                     setLoading(false);
                 });
         }
+    };
+
+    // Fetch positions from API
+    useEffect(() => {
+        axiosPrivate.get('/posting/postingsList')
+            .then((response) => {
+                // console.log(response.data);
+                if (response.data && response.data.errCode === "0" && response.data.payload.positions) {
+                    setPositions(response.data.payload.positions);
+                    setSelectedPosition(response.data.payload.positions[0].positionId);
+                } else {
+                    setError("No positions found");
+                }
+            })
+            .catch((error) => {
+                setError(error.message || "Error fetching positions");
+            });
+        setLoading(false);
+    }, []);
+
+    // Fetch applications when a position is selected
+    useEffect(() => {
+        fetchApplications();
     }, [selectedPosition]);
+
+    const handleViewApplication = (application) => {
+        console.log(application);
+        setSelectedApplication(application);
+    }
 
     return (
         <HelmetComponent title={"Application Management"}>
@@ -124,8 +129,8 @@ const ApplicationManagement = () => {
 
                             {/* Application Tabs */}
                             <Tabs value={selectedTab} onChange={(e, newValue) => setSelectedTab(newValue)} centered>
-                                <Tab label="New" />
-                                <Tab label="In Progress" />
+                                <Tab label="Active" />
+                                <Tab label="Moving Forward" />
                                 <Tab label="Archived" />
                             </Tabs>
 
@@ -135,47 +140,32 @@ const ApplicationManagement = () => {
                                     <SkeletonGroup boxPadding={'0'} />
                                 ) : error ? (
                                     <Typography color="error">{error}</Typography>
-                                ) : applications.activeApplications.length === 0 && applications.archivedApplications.length === 0 ? (
+                                ) : ([applications.activeApplications, applications.movingApplications, applications.archivedApplications][selectedTab].length === 0 ? (
                                     <Typography variant="body1" color="textSecondary">No applications available.</Typography>
                                 ) : (
-                                    selectedTab === 0 ?  // New Applications
-                                        applications.activeApplications.map((app) => (
-                                            <Box key={app.opid} sx={{ marginBottom: '16px', padding: '16px', borderBottom: '1px solid #ddd' }}>
-                                                <Typography variant="h6">Student OPID: {app.opid}</Typography>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    Submitted: {new Date(app.submissionTimeStamp).toLocaleString()}
-                                                </Typography>
-                                                <Box sx={{ display: 'flex', gap: 2, marginTop: 1 }}>
-                                                    <Button variant="contained" onClick={() => setSelectedApplication(app)}>View</Button>
-                                                    <Button variant="outlined">{app.status.charAt(0).toUpperCase() + app.status.slice(1)}</Button>
-                                                </Box>
+                                    [applications.activeApplications, applications.movingApplications, applications.archivedApplications][selectedTab].map((app) => (
+                                        <Box key={app.opid} sx={{ marginBottom: '16px', padding: '16px', borderBottom: '1px solid #ddd' }}>
+                                            <Typography variant="h6">Applicant Name: {app.firstName} {app.lastName}</Typography>
+                                            {/* <Typography variant="h6">Student OPID: {app.opid}</Typography> */}
+                                            <Typography variant="body2" color="textSecondary">
+                                                Submitted: {new Date(app.submissionTimeStamp).toLocaleString()}
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', gap: 2, marginTop: 1 }}>
+                                                <Button variant="contained" onClick={() => handleViewApplication(app)}>View</Button>
+                                                <FormControl sx={{ minWidth: 150 }}>
+                                                    <Select
+                                                        value={app.status}
+                                                        onChange={(e) => updateApplicationStatus(app, e.target.value)}
+                                                    >
+                                                        <MenuItem value="submitted">Active</MenuItem>
+                                                        <MenuItem value="moving forward">Moving Forward</MenuItem>
+                                                        <MenuItem value="archived">Archived</MenuItem>
+                                                    </Select>
+                                                </FormControl>
                                             </Box>
-                                        )) : selectedTab === 1 ?  // In Progress Applications
-                                            applications.activeApplications.filter(app => app.status === 'inProgress').map((app) => (
-                                                <Box key={app.opid} sx={{ marginBottom: '16px', padding: '16px', borderBottom: '1px solid #ddd' }}>
-                                                    <Typography variant="h6">Student OPID: {app.opid}</Typography>
-                                                    <Typography variant="body2" color="textSecondary">
-                                                        Submitted: {new Date(app.submissionTimeStamp).toLocaleString()}
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', gap: 2, marginTop: 1 }}>
-                                                        <Button variant="contained" onClick={() => setSelectedApplication(app)}>View</Button>
-                                                        <Button variant="outlined">{app.status.charAt(0).toUpperCase() + app.status.slice(1)}</Button>
-                                                    </Box>
-                                                </Box>
-                                            )) :  // Archived Applications
-                                            applications.archivedApplications.map((app) => (
-                                                <Box key={app.opid} sx={{ marginBottom: '16px', padding: '16px', borderBottom: '1px solid #ddd' }}>
-                                                    <Typography variant="h6">Student OPID: {app.opid}</Typography>
-                                                    <Typography variant="body2" color="textSecondary">
-                                                        Submitted: {new Date(app.submissionTimeStamp).toLocaleString()}
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', gap: 2, marginTop: 1 }}>
-                                                        <Button variant="contained" onClick={() => setSelectedApplication(app)}>View</Button>
-                                                        <Button variant="outlined">{app.status.charAt(0).toUpperCase() + app.status.slice(1)}</Button>
-                                                    </Box>
-                                                </Box>
-                                            ))
-                                )}
+                                        </Box>
+                                    ))
+                                ))}
                             </Paper>
                         </Container>
 
@@ -184,6 +174,7 @@ const ApplicationManagement = () => {
                             onClose={() => setSelectedApplication(null)}  // Close the viewer when the close button is clicked
                             application={selectedApplication}  // Pass the selected application to the viewer
                         />
+                        {/* <button onClick={() => console.log(applications.movingApplications)}>Log Applications</button> */}
                     </Box>
                 </main>
                 <Footer />

@@ -5,12 +5,12 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-const steps = ['Upload Documents', 'Answer Questions', 'Review & Submit'];
+const steps = ['Upload Documents', 'Supplemental Questions', 'Review & Submit'];
 
 const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
     const [resumeMetadata, setResumeMetadata] = useState(null);
     const [transcriptMetadata, setTranscriptMetadata] = useState(null);
-    const [answers, setAnswers] = useState(questions || '');
+    const [answers, setAnswers] = useState(questions);
     const [activeStep, setActiveStep] = useState(0);
 
     const fetchFileMetadata = async () => {
@@ -69,14 +69,6 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
     };
 
     const handleSubmit = async () => {
-        // Body looks like
-        // {
-        //     "application": {
-        //         "resumeId": "67d1adaa3e62070388cfb96a",
-        //             "transcriptId": "67d1adb93e62070388cfb96b",
-        //                 "supplementalResponses": "1111"
-        //     }
-        // }
         const body = {
             application: {
                 resumeId: resumeMetadata ? resumeMetadata.fileId : null,
@@ -119,55 +111,65 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                     ))}
                 </Stepper>
                 {activeStep === 0 && (
-                    <Paper sx={{ p: 3 }}>
+                    <Paper sx={{ p: 3, minHeight: 300, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Typography variant="h6">Upload Documents</Typography>
                         <Box mt={2}>
-                            <Typography variant="body1">Resume</Typography>
+                            <Typography variant="h6">Resume</Typography>
                             {resumeMetadata && <>
-                                <Typography>File: {resumeMetadata.fileName}</Typography>
+                                <Typography color='blue'>File: {resumeMetadata.fileName}</Typography>
                                 {/* Convert Unix timestamp to human-readable format */}
                                 <Typography>Last updated: {(new Date(resumeMetadata.uploadedTimeStamp)).toLocaleDateString()}</Typography>
                             </>
                             }
-                            <Button variant="contained" component="label" startIcon={<CloudUploadIcon />}>
+                            <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />}>
                                 Upload Resume
                                 <input type="file" hidden onChange={(e) => handleFileUpload(e, 'resume')} />
                             </Button>
                         </Box>
                         <Box mt={2}>
-                            <Typography variant="body1">Unofficial Transcript</Typography>
+                            <Typography variant="h6">Unofficial Transcript</Typography>
                             {transcriptMetadata && <>
-                                <Typography>File: {transcriptMetadata.fileName}</Typography>
+                                <Typography color='blue'>File: {transcriptMetadata.fileName}</Typography>
                                 {/* Convert Unix timestamp to human-readable format */}
                                 <Typography>Last updated: {(new Date(transcriptMetadata.uploadedTimeStamp)).toLocaleDateString()}</Typography>
                             </>
                             }
-                            <Button variant="contained" component="label" startIcon={<CloudUploadIcon />}>
+                            <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />}>
                                 Upload Transcript
                                 <input type="file" hidden onChange={(e) => handleFileUpload(e, 'transcript')} />
                             </Button>
                         </Box>
-                        <Button onClick={handleNext} variant="contained" sx={{ mt: 3 }}>Next</Button>
+                        <Box display="flex" justifyContent="end" sx={{ marginTop: 'auto' }}>
+                            <Button onClick={handleNext} variant="contained" sx={{ mt: 3 }}>Next</Button>
+                        </Box>
                     </Paper>
                 )}
                 {activeStep === 1 && (
-                    <Paper sx={{ p: 3 }}>
-                        <Typography variant="h6">Answer Questions</Typography>
+                    <Paper sx={{ p: 3, minHeight: 300, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Typography variant="body1">Answer the following questions:</Typography>
                         <ReactQuill value={answers} onChange={setAnswers} />
-                        <Box mt={3} display="flex" justifyContent="space-between">
+                        {/* <button onClick={() => console.log(answers)}>Log answers</button> */}
+                        <Box display="flex" justifyContent="space-between" sx={{ marginTop: 'auto' }}>
                             <Button onClick={handleBack}>Back</Button>
                             <Button onClick={handleNext} variant="contained">Next</Button>
                         </Box>
                     </Paper>
                 )}
                 {activeStep === 2 && (
-                    <Paper sx={{ p: 3 }}>
+                    <Paper sx={{ p: 3, minHeight: 300, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Typography variant="h6">Review & Submit</Typography>
-                        <Typography variant="body1">Resume: {resumeMetadata.fileName || 'Not uploaded'}</Typography>
-                        <Typography variant="body1">Transcript: {transcriptMetadata.fileName || 'Not uploaded'}</Typography>
-                        <Typography variant="body1">Answers:</Typography>
-                        <Box dangerouslySetInnerHTML={{ __html: answers }} />
-                        <Box mt={3} display="flex" justifyContent="space-between">
+                        <Typography variant="body1" color='blue'>Resume: {resumeMetadata.fileName || 'Not uploaded'}</Typography>
+                        <Typography variant="body1" color='blue'>Transcript: {transcriptMetadata.fileName || 'Not uploaded'}</Typography>
+                        <Typography variant="h6">Supplemental Responses:</Typography>
+                        <ReactQuill
+                            value={answers}
+                            readOnly={true} // Makes the editor non-editable
+                            theme="snow"  // Use the Snow theme or any other theme
+                            modules={{
+                                toolbar: false // This removes the toolbar
+                            }}
+                        />
+                        <Box display="flex" justifyContent="space-between" sx={{ marginTop: 'auto' }}>
                             <Button onClick={handleBack}>Back</Button>
                             <Button variant="contained" color="primary" onClick={handleSubmit}>Submit</Button>
                         </Box>
