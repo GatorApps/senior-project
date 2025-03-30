@@ -1,22 +1,33 @@
 package org.gatorapps.garesearch.controller;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.tika.Tika;
 import org.gatorapps.garesearch.config.RestDocsConfig;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,6 +45,17 @@ public class ApplicantControllerTests extends BaseTest {
     private MockMvc mockMvc;
 
     private final String applicantControllerRoute = "/appApi/garesearch/applicant";
+
+    @Autowired
+    private S3Client s3Client;
+
+    void createBucket(){
+        CreateBucketRequest bucketRequest = CreateBucketRequest.builder()
+                .bucket("testbucket").build();
+        s3Client.createBucket(bucketRequest);
+    }
+
+
 
 
     /*------------------------- getApplicantResumeMetadata -------------------------*/
@@ -110,15 +132,31 @@ public class ApplicantControllerTests extends BaseTest {
     //    public ResponseEntity<?> uploadApplicantResume(@Valid HttpServletRequest request,
     //          @RequestParam("resume") MultipartFile file)
 
-//    @Test // @PostMapping("/resume")
-//    public void postResume_Valid() throws Exception {
+    @Test // @PostMapping("/resume")
+    public void postResume_Valid() throws Exception {
+        createBucket();
+
+        String filepath = "/data/garesearch/test.pdf";
+
+        MockMultipartFile file = new MockMultipartFile("resume", "test_resume.pdf", "application/pdf", new ClassPathResource(filepath).getInputStream());
+
+
+
+        mockMvc.perform(multipart(applicantControllerRoute + "/resume")
+                        .file(file)
+
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+                .andExpect(status().isOk());
+
 //        mockMvc.perform((post(applicantControllerRoute + "/resume")
 //                        .header(HEADER_NAME, VALID_HEADER_VALUE)
 //                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)))
 //                .andDo(print())
 //                .andExpect(status().isOk())
 //                .andDo(RestDocsConfig.getDefaultDocHandler("applicant-resume-post"));
-//    }
+    }
 
 
     // @PostMapping("/transcript")
@@ -134,5 +172,4 @@ public class ApplicantControllerTests extends BaseTest {
 //                .andExpect(status().isOk())
 //                .andDo(RestDocsConfig.getDefaultDocHandler("applicant-resume-post"));
 //    }
-
 }

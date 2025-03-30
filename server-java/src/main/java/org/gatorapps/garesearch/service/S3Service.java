@@ -1,24 +1,25 @@
 package org.gatorapps.garesearch.service;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
 import org.apache.tika.Tika;
 import org.gatorapps.garesearch.exception.FileValidationException;
+import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,25 +32,19 @@ public class S3Service {
     @Autowired
     private FileRepository fileRepository;
 
-    private final AmazonS3 s3Client;
+    @Autowired
+    private S3Client s3Client;
     private static final Tika tika = new Tika();
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    public S3Service(
-            @Value("${aws.accessKeyId}") String accessKeyId,
-            @Value("${aws.secretKey}") String secretKey,
-            @Value("${aws.s3.region}") String region
-    ) {
-        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKeyId, secretKey);
-        this.s3Client = AmazonS3ClientBuilder.standard()
-                .withRegion(Regions.fromName(region))
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .build();
-    }
+
+
+
 
     public File uploadFile(MultipartFile file, List<String> allowedTypes, Long maxSize, String S3PathPrefix, String uploaderOpid, String category) throws IOException {
+
         if (file == null || file.isEmpty()) {
             throw new FileValidationException("No file provided");
         }
@@ -89,11 +84,14 @@ public class S3Service {
 
         String fileS3Path = (S3PathPrefix != null ? S3PathPrefix : "") + UUID.randomUUID();
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(file.getSize());
-        metadata.setContentType(file.getContentType());
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileS3Path)
+                .contentLength(file.getSize())
+                .contentType(file.getContentType())
+                .build();
 
-        s3Client.putObject(bucketName, fileS3Path, file.getInputStream(), metadata);
+        s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
         File uploadedFile = new File(uploaderOpid, category, file.getOriginalFilename(), fileS3Path);
         fileRepository.save(uploadedFile);
@@ -102,16 +100,22 @@ public class S3Service {
     }
 
     public ResponseEntity<InputStreamResource> downloadFile(File file) throws IOException {
-        S3Object s3Object = s3Client.getObject(new GetObjectRequest(bucketName, file.getS3Path()));
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(file.getS3Path())
+                .build();
+
+        ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getObjectRequest);
+
 
         // Prepare response headers
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
-        headers.add(HttpHeaders.CONTENT_TYPE, s3Object.getObjectMetadata().getContentType());
+        headers.add(HttpHeaders.CONTENT_TYPE, s3Object.response().contentType());
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(s3Object.getObjectMetadata().getContentLength())
-                .body(new InputStreamResource(s3Object.getObjectContent()));
+                .contentLength(s3Object.response().contentLength())
+                .body(new InputStreamResource(s3Object));
     }
 }
