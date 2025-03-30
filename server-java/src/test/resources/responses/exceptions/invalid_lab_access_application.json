@@ -1,0 +1,5 @@
+{
+  "errCode": "ERR_INVALID_ACCESS",
+  "errMsg": "Insufficient permissions to modify the requested application",
+  "payload": null
+}

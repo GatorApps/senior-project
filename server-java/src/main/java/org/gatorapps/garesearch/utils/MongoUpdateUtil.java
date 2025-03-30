@@ -21,8 +21,6 @@ public class MongoUpdateUtil {
 
         for (PropertyDescriptor descriptor : wrapper.getPropertyDescriptors()) {
             String fieldName = descriptor.getName();
-            System.out.println(fieldName);
-
             if (fieldsToSkip.contains(fieldName)) {
                 continue;
             }

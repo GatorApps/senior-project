@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "labs")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Lab {
 
     @Id
@@ -41,6 +43,5 @@ public class Lab {
 
     @Field("description")
     private String description;
-
 
 }

@@ -7,45 +7,59 @@ import GenericPageCard from '../../components/GenericPage/GenericPageCard';
 import { useSelector } from 'react-redux';
 import OpportunitySearchPageCard from '../../views/OpportunitySearchPage/OpportunitySearchPageCard';
 import MyApplicationsPageCard from '../../views/MyApplicationsPage/MyApplicationsPageCard';
+import MyPostingsPageCard from '../../views/MyPostingsPage/MyPostingsPageCard';
+import ApplicationManagementPageCard from '../../views/ApplicationManagementPage/ApplicationManagementPageCard';
+import NotificationsPageCard from '../../views/NotificationsPage/NotificationsPageCard';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+
 
 const Homepage = () => {
+
   const userInfo = useSelector((state) => state.auth.userInfo);
+  // userInfo?.roles?.includes(500301) for faculty/staff 
+  // for student, its 500201
 
-  const cards = [
-    <OpportunitySearchPageCard />,
-    <MyApplicationsPageCard />,
-    <GenericPageCard />,
-    <OpportunitySearchPageCard />,
-    <MyApplicationsPageCard />,
-    <GenericPageCard />
-  ];
-
-  // State to track the number of columns
+  const [view, setView] = useState(0);
   const [numColumns, setNumColumns] = useState(3);
 
-  // Function to update number of columns based on screen size
+  const handleChange = (event, newValue) => {
+    setView(newValue);
+  };
+
   const updateColumns = () => {
-    if (window.innerWidth < 600) {
+    if (window.innerWidth < 825) {
       setNumColumns(1);
-    } else if (window.innerWidth < 960) {
+    } else if (window.innerWidth < 1200) {
       setNumColumns(2);
     } else {
       setNumColumns(3);
     }
   };
 
-  // Run once on mount & update on window resize
   useEffect(() => {
-    updateColumns(); // Initial check
+    updateColumns();
     window.addEventListener('resize', updateColumns);
     return () => window.removeEventListener('resize', updateColumns);
   }, []);
 
-  // Distribute cards into columns while preserving row order
+  const studentCards = [
+    <OpportunitySearchPageCard />,
+    <MyApplicationsPageCard />,
+    <NotificationsPageCard />,
+  ];
+
+  const facultyCards = [
+    <MyPostingsPageCard />,
+    <ApplicationManagementPageCard />,
+    <NotificationsPageCard />,
+  ];
+
+  const cards = view === 0 ? studentCards : facultyCards;
   const columns = Array.from({ length: numColumns }, () => []);
 
   cards.forEach((card, index) => {
-    columns[index % numColumns].push(card); // Assign cards row-wise
+    columns[index % numColumns].push(card);
   });
 
   return (
@@ -66,6 +80,18 @@ const Homepage = () => {
           // If not
           <></>
         )} */}
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Tabs value={view} onChange={handleChange} aria-label="view selector">
+              {userInfo?.roles?.includes(500201) && // Check if user is a student
+                // Only show Student View tab if user is a student
+                <Tab label="Student View" />
+              }
+              {userInfo?.roles?.includes(500301) && // Check if user is faculty/staff
+                // Only show Faculty View tab if user is faculty/staff
+                <Tab label="Faculty View" />
+              }
+            </Tabs>
+          </Box>
           <Box
             component="workspace"
             sx={{
@@ -80,13 +106,7 @@ const Homepage = () => {
             {columns.map((column, colIndex) => (
               <Box key={colIndex} sx={{ flex: 1, minWidth: '300px' }}>
                 {column.map((card, cardIndex) => (
-                  <Box
-                    key={cardIndex}
-                    sx={{
-                      width: '350px',
-                      marginBottom: '24px',
-                    }}
-                  >
+                  <Box key={cardIndex} sx={{ width: '380px', marginBottom: '24px' }}>
                     {card}
                   </Box>
                 ))}

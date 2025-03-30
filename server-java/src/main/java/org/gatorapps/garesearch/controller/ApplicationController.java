@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import org.gatorapps.garesearch.dto.ApiResponse;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.account.User;
+import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.service.ApplicantService;
 import org.gatorapps.garesearch.service.ApplicationService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
@@ -33,12 +34,10 @@ public class ApplicationController {
 
     /*
         response.payload returns single application by ID.
-
-        logic will need to be updated during S3 integration most likely
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(HttpServletRequest request, @RequestParam(value = "applicationId", required = true) String applicationId) throws Exception{
-        Map application = applicationService.getStudentApplication(userAuthUtil.retrieveOpid(request), applicationId);
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplication(HttpServletRequest request, @RequestParam(value = "applicationId", required = true) String applicationId) throws Exception {
+        Application application = applicationService.getStudentApplication(userAuthUtil.retrieveOpid(request), applicationId);
 
         Map<String, Object> payloadResponse = Map.of(
                 "application", application);
@@ -49,7 +48,7 @@ public class ApplicationController {
     }
 
     /*
-        response.payload returns: 2 lists of applications
+        response.payload returns: 3 lists of applications
      */
     @GetMapping("/studentList")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getStudentApplications(HttpServletRequest request) throws Exception {
@@ -57,6 +56,10 @@ public class ApplicationController {
 
         List<Map> submittedApps = foundApplications.stream()
                 .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
+                .toList();
+        List<Map> movingApps = foundApplications.stream()
+                .filter(app -> "Moving Forward".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
                 .toList();
         List<Map> archivedApps = foundApplications.stream()
@@ -68,6 +71,7 @@ public class ApplicationController {
         Map<String, Object> payloadResponse = Map.of(
                 "applications", Map.of(
                         "activeApplications", submittedApps,
+                        "movingApplications", movingApps,
                         "archivedApplications", archivedApps
                 ));
 
@@ -110,13 +114,25 @@ public class ApplicationController {
      Exclusively Faculty Routes
      */
 
-    // TODO : finish this. (service file)
-    //      - formatting,
-    //      - excluding unnecessary fields
-    //      - and will need to get user from AccountMongoTemplate . a simple get by opid to retrieve name and email
+    /*
+        response.payload returns: application by applicationId
+     */
+    @GetMapping("/application")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getApplication(@Valid HttpServletRequest request,
+                                                                     @RequestParam(value = "labId") String labId,
+                                                                     @RequestParam(value = "applicationId") String applicationId) throws Exception {
+        Application application = applicationService.getApplication(userAuthUtil.retrieveOpid(request), labId, applicationId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "application", application);
+
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     /*
-        response.payload returns: list of applications students have submitted for particular position
+        response.payload returns: 3 lists of applications students have submitted for particular position
      */
     @GetMapping("/applicationManagement")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getApplicationList(HttpServletRequest request, @RequestParam (value="positionId") String positionId) throws Exception {
@@ -124,6 +140,10 @@ public class ApplicationController {
 
         List<Map> submittedApps = foundApplications.stream()
                 .filter(app -> "Submitted".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
+                .toList();
+        List<Map> movingApps = foundApplications.stream()
+                .filter(app -> "Moving Forward".equalsIgnoreCase((String) app.get("status")))
                 .sorted(Comparator.comparing(app -> (Date) app.get("submissionTimeStamp")))
                 .toList();
         List<Map> archivedApps = foundApplications.stream()
@@ -135,6 +155,7 @@ public class ApplicationController {
         Map<String, Object> payloadResponse = Map.of(
                 "applications", Map.of(
                         "activeApplications", submittedApps,
+                        "movingApplications", movingApps,
                         "archivedApplications", archivedApps
                 ));
 
@@ -148,14 +169,12 @@ public class ApplicationController {
      */
     @PutMapping("/applicationStatus")
     public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(@Valid HttpServletRequest request,
-                                                                     @RequestParam(value = "positionId") String positionId,
+                                                                     @RequestParam(value = "labId") String labId,
                                                                      @RequestParam(value = "applicationId") String applicationId,
-                                                                     @RequestParam(value = "status") @Pattern(regexp = "submitted|archived", message = "Application status must be one of 'submitted', 'archived'") String status) throws Exception {
-        applicationService.updateStatus(userAuthUtil.retrieveOpid(request), positionId, applicationId, status);
+                                                                     @RequestParam(value = "status") @Pattern(regexp = "submitted|archived|moving forward", message = "Application status must be one of 'submitted', 'archived', or 'moving forward'") String status) throws Exception {
+        applicationService.updateStatus(userAuthUtil.retrieveOpid(request), labId, applicationId, status);
 
         ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
 }

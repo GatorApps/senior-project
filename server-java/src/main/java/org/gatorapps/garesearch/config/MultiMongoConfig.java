@@ -33,17 +33,26 @@ public class MultiMongoConfig {
 
     @Bean(name = "globalMongoTemplate")
     public MongoTemplate globalMongoTemplate() {
-        return new MongoTemplate(mongoClient(), prodStatus.equals("prod") ? globalDbName : "dev_" + globalDbName);
+        return new MongoTemplate(mongoClient(),
+                prodStatus.equals("prod") ? globalDbName :
+                prodStatus.equals("dev") ? "dev_" + globalDbName :
+                "test_" + globalDbName);
     }
 
     @Bean(name = "accountMongoTemplate")
     public MongoTemplate accountMongoTemplate() {
-        return new MongoTemplate(mongoClient(), prodStatus.equals("prod") ? accountDbName : "dev_" + accountDbName);
+        return new MongoTemplate(mongoClient(),
+                prodStatus.equals("prod") ? accountDbName :
+                        prodStatus.equals("dev") ? "dev_" + accountDbName :
+                                "test_" + accountDbName);
     }
 
     @Bean(name = "garesearchMongoTemplate")
     public MongoTemplate garesearchMongoTemplate() {
-        return new MongoTemplate(mongoClient(), prodStatus.equals("prod") ? garesearchDbName : "dev_" + garesearchDbName);
+        return new MongoTemplate(mongoClient(),
+                prodStatus.equals("prod") ? garesearchDbName :
+                        prodStatus.equals("dev") ? "dev_" + garesearchDbName :
+                                "test_" + garesearchDbName);
     }
 
     @Bean

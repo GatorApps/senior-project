@@ -3,21 +3,11 @@ package org.gatorapps.garesearch.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.dto.ApiResponse;
-import org.gatorapps.garesearch.dto.ErrorResponse;
-import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
-import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.gatorapps.garesearch.service.PositionService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
-import org.gatorapps.garesearch.validators.LabIdExists;
-import org.gatorapps.garesearch.validators.PositionIdExists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -82,13 +72,8 @@ public class PositionController {
     }
 
     @GetMapping("/supplementalQuestions")
-    public ResponseEntity<?> getSupplementalQuestions(@Valid HttpServletRequest request, @RequestParam(value = "positionId") String positionId) {
-        Optional<Position> positionOptional = positionService.getPosting(positionId);
-        if (positionOptional.isEmpty()) {
-            ErrorResponse<Void> response = new ErrorResponse<>("-", "Position not found");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-        Position position = positionOptional.get();
+    public ResponseEntity<?> getSupplementalQuestions(@RequestParam(value = "positionId") String positionId) throws Exception {
+        Position position = positionService.getPosting(positionId);
 
         Map<String, Object> responsePayload = new HashMap<>();
         Map<String, Object> positionMap = new HashMap<>();
@@ -119,7 +104,6 @@ public class PositionController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
     /*
         response.payload returns: list of positions for faculty
      */
@@ -137,17 +121,62 @@ public class PositionController {
                 .sorted(Comparator.comparing(app -> (Date) app.get("postedTimeStamp")))
                 .toList();
 
+        List<Map> archivedPositions = positions.stream()
+                .filter(app -> "archived".equalsIgnoreCase((String) app.get("status")))
+                .sorted(Comparator.comparing(app -> (Date) app.get("postedTimeStamp")))
+                .toList();
+
         Map<String, Object> payloadResponse = Map.of(
                 "postingsList", Map.of(
                         "openPositions", openPositions,
-                        "closedPositions", closedPositions
+                        "closedPositions", closedPositions,
+                        "archivedPositions", archivedPositions
                 ));
         ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
     /*
-        updates posting status
+        response.payload returns: retrieve position to edit
+     */
+    @GetMapping("/postingEditor")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getPositionPosting(@Valid HttpServletRequest request, @RequestParam(value = "positionId")String positionId) throws Exception {
+        Position position = positionService.getPosting(userAuthUtil.retrieveOpid(request), positionId);
+
+        Map<String, Object> payloadResponse = Map.of(
+                "position", position);
+
+        ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /*
+        creates new posting
+     */
+    @PostMapping("/postingEditor")
+    public ResponseEntity<ApiResponse<Void>> createPositionPosting(@Valid HttpServletRequest request, @Valid @RequestBody Position position) throws Exception {
+        positionService.createPosting(userAuthUtil.retrieveOpid(request), position);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /*
+        updates existing posting
+     */
+    @PutMapping("/postingEditor")
+    public ResponseEntity<ApiResponse<Void>> updatePositionPosting(@Valid HttpServletRequest request, @RequestBody Position position) throws Exception {
+        positionService.updatePosting(userAuthUtil.retrieveOpid(request), position);
+
+        ApiResponse<Void> response = new ApiResponse<Void>("0");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /*
+        updates posting status only
      */
     @PutMapping("/postingStatus")
     public ResponseEntity<ApiResponse<Void>> updatePositionStatus(@Valid HttpServletRequest request,
@@ -158,17 +187,5 @@ public class PositionController {
         ApiResponse<Void> response = new ApiResponse<Void>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    /*
-        updates existing or creates new posting
-     */
-    @PostMapping("/postingEditor")
-    public ResponseEntity<ApiResponse<Void>> savePositionPosting(@Valid HttpServletRequest request, @Valid @RequestBody Position position) throws Exception {
-        positionService.savePosting(userAuthUtil.retrieveOpid(request),position);
-
-        ApiResponse<Void> response = new ApiResponse<Void>("0");
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
 }
 

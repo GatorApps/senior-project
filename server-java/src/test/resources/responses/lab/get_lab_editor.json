@@ -1,0 +1,19 @@
+{
+  "errCode": "0",
+  "payload": {
+    "lab": {
+      "id": "88dcf5a77621f49532e47b52",
+      "users": [
+        {
+          "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+          "role": "admin"
+        }
+      ],
+      "name": "Ava's Testing Lab",
+      "department": "Department of Mongo Testing",
+      "website": "https://testlab.gatorapps.org",
+      "email": "testlab@gatorapps.org",
+      "description": "Testing description"
+    }
+  }
+}

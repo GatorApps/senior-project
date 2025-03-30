@@ -8,10 +8,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
-import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
-import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
-import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
 import org.gatorapps.garesearch.utils.MongoUpdateUtil;
 import org.gatorapps.garesearch.utils.ValidationUtil;
@@ -189,7 +186,7 @@ public class PositionService {
                     // flatten 'lab' array
                     Aggregation.unwind("lab", true),
                     Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("labId")
+                            .andExpression("{ $toString: '$lab._id' }").as("labId")
                             .and("lab.name").as("labName")
                             .andInclude(
                                     "positionId",
@@ -205,7 +202,7 @@ public class PositionService {
                     aggregation, "positions", Map.class);
 
             if (results.getMappedResults().isEmpty()) {
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
+                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found");
             }
             return results.getMappedResults().get(0);
         } catch (Exception e) {
@@ -216,8 +213,23 @@ public class PositionService {
         }
     }
 
-    public Optional<Position> getPosting(String id) {
-        return positionRepository.findById(id);
+    public Position getPosting(String id) throws Exception {
+        return positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found"));
+    }
+
+    public Position getPosting(String opid, String id) throws Exception {
+        Position position = positionRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Position Not Found"));
+
+        try {
+            labService.checkPermission(opid, position.getLabId());
+        } catch (Exception e) {
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+
+        return position;
     }
 
 
@@ -240,7 +252,7 @@ public class PositionService {
                     // flatten 'position' array
                     Aggregation.unwind("position", false),
                     Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("positionId")
+                            .andExpression("{ $toString: '$position._id' }").as("positionId")
                             .and("position.name").as("name")
                             .andExclude("_id")
             );
@@ -278,7 +290,7 @@ public class PositionService {
                     // flatten 'position' array
                     Aggregation.unwind("position", false),
                     Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("positionId")
+                            .andExpression("{ $toString: '$position._id' }").as("positionId")
                             .and("position.name").as("name")
                             .and("position.lastUpdatedTimeStamp").as("lastUpdatedTimeStamp")
                             .and("position.postedTimeStamp").as("postedTimeStamp")
@@ -309,6 +321,7 @@ public class PositionService {
             position.setStatus(status);
             positionRepository.save(position);
         } catch (Exception e) {
+            System.out.println("in exception");
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to modify the requested position");
             }
@@ -319,25 +332,44 @@ public class PositionService {
         }
     }
 
-    public void savePosting(String opid, Position position) throws Exception {
+    public void createPosting(String opid, Position position) throws Exception {
         try {
             labService.checkPermission(opid, position.getLabId());
             if (position.getDescription() != null) {
                 position.setRawDescription(position.getDescription());
             }
-            if (position.getId() != null) {
-                Update update = MongoUpdateUtil.createUpdate(position);
 
-                garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(position.getId()))), update, Position.class);
-            } else {
-                positionRepository.save(position);
-            }
+            positionRepository.save(position);
         } catch (Exception e) {
-            if (e instanceof ConstraintViolationException || e instanceof AccessDeniedException) {
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            if (e instanceof ConstraintViolationException) {
                 throw e;
             }
-            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }
+
+    public void updatePosting(String opid, Position position) throws Exception {
+        try {
+            labService.checkPermission(opid, position.getLabId());
+            if (position.getDescription() != null) {
+                position.setRawDescription(position.getDescription());
+            }
+            Update update = MongoUpdateUtil.createUpdate(position);
+
+            garesearchMongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(new ObjectId(position.getId()))), update, Position.class);
+        } catch (Exception e) {
+            System.out.println("in exception");
+            if (e instanceof AccessDeniedException) {
+                throw new AccessDeniedException("Insufficient permissions to modify the requested position");
+            }
+            if (e instanceof ConstraintViolationException) {
+                throw e;
+            }
+            throw new Exception("Unable to process your request at this time", e);
+        }
+    }
+
 }

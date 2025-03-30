@@ -8,25 +8,50 @@
 :stylesheet: ./asciidoctor-default-stylesheet.css
 
 
+== Applicant Routes
+
+TODO : finish tests
+
+
+
 == Application Routes
+
+[[index-get-application-by-id]]
+=== GET StudentApplication
+A `GET` request to retrieve a single Application.
+
+operation::application-get-by-id[snippets='http-request,http-response']
+
 
 [[index-get-application-student-list]]
 === GET StudentList
-A `GET` request to retrieve a list of applications associated with a particular user.
+A `GET` request to retrieve a list of Applications associated with a particular User.
 
 operation::application-get-studentList[snippets='http-request,http-response']
 
+[[index-get-application-already-applied]]
+=== GET AlreadyApplied
+A `GET` request to retrieve indicate whether a student has already applied to a certain Posting.
+
+operation::application-alreadyApplied[snippets='http-request,http-response']
+
 == Application Faculty Only Routes
 
-[[index-get-application-management-list]]
-=== GET ApplicationManagementList -- In progress
-A `GET` request to retrieve a list of applications to a particular lab.
+[[index-get-faculty]]
+=== GET Application
+A `GET` request to retrieve a single Application
 
-operation::application-get-management-list[snippets='http-request,http-response']
+operation::application-get-faculty[snippets='http-request,http-response']
+
+[[index-get-application-management-list]]
+=== GET ApplicationManagementList
+A `GET` request to retrieve a list of Applications for a particular Position.
+
+operation::application-get-mgmt-list[snippets='http-request,http-response']
 
 [[index-update-application-status]]
 === PUT Application Status
-A `PUT` request to update the status of an application within the Application Management page.
+A `PUT` request to update the status of an Application within the Application Management page.
 
 operation::application-update-status[snippets='http-request,http-response']
 
@@ -35,7 +60,7 @@ operation::application-update-status[snippets='http-request,http-response']
 
 [[index-get-lab-by-id]]
 === GET Lab by ID
-A `GET` request used to retrieve a lab's details including associated open positions by its unique `labId`.
+A `GET` request used to retrieve a Lab's details including associated open Positions by its unique `labId`.
 
 operation::lab-get-by-id[snippets='http-request,http-response']
 
@@ -43,9 +68,15 @@ operation::lab-get-by-id[snippets='http-request,http-response']
 
 [[index-get-lab-list]]
 === GET LabList
-A `GET` request to retrieve a list of labs a user is in.
+A `GET` request to retrieve a list of Labs a user is in.
 
 operation::lab-get-list[snippets='http-request,http-response']
+
+[[index-get-lab]]
+=== GET Lab
+A `GET` request to retrieve a Lab for editing purposes.
+
+operation::lab-faculty-get-by-id[snippets='http-request,http-response']
 
 [[index-post-lab]]
 === POST Create New Lab
@@ -64,30 +95,37 @@ operation::lab-update-existing[snippets='http-request,http-response']
 
 [[index-get-position-by-id]]
 === GET Position by ID
-A `GET` request used to retrieve a position by its unique `positionId`.
+A `GET` request used to retrieve a Position by its unique `positionId`.
 
 operation::position-get-posting-by-id[snippets='http-request,http-response']
 
 
 [[index-get-position-searchresults]]
 === GET Position Search Results
-A `GET` request to search for positions based on a search query.
+A `GET` request to search for Positions based on a search query.
 
 operation::position-get-searchresults[snippets='http-request,http-response']
 
 
 [[index-get-position-searchresults-indexer]]
 === GET Position Search Results (Indexer)
-A `GET` request to search for positions based on a search query. This request returns a condensed list of information.
+A `GET` request to search for Positions based on a search query. This request returns a condensed list of information.
 
 operation::position-get-searchresults_indexer[snippets='http-request,http-response']
 
 
-== Position Faculty Only Routes
+== Posting Faculty Only Routes
+
+[[index-get-supplemental-questions]]
+=== GET SupplementalQuestions
+A `GET` request to retrieve the Supplemental Questions for a particular Position.
+
+operation::position-get-list[snippets='http-request,http-response']
+
 
 [[index-get-position-list]]
 === GET PositionList
-A `GET` request to retrieve a list of positions (only names) posted by the labs a user is in.
+A `GET` request to retrieve a list of Positions posted by the Labs a User is in.
 
 operation::position-get-list[snippets='http-request,http-response']
 
@@ -96,6 +134,12 @@ operation::position-get-list[snippets='http-request,http-response']
 A `GET` request to retrieve a list of positions posted by the labs a user is in.
 
 operation::position-get-management-list[snippets='http-request,http-response']
+
+[[index-get-position]]
+=== GET Position
+A `GET` request to retrieve a Position for editing purposes.
+
+operation::position-get-posting-editor[snippets='http-request,http-response']
 
 [[index-post-position]]
 === POST Create New Position
@@ -112,6 +156,6 @@ operation::position-update-existing[snippets='http-request,http-response']
 
 [[index-update-position-status]]
 === PUT Position Status
-A `PUT` request to update the status of a position within the Position Management page.
+A `PUT` request to update the status of a Position within the Position Management page.
 
 operation::position-update-status[snippets='http-request,http-response']

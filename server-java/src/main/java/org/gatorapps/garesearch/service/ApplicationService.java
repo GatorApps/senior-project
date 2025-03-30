@@ -1,35 +1,29 @@
 package org.gatorapps.garesearch.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
-import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.account.User;
-import org.gatorapps.garesearch.model.garesearch.ApplicantProfile;
 import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.model.garesearch.Position;
-import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
-import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplicationService {
@@ -53,6 +47,11 @@ public class ApplicationService {
     private MongoTemplate garesearchMongoTemplate;
 
     @Autowired
+    @Qualifier("accountMongoTemplate")
+    private MongoTemplate accountMongoTemplate;
+
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -65,58 +64,10 @@ public class ApplicationService {
         return objectMapper.convertValue(object, Map.class);
     }
 
-    public Map getStudentApplication (String opid, String applicationId) throws Exception {
+    public Application getStudentApplication (String opid, String applicationId) throws Exception {
         // find by both opid and applicationId to ensure correct user is accessing the application
         try {
-            // must match 'opid'
-            Aggregation aggregation = Aggregation.newAggregation(
-                    Aggregation.match(
-                            Criteria.where("opid").is(opid)
-                                    .and("_id").is(new ObjectId(applicationId))
-                    ),
-                    Aggregation.project()
-                            .andExpression("toObjectId(positionId)").as("positionIdObjectId")
-                            .andInclude("status",
-                                    "submissionTimeStamp"),
-
-                    // join with 'positions' collection
-                    Aggregation.lookup(
-                            "positions",      // Collection to join
-                            "positionIdObjectId",  // Local field
-                            "_id",                 // Foreign field
-                            "position"             // Alias for the joined field
-                    ),
-                    // flatten 'position' array
-                    Aggregation.unwind("position", true),
-                    Aggregation.project()
-                            .andExpression("toObjectId(position.labId)").as("labIdObjectId")
-                            .and("position.name").as("positionName")
-                            .andInclude("status",
-                                    "submissionTimeStamp"),
-                    // join with 'labs' collection
-                    Aggregation.lookup(
-                            "labs",
-                            "labIdObjectId",
-                            "_id",
-                            "lab"
-                    ),
-                    Aggregation.unwind("lab", true),
-                    Aggregation.project()
-                            .andExpression("{ $toString: '$_id' }").as("applicationId")
-                            .and("lab.name").as("labName")
-                            .andInclude("positionName",
-                                    "status",
-                                    "submissionTimeStamp")
-                            .andExclude("_id")
-            );
-
-            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
-                    aggregation, "applications", Map.class);
-
-            if (results.getMappedResults().isEmpty()){
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
-            }
-            return results.getMappedResults().get(0);
+            return applicationRepository.findByOpidAndId(opid, applicationId.trim()).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
         } catch (Exception e) {
             if (e instanceof ResourceNotFoundException){
                 throw e;
@@ -310,11 +261,11 @@ public class ApplicationService {
         return applicationRepository.existsByOpidAndPositionId(opid, positionId);
     }
 
+    public Application getApplication(String opid, String labId, String applicationId) throws Exception {
+        labService.checkPermission(opid, labId);
+        return applicationRepository.findById(applicationId).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
+    }
 
-    // TODO : finish this.
-    //      - formatting,
-    //      - excluding unnecessary fields,
-    //      - and will need to get user from AccountMongoTemplate . a simple get by opid to retrieve name and email
     public List<Map> getApplicationList(String opid, String positionId) throws Exception {
         try {
             Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
@@ -325,33 +276,61 @@ public class ApplicationService {
                     Aggregation.match(
                             Criteria.where("positionId").is(positionId)
                     ),
-                    Aggregation.lookup(
-                            "applicantprofiles",
-                            "opid",
-                            "opid",
-                            "applicant"
-                    ),
-                    Aggregation.unwind("applicant", true),
                     Aggregation.project()
+                            .andExpression("{ $toString: '$_id' }").as("applicationId")
+                            .andInclude("opid",
+                                    "positionId",
+                                    "submissionTimeStamp",
+                                    "status")
                             .andExclude("_id")
             );
 
-            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(aggregation, "applications", Map.class);
-            return results.getMappedResults();
+            List<Map> applications = garesearchMongoTemplate.aggregate(aggregation, "applications", Map.class).getMappedResults();
+
+            // extract unique opid from applications
+            Set<String> opids = applications.stream()
+                    .map(app -> (String) app.get("opid"))
+                    .collect(Collectors.toSet());
+
+            // find associated user
+            Query query = new Query(Criteria.where("opid").in(opids));
+            List<Map> users = accountMongoTemplate.find(query, Map.class, "users");
+
+            // key : opid , value: user details
+            Map<String, Map> userMap = users.stream()
+                    .collect(Collectors.toMap(user -> (String) user.get("opid"), user -> user));
+
+            // combine user info and applications
+            for (Map app : applications){
+                String appOpid = (String) app.get("opid");
+                Map user = userMap.get(appOpid);
+                if (user != null) {
+                    app.put("labId", position.getLabId());
+                    app.put("firstName", userMap.get(appOpid).get("firstName"));
+                    app.put("lastName", userMap.get(appOpid).get("lastName"));
+
+                    List<String> emails = (List<String>) user.get("emails");
+                    if (emails != null && !emails.isEmpty()){
+                        app.put("email", emails.get(0));
+                    } else {
+                        app.put("email", null);
+                    }
+                }
+            }
+
+            return applications;
 
         } catch (Exception e){
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to view these applications");
             }
-
+            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time");
         }
     }
-
-    public void updateStatus(String opid, String positionId, String applicationId, String status) throws Exception {
+    public void updateStatus(String opid, String labId, String applicationId, String status) throws Exception {
         try {
-            Position position = positionRepository.findById(positionId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time"));
-            labService.checkPermission(opid, position.getLabId());
+            labService.checkPermission(opid, labId);
 
             Application application = applicationRepository.findById(applicationId).orElseThrow(() ->  new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application " + applicationId + " not found"));
 

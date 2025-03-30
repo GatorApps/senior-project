@@ -15,7 +15,7 @@ import IconButton from '@mui/material/IconButton';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Link from '@mui/material/Link';
-import Modal from '@mui/material/Modal';
+import ApplicationPopup from '../../components/ApplicationPopup/ApplicationPopup';
 
 const PostingDetailsPage = () => {
     const userInfo = useSelector((state) => state.auth.userInfo);
@@ -30,6 +30,19 @@ const PostingDetailsPage = () => {
     const [postingDetails, setPostingDetails] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
     const [openApplyModal, setOpenApplyModal] = useState(false);
+    const [applicationQuestions, setApplicationQuestions] = useState([]);
+    const [alreadyApplied, setAlreadyApplied] = useState(false); // New state for application status
+
+    const checkAlreadyApplied = async () => {
+        try {
+            const response = await axiosPrivate.get(`/application/alreadyApplied?positionId=${postingId}`);
+            if (response.data.errCode === "0") {
+                setAlreadyApplied(response.data.payload.alreadyApplied);
+            }
+        } catch (error) {
+            console.error("Error checking application status:", error);
+        }
+    };
 
     // Fetch posting details
     useEffect(() => {
@@ -42,6 +55,21 @@ const PostingDetailsPage = () => {
                 setError(error);
                 setLoading(false);
             });
+
+        // Fetch application questions
+        axiosPrivate.get(`posting/supplementalQuestions?positionId=${postingId}`)
+            .then((response) => {
+                // console.log(response.data.payload.position.applicationQuestions);
+                setApplicationQuestions(response.data.payload.position.applicationQuestions);
+            })
+            .catch((error) => {
+                setError(error);
+                setLoading(false);
+            });
+
+        // Check if the user has already applied
+        checkAlreadyApplied();
+
     }, [postingId]);
 
     if (loading) {
@@ -57,30 +85,29 @@ const PostingDetailsPage = () => {
             <div className='PostingDetailsPage'>
                 <Header />
                 <main>
-                    <Box>
+                    <Box sx={{ padding: '24px', backgroundColor: '#f5f5f5' }}>
                         <Container maxWidth="lg">
-                            <Box className="GenericPage__container_title_box GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
-                                {/* <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
-                                    <Typography variant="h1">Page Title</Typography>
-                                    <Button size="medium" sx={{ 'margin-left': '16px' }}>Button</Button>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                <Box>
+                                    {/* <Typography variant="h5" component="h2" sx={{ marginBottom: 1 }}>
+                                        Position Details
+                                    </Typography> */}
+                                    <Typography variant="subtitle1" color="textSecondary">
+                                        View details about the position here.
+                                    </Typography>
                                 </Box>
-                                <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
-                                    <Box className="GenericPage__container_title_flexBox_right">
-                                        <Button variant="contained" size="medium">Button</Button>
-                                    </Box>
-                                </Box> */}
                             </Box>
                         </Container>
                         <Container maxWidth="lg">
-                            <Paper className='PostingDetailsPage__container' variant='outlined' sx={{ padding: '24px' }}>
+                            <Paper className='PostingDetailsPage__container' variant='outlined' sx={{ padding: '24px', marginBottom: 4 }}>
                                 {/* Title and Dates */}
-                                <Typography variant="h4">{postingDetails.positionName}</Typography>
-                                <Typography variant="body2" color="textSecondary">
+                                <Typography variant="h4" sx={{ marginBottom: 2 }}>{postingDetails.positionName}</Typography>
+                                <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 4 }}>
                                     Posted: {new Date(postingDetails.postedTimeStamp).toLocaleDateString()} | Last Updated: {new Date(postingDetails.postedTimeStamp).toLocaleDateString()}
                                 </Typography>
 
                                 {/* Lab Name */}
-                                <Box sx={{ marginTop: '16px' }}>
+                                <Box sx={{ marginTop: '16px', marginBottom: 4 }}>
                                     <Link href={`/lab?labId=${postingDetails.labId}`} target="_blank" underline="hover">
                                         <Typography variant="h6" color="primary">
                                             {postingDetails.labName}
@@ -89,16 +116,20 @@ const PostingDetailsPage = () => {
                                 </Box>
 
                                 {/* Job Description */}
-                                <Box sx={{ marginTop: '16px' }}>
-                                    <Typography variant="h6">About the Job</Typography>
+                                <Box sx={{ marginTop: '16px', marginBottom: 4 }}>
+                                    <Typography variant="h6" sx={{ marginBottom: 2 }}>About the Position</Typography>
                                     <Box dangerouslySetInnerHTML={{ __html: postingDetails.positionDescription }} />
                                 </Box>
 
                                 {/* Actions - Apply & Save */}
-                                <Box sx={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
-                                    <Button variant="contained" color="primary" onClick={() => setOpenApplyModal(true)}>
-                                        Apply
-                                    </Button>
+                                <Box sx={{ marginTop: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                    {!alreadyApplied ? (
+                                        <Button variant="contained" color="primary" onClick={() => setOpenApplyModal(true)}>
+                                            Apply
+                                        </Button>
+                                    ) : (
+                                        <Typography color="success">You have already applied for this position.</Typography>
+                                    )}
 
                                     <IconButton onClick={() => setIsSaved(!isSaved)} color={isSaved ? "secondary" : "default"}>
                                         {isSaved ? <FavoriteIcon /> : <FavoriteBorderIcon />}
@@ -112,29 +143,22 @@ const PostingDetailsPage = () => {
                 <Footer />
 
                 {/* Apply Modal */}
-                <Modal open={openApplyModal} onClose={() => setOpenApplyModal(false)}>
-                    <Box sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 400,
-                        bgcolor: 'background.paper',
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: '8px'
-                    }}>
-                        <Typography variant="h6">Apply for {postingDetails.positionName}</Typography>
-                        <Typography variant="body2" sx={{ marginTop: '8px' }}>
-                            Application form will be available soon.
-                        </Typography>
-                        <Button onClick={() => setOpenApplyModal(false)} variant="contained" sx={{ marginTop: '16px' }}>
-                            Close
-                        </Button>
-                    </Box>
-                </Modal>
-            </div >
-        </HelmetComponent >
+                <ApplicationPopup
+                    open={openApplyModal}
+                    questions={applicationQuestions}
+                    onClose={() => {
+                        setOpenApplyModal(false);
+                        checkAlreadyApplied();
+                    }}
+                    postingId={postingId}
+                    labId={postingDetails.labId}
+                    positionName={postingDetails.positionName}
+                    labName={postingDetails.labName}
+                    userInfo={userInfo}
+                />
+            </div>
+        </HelmetComponent>
+
     );
 }
 

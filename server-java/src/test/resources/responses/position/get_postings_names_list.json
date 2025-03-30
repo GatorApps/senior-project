@@ -1,0 +1,27 @@
+{
+  "errCode": "0",
+  "payload": {
+    "positions": [
+      {
+        "positionId": "d162c110ed0a40bea3393855",
+        "name": "Ava's Testing Position electrical 3.2"
+      },
+      {
+        "positionId": "87d0c01ab87e195493ae9c10",
+        "name": "Ava's Testing Position biology 2"
+      },
+      {
+        "positionId": "67dcf57f1d3d5f5c7fcc5645",
+        "name": "Ava's Testing Position"
+      },
+      {
+        "positionId": "67dcf586c42dde901cd44ef2",
+        "name": "Ava's Testing CLOSED Position electrical 4"
+      },
+      {
+        "positionId": "67dcf586c42dde901cd44edd",
+        "name": "Popcorn Test"
+      }
+    ]
+  }
+}
