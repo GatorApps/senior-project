@@ -1,10 +1,13 @@
 package org.gatorapps.garesearch.service;
 
+import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.model.garesearch.Message;
 import org.gatorapps.garesearch.repository.garesearch.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,14 +55,20 @@ public class MessageService {
         sesService.sendBrandedEmail(recipient.getEmails().get(0), title, content, links);
     }
 
-//    public List<Message> getUserMessages(String recipientOpid) {
-//        return messageRepository.findByRecipientOpidOrderByCreatedAtDesc(recipientOpid);
-//    }
+    public List<Message> getUserMessages(String recipientOpid, int page, int size) {
+        Page<Message> messages = messageRepository.findByRecipientOpidOrderBySentTimeStampDesc(recipientOpid, PageRequest.of(page, size));
+        return messages.getContent();
+    }
 
-    public void markAsRead(String messageId) {
+    public Message getMessage(String messageId) {
+        return messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("-", "Message not found"));
+    }
+
+    public void setIsRead(String messageId, boolean isRead) {
         Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new RuntimeException("Message not found"));
-        message.setRead(true);
+                .orElseThrow(() -> new ResourceNotFoundException("-", "Message not found"));
+        message.setRead(isRead);
         messageRepository.save(message);
     }
 }

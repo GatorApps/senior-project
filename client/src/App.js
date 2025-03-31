@@ -13,7 +13,7 @@ import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage
 import MyPostingsPage from './views/MyPostingsPage/MyPostingsPage';
 import ApplicationManagementPage from './views/ApplicationManagementPage/ApplicationManagementPage';
 import PostingEditorPage from './views/PostingEditorPage/PostingEditorPage';
-
+import MessagesPage from './views/MessagesPage/MessagesPage';
 
 function App() {
   return (
@@ -44,7 +44,7 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
-          <Route path="/postingEditor" element={<PostingEditorPage />} />
+          <Route path="/postingeditor" element={<PostingEditorPage />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
@@ -53,6 +53,10 @@ function App() {
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
           <Route path="/applicationmanagement" element={<ApplicationManagementPage />} />
+        </Route>
+
+        <Route element={<RequireAuth allowedRoles={[100001]} />}>
+          <Route path="/messagecenter" element={<MessagesPage />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100999]} />}>
