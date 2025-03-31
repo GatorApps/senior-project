@@ -10,8 +10,31 @@
 
 == Applicant Routes
 
-TODO : finish tests
+[[index-get-applicant-resume-metadata]]
+=== GET ResumeMetadata
+A `GET` request to retrieve an Applicant's Resume metadata.
 
+operation::applicant-resume-metadata-get[snippets='http-request,http-response']
+
+
+[[index-get-applicant-transcript-metadata]]
+=== GET TranscriptMetadata
+A `GET` request to retrieve an Applicant's Transcript metadata.
+
+operation::applicant-transcript-metadata-get[snippets='http-request,http-response']
+
+
+[[index-post-applicant-resume]]
+=== POST Resume
+A `POST` request to upload an Applicant's Resume.
+
+operation::applicant-resume-post[snippets='http-request,http-response']
+
+[[index-post-applicant-transcript]]
+=== POST Transcript
+A `POST` request to upload an Applicant's Transcript.
+
+operation::applicant-transcript-post[snippets='http-request,http-response']
 
 
 == Application Routes

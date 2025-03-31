@@ -1,0 +1,80 @@
+[
+  {
+    "id": {
+      "$oid": "1a1cf5a77621f49532e47b52"
+    },
+    "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+    "uploadedTimeStamp": {
+      "$date": "2025-03-12T15:52:10.460Z"
+    },
+    "category": "resume",
+    "name": "ava_resume.pdf",
+    "s3Path": "uploads/d88d3df6-b1c6-4034-b399-9c9854f802bd",
+    "_class": "org.gatorapps.garesearch.model.garesearch.File"
+  },
+  {
+    "id": {
+      "$oid": "1a2cf5a77621f49532e47b52"
+    },
+    "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+    "uploadedTimeStamp": {
+      "$date": "2025-03-12T15:52:10.460Z"
+    },
+    "category": "transcript",
+    "name": "ava_transcript.pdf",
+    "s3Path": "uploads/a250105e-548e-47fb-9ff4-e30a50ae6b18",
+    "_class": "org.gatorapps.garesearch.model.garesearch.File"
+  },
+  {
+    "id": {
+      "$oid": "aa1cf5a77621f49532e47b52"
+    },
+    "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+    "uploadedTimeStamp": {
+      "$date": "2025-03-12T15:52:10.460Z"
+    },
+    "category": "resume",
+    "name": "luke_resume.pdf",
+    "s3Path": "uploads/04fb2f12-947d-4b24-a4a8-bc6082fe7fb3",
+    "_class": "org.gatorapps.garesearch.model.garesearch.File"
+  },
+  {
+    "id": {
+      "$oid": "aa2cf5a77621f49532e47b52"
+    },
+    "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+    "uploadedTimeStamp": {
+      "$date": "2025-03-12T15:52:10.460Z"
+    },
+    "category": "transcript",
+    "name": "luke_transcript.pdf",
+    "s3Path": "uploads/27b2e053-ee91-440d-835e-a1aa8f25f1ed",
+    "_class": "org.gatorapps.garesearch.model.garesearch.File"
+  },
+  {
+    "id": {
+      "$oid": "ba1cf5a77621f49532e47b52"
+    },
+    "opid": "c1fc3a9b-66ac-4a84-937c-3ffb4bebbd25",
+    "uploadedTimeStamp": {
+      "$date": "2025-03-12T15:52:10.460Z"
+    },
+    "category": "resume",
+    "name": "eric_resume.pdf",
+    "s3Path": "uploads/9c4e1a49-de33-4d6d-bc30-6f5940af3921",
+    "_class": "org.gatorapps.garesearch.model.garesearch.File"
+  },
+  {
+    "id": {
+      "$oid": "ba2cf5a77621f49532e47b52"
+    },
+    "opid": "c1fc3a9b-66ac-4a84-937c-3ffb4bebbd25",
+    "uploadedTimeStamp": {
+      "$date": "2025-03-12T15:52:10.460Z"
+    },
+    "category": "transcript",
+    "name": "eric_transcript.pdf",
+    "s3Path": "uploads/7f6c0c08-97a6-4a03-b27e-72b69fc170d8",
+    "_class": "org.gatorapps.garesearch.model.garesearch.File"
+  }
+]

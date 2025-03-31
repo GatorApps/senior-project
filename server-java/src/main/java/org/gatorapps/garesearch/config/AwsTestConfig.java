@@ -26,21 +26,7 @@ public class AwsTestConfig {
     @Value("${aws.s3.endpoint}") String endpoint;
 
     @Bean
-    public LocalStackContainer localStackContainer() {
-        LocalStackContainer container = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
-                .withServices(LocalStackContainer.Service.S3)
-                .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig().withPortBindings(new PortBinding(
-                        Ports.Binding.bindPort(4566), new ExposedPort(4566)
-                )));
-        container.start();
-        return container;
-    }
-    @Bean
-    public S3Client s3Client(LocalStackContainer localStackContainer){
-        System.out.println("------------in aws test config ---------------------");
-
-        System.out.println("endpoint: " + endpoint);
-
+    public S3Client s3Client(){
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
         return S3Client.builder()
                 .endpointOverride(URI.create(endpoint))

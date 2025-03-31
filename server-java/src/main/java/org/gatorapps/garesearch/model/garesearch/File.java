@@ -2,7 +2,9 @@ package org.gatorapps.garesearch.model.garesearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.gatorapps.garesearch.validators.OpidExists;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,6 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "files")
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class File {
     @Id

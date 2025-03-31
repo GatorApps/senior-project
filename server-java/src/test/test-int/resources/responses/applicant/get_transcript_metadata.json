@@ -1,0 +1,10 @@
+{
+  "errCode": "0",
+  "payload": {
+    "transcriptMetadata": {
+      "fileName": "ava_transcript.pdf",
+      "uploadedTimeStamp": "<timestamp>",
+      "fileId": "1a2cf5a77621f49532e47b52"
+    }
+  }
+}
