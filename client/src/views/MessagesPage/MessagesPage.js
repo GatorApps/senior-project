@@ -1,64 +1,300 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { axiosPrivate } from '../../apis/backend';
 import { useDispatch, useSelector } from 'react-redux';
 import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
-import { CircularProgress, List, ListItem, ListItemText } from '@mui/material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid2';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
+import {
+  Box,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  CircularProgress,
+  IconButton,
+  Badge,
+  Grid,
+  Button,
+  Pagination,
+  Snackbar,
+  Alert,
+  Container,
+  useMediaQuery,
+  useTheme,
+  Skeleton
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { formatDistanceToNow } from 'date-fns';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DOMPurify from 'dompurify'; // Add this package for sanitizing HTML
+
+// Styled components for the message center layout - removed shadows and borders
+const MessageListContainer = styled(Box)(({ theme }) => ({
+  height: 'calc(100vh - 150px)',
+  overflow: 'auto',
+  padding: theme.spacing(1),
+  position: 'relative',
+}));
+
+const MessageViewContainer = styled(Box)(({ theme }) => ({
+  height: 'calc(100vh - 150px)',
+  overflow: 'auto',
+  padding: theme.spacing(3),
+}));
+
+const MessageItem = styled(ListItem)(({ theme, selected, unread }) => ({
+  marginBottom: theme.spacing(1),
+  borderRadius: theme.spacing(1),
+  backgroundColor: selected ? theme.palette.action.selected : unread ? theme.palette.action.hover : 'inherit',
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const MessageContent = styled(Box)(({ theme }) => ({
+  '& a': {
+    color: theme.palette.primary.main,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+}));
+
+// Function to strip HTML tags for preview text
+const stripHtml = (html) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
+};
+
+// Function to format date in a readable format
+const formatDate = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return dateString;
+  }
+};
+
+// Function to format relative time for message list
+const formatRelativeTime = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    return formatDistanceToNow(date, { addSuffix: true });
+  } catch (error) {
+    return dateString;
+  }
+};
+
+// Custom message list skeleton that mimics the message list layout
+const MessageListSkeleton = () => {
+  return (
+    <Box>
+      {[1, 2, 3, 4, 5].map((item) => (
+        <Box key={item} sx={{ mb: 1.5, px: 2 }}>
+          <Skeleton variant="text" width="80%" height={28} />
+          <Skeleton variant="text" width="40%" height={20} />
+          <Skeleton variant="text" width="60%" height={20} />
+          <Divider sx={{ mt: 2 }} />
+        </Box>
+      ))}
+    </Box>
+  );
+};
 
 const MessagesPage = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
-  const [listIsLoading, setlistIsLoading] = useState(true);
-  const [messageIsLoading, setMessageIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [messageLoading, setMessageLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState(null);
+  const [showMessageView, setShowMessageView] = useState(false);
+  const pageSize = 10;
 
+  // Fetch message list on component mount and when page changes
   useEffect(() => {
     fetchMessages();
-  }, []);
+  }, [page]);
+
+  // This useEffect handles modifying all links to open in new tabs
+  useEffect(() => {
+    if (selectedMessage) {
+      // Use a small timeout to ensure the DOM is fully rendered
+      setTimeout(() => {
+        const messageContentElements = document.querySelectorAll('.message-content a');
+        messageContentElements.forEach(link => {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        });
+      }, 100);
+    }
+  }, [selectedMessage]);
 
   const fetchMessages = async () => {
-    setlistIsLoading(true);
+    setLoading(true);
+    setSelectedMessage(null);
     try {
-      const response = await axiosPrivate.get("/message/list?page=0&size=10");
-      if (response.data.errCode === "0") {
-        setMessages(response.data.payload.messages);
+      const response = await axiosPrivate.get(`/message/list?page=${page}&size=${pageSize}`);
+      const data = response.data;
+
+      if (data.errCode === "0" && data.payload && data.payload.messages) {
+        setMessages(data.payload.messages);
+        // In a real implementation, would calculate totalPages from response metadata
+        setTotalPages(Math.ceil(data.payload.messages.length / pageSize));
+      } else {
+        throw new Error("Failed to fetch messages");
       }
-    } catch (error) {
-      console.error("Error fetching messages", error);
+    } catch (err) {
+      setError("Failed to load messages. Please try again later.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setlistIsLoading(false);
   };
 
   const fetchMessageDetails = async (messageId) => {
-    setMessageIsLoading(true);
+    // For mobile view, immediately show the message view with loading state
+    if (isMobile) {
+      setShowMessageView(true);
+      setMessageLoading(true);
+    } else {
+      setMessageLoading(true);
+    }
+
     try {
       const response = await axiosPrivate.get(`/message/single?messageId=${messageId}`);
-      if (response.data.errCode === "0") {
-        setSelectedMessage(response.data.payload.message);
-        markAsRead(messageId);
+      const data = response.data;
+
+      if (data.errCode === "0" && data.payload && data.payload.message) {
+        setSelectedMessage(data.payload.message);
+        // Mark message as read if it's not already read
+        if (!data.payload.message.read) {
+          markMessageAsRead(messageId);
+        }
+      } else {
+        throw new Error("Failed to fetch message details");
       }
-    } catch (error) {
-      console.error("Error fetching message details", error);
+    } catch (err) {
+      setError("Failed to load message details. Please try again later.");
+      console.error(err);
+
+      // For mobile view, go back to message list if there's an error
+      if (isMobile) {
+        setShowMessageView(false);
+      }
+    } finally {
+      setMessageLoading(false);
     }
-    setMessageIsLoading(false);
   };
 
-  const markAsRead = async (messageId) => {
+  const markMessageAsRead = async (messageId) => {
     try {
-      await axiosPrivate.get(`/message/readStatus?messageId=${messageId}&isRead=true`);
-      setMessages((prevMessages) => prevMessages.map((msg) => (msg.id === messageId ? { ...msg, read: true } : msg)));
-    } catch (error) {
-      console.error("Error updating read status", error);
+      const response = await axiosPrivate.get(`/message/readStatus?messageId=${messageId}&isRead=true`);
+      const data = response.data;
+
+      if (data.errCode === "0") {
+        // Update the local state to mark the message as read
+        setMessages(messages.map(message =>
+          message.id === messageId ? { ...message, read: true } : message
+        ));
+      }
+    } catch (err) {
+      console.error("Failed to mark message as read:", err);
     }
+  };
+
+  const toggleMessageReadStatus = async (e, messageId, currentReadStatus) => {
+    e.stopPropagation(); // Prevent message selection when clicking the read/unread button
+
+    try {
+      const newReadStatus = !currentReadStatus;
+      const response = await axiosPrivate.get(`/message/readStatus?messageId=${messageId}&isRead=${newReadStatus}`);
+      const data = response.data;
+
+      if (data.errCode === "0") {
+        // Update the local state to toggle the message's read status
+        setMessages(messages.map(message =>
+          message.id === messageId ? { ...message, read: newReadStatus } : message
+        ));
+
+        // If the selected message's status is being changed, update that too
+        if (selectedMessage && selectedMessage.id === messageId) {
+          setSelectedMessage({ ...selectedMessage, read: newReadStatus });
+        }
+      }
+    } catch (err) {
+      setError("Failed to update message status. Please try again later.");
+      console.error(err);
+    }
+  };
+
+  const handleSelectMessage = (messageId) => {
+    if (selectedMessage?.id === messageId) return;
+    fetchMessageDetails(messageId);
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value - 1); // MUI Pagination is 1-based, but our API is 0-based
+  };
+
+  const clearSelectedMessage = () => {
+    setSelectedMessage(null);
+    if (isMobile) {
+      setShowMessageView(false);
+    }
+  };
+
+  const handleCloseError = () => {
+    setError(null);
+  };
+
+  // Sanitize HTML content to prevent XSS attacks and ensure links open in new tabs
+  const sanitizeHtml = (html) => {
+    // Configure DOMPurify to allow target and rel attributes
+    const sanitizedHtml = DOMPurify.sanitize(html, {
+      ADD_ATTR: ['target', 'rel']
+    });
+
+    // Add class to help target all links for adding target="_blank"
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(sanitizedHtml, 'text/html');
+
+    // Modify all links to open in new tabs
+    const links = doc.querySelectorAll('a');
+    links.forEach(link => {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    });
+
+    // Add a class to the content container to help with targeting elements
+    const contentContainer = doc.body;
+    contentContainer.classList.add('message-content');
+
+    return { __html: contentContainer.innerHTML };
+  };
+
+  // Get a preview of the message content (first 100 characters)
+  const getContentPreview = (content) => {
+    const plainText = stripHtml(content);
+    return plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText;
   };
 
   return (
@@ -71,60 +307,174 @@ const MessagesPage = ({ title }) => {
               <Box className="GenericPage__container_title_box GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
                 <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
                   <Typography variant="h1">Messages</Typography>
-                  {/* <Button size="medium" sx={{ 'margin-left': '16px' }}>Button</Button> */}
                 </Box>
-                {/* <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
+                <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
                   <Box className="GenericPage__container_title_flexBox_right">
-                    <Button variant="contained" size="medium">Button</Button>
+                    <Button variant="contained" size="medium" onClick={fetchMessages}>Refresh</Button>
                   </Box>
-                </Box> */}
+                </Box>
               </Box>
             </Container>
             <Container maxWidth="lg">
               <Paper className='GenericPage__container_paper' variant='outlined'>
-                <Container>
-                  <Grid container spacing={3}>
-                    {/* Message List */}
-                    <Grid item xs={4}>
-                      <Paper>
-                        {listIsLoading ? (
-                          <SkeletonGroup boxPadding={'0'} />
-                        ) : (
-                          <List>
-                            {messages.map((msg) => (
-                              <ListItem
-                                key={msg.id}
-                                button
-                                onClick={() => fetchMessageDetails(msg.id)}
-                                style={{ backgroundColor: msg.read ? "#f0f0f0" : "#fff" }}
-                              >
-                                <ListItemText primary={msg.title} secondary={new Date(msg.sentTimeStamp).toLocaleString()} />
-                              </ListItem>
-                            ))}
-                          </List>
-                        )}
-                      </Paper>
-                    </Grid>
+                <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+                  <Grid container spacing={2}>
+                    {/* Message List - show only if not in mobile view with message details */}
+                    {(!isMobile || (isMobile && !showMessageView)) && (
+                      <Grid item xs={12} md={3}>
+                        <MessageListContainer>
+                          {loading ? (
+                            // Use MessageListSkeleton for message list loading
+                            <MessageListSkeleton />
+                          ) : messages.length > 0 ? (
+                            <>
+                              <List>
+                                {messages.map((message) => (
+                                  <React.Fragment key={message.id}>
+                                    <MessageItem
+                                      button
+                                      selected={selectedMessage?.id === message.id}
+                                      unread={!message.read}
+                                      onClick={() => handleSelectMessage(message.id)}
+                                    >
+                                      <ListItemText
+                                        primary={
+                                          <Box display="flex" alignItems="center">
+                                            <Badge color="primary" variant="dot" invisible={message.read}>
+                                              <Typography variant="subtitle1" noWrap sx={{ fontWeight: message.read ? 'normal' : 'bold' }}>
+                                                {message.title}
+                                              </Typography>
+                                            </Badge>
+                                          </Box>
+                                        }
+                                        secondary={
+                                          <>
+                                            {/* Using relative time format for message list */}
+                                            <Typography variant="body2" color="text.secondary">
+                                              {formatRelativeTime(message.sentTimeStamp)}
+                                            </Typography>
+                                            {/* Message content preview */}
+                                            <Typography
+                                              variant="body2"
+                                              color="text.secondary"
+                                              sx={{
+                                                display: '-webkit-box',
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: 'vertical',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                mt: 0.5
+                                              }}
+                                            >
+                                              {getContentPreview(message.content)}
+                                            </Typography>
+                                          </>
+                                        }
+                                      />
+                                      <IconButton
+                                        size="small"
+                                        onClick={(e) => toggleMessageReadStatus(e, message.id, message.read)}
+                                        aria-label={message.read ? "Mark as unread" : "Mark as read"}
+                                      >
+                                        {message.read ? <MarkEmailUnreadIcon fontSize="small" /> : <MarkEmailReadIcon fontSize="small" />}
+                                      </IconButton>
+                                    </MessageItem>
+                                    <Divider component="li" />
+                                  </React.Fragment>
+                                ))}
+                              </List>
+                              <Box display="flex" justifyContent="center" mt={2}>
+                                <Pagination
+                                  count={totalPages}
+                                  page={page + 1}
+                                  onChange={handlePageChange}
+                                  color="primary"
+                                />
+                              </Box>
+                            </>
+                          ) : (
+                            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                              <Typography variant="body1" color="text.secondary">
+                                No messages found
+                              </Typography>
+                            </Box>
+                          )}
+                        </MessageListContainer>
+                      </Grid>
+                    )}
 
-                    {/* Message Content */}
-                    <Grid item xs={9}>
-                      <Paper style={{ padding: "16px" }}>
-                        {messageIsLoading ? (
-                          <CircularProgress />
-                        ) : selectedMessage ? (
-                          <>
-                            <Typography variant="h6">{selectedMessage.title}</Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {new Date(selectedMessage.sentTimeStamp).toLocaleString()}
-                            </Typography>
-                            <div dangerouslySetInnerHTML={{ __html: selectedMessage.content }} />
-                          </>
-                        ) : (
-                          <Typography>Select a message to view details</Typography>
-                        )}
-                      </Paper>
-                    </Grid>
+                    {/* Divider between message list and content - only show on desktop */}
+                    {!isMobile && (
+                      <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    )}
+
+                    {/* Message View - show only if not in mobile view or if in mobile view with message selected */}
+                    {(!isMobile || (isMobile && showMessageView)) && (
+                      <Grid item xs={12} md={9 - (isMobile ? 0 : 0.5)}>
+                        <MessageViewContainer>
+                          {messageLoading ? (
+                            // Use CircularProgress for message content loading
+                            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                              <CircularProgress />
+                            </Box>
+                          ) : selectedMessage ? (
+                            <Box>
+                              <Box display="flex" alignItems="center" mb={3}>
+                                {/* Only show back button on mobile */}
+                                {isMobile && (
+                                  <IconButton
+                                    onClick={clearSelectedMessage}
+                                    sx={{ mr: 1 }}
+                                    aria-label="Back to list"
+                                  >
+                                    <ArrowBackIcon />
+                                  </IconButton>
+                                )}
+                                <Typography variant="h5" component="h2">
+                                  {selectedMessage.title}
+                                </Typography>
+                              </Box>
+
+                              <Box mb={3} display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap">
+                                {/* Using actual timestamp for message details */}
+                                <Typography variant="body2" color="text.secondary">
+                                  {formatDate(selectedMessage.sentTimeStamp)}
+                                </Typography>
+                                <Button
+                                  variant="outlined"
+                                  startIcon={selectedMessage.read ? <MarkEmailUnreadIcon /> : <MarkEmailReadIcon />}
+                                  onClick={(e) => toggleMessageReadStatus(e, selectedMessage.id, selectedMessage.read)}
+                                  sx={{ mt: { xs: 1, sm: 0 } }}
+                                >
+                                  {selectedMessage.read ? "Mark as unread" : "Mark as read"}
+                                </Button>
+                              </Box>
+
+                              <Divider sx={{ mb: 3 }} />
+
+                              <MessageContent
+                                className="message-content"
+                                dangerouslySetInnerHTML={sanitizeHtml(selectedMessage.content)}
+                              />
+                            </Box>
+                          ) : (
+                            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                              <Typography variant="body1" color="text.secondary">
+                                Select a message to view
+                              </Typography>
+                            </Box>
+                          )}
+                        </MessageViewContainer>
+                      </Grid>
+                    )}
                   </Grid>
+
+                  {/* Error Snackbar */}
+                  <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
+                    <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+                      {error}
+                    </Alert>
+                  </Snackbar>
                 </Container>
               </Paper>
             </Container>
