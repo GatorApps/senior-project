@@ -10,8 +10,31 @@
 
 == Applicant Routes
 
-TODO : finish tests
+[[index-get-applicant-resume-metadata]]
+=== GET ResumeMetadata
+A `GET` request to retrieve an Applicant's Resume metadata.
 
+operation::applicant-resume-metadata-get[snippets='http-request,http-response']
+
+
+[[index-get-applicant-transcript-metadata]]
+=== GET TranscriptMetadata
+A `GET` request to retrieve an Applicant's Transcript metadata.
+
+operation::applicant-transcript-metadata-get[snippets='http-request,http-response']
+
+
+[[index-post-applicant-resume]]
+=== POST Resume
+A `POST` request to upload an Applicant's Resume.
+
+operation::applicant-resume-post[snippets='http-request,http-response']
+
+[[index-post-applicant-transcript]]
+=== POST Transcript
+A `POST` request to upload an Applicant's Transcript.
+
+operation::applicant-transcript-post[snippets='http-request,http-response']
 
 
 == Application Routes
@@ -31,9 +54,15 @@ operation::application-get-studentList[snippets='http-request,http-response']
 
 [[index-get-application-already-applied]]
 === GET AlreadyApplied
-A `GET` request to retrieve indicate whether a student has already applied to a certain Posting.
+A `GET` request to retrieve information on whether a student has already applied to a certain Posting.
 
 operation::application-alreadyApplied[snippets='http-request,http-response']
+
+[[index-post-application]]
+=== POST SubmitApplication
+A `POST` request to Submit a single Application for a specific Position.
+
+operation::application-post-submit[snippets='http-request,http-response']
 
 == Application Faculty Only Routes
 

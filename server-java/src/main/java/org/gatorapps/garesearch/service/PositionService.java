@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
@@ -353,6 +354,10 @@ public class PositionService {
 
     public void updatePosting(String opid, Position position) throws Exception {
         try {
+            if (position.getId() == null){
+                throw new MalformedParamException("ERR_REQ_MISSING_REQUIRED_PARAM", "Missing required req params: positionId");
+            }
+
             labService.checkPermission(opid, position.getLabId());
             if (position.getDescription() != null) {
                 position.setRawDescription(position.getDescription());
@@ -365,7 +370,7 @@ public class PositionService {
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to modify the requested position");
             }
-            if (e instanceof ConstraintViolationException) {
+            if (e instanceof ConstraintViolationException || e instanceof  MalformedParamException) {
                 throw e;
             }
             throw new Exception("Unable to process your request at this time", e);

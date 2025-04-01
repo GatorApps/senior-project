@@ -10,4 +10,7 @@ public interface LabRepository extends MongoRepository<Lab, String> {
     // Custom query methods can be defined here if needed
     Optional<Lab> findById(String id);
     boolean existsById(String id);
+
+    Optional<Lab> findByName(String name);
+    boolean existsByName(String name);
 }

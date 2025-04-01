@@ -37,21 +37,26 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/appApi/garesearch/**")
                 .order(1);
 
-        registry.addInterceptor(new HttpMethodInterceptor(Set.of("GET"), new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500201)))))
+        registry.addInterceptor(new HttpMethodInterceptor(Set.of("GET"), new RequireUserAuthInterceptor(List.of(List.of(100001)))))
+                .addPathPatterns("/appApi/garesearch/**")
+                .order(2);
+
+        registry.addInterceptor(new HttpMethodInterceptor(Set.of("GET"), new RequireUserAuthInterceptor(List.of(List.of(500201)))))
+
                 .addPathPatterns("/appApi/garesearch/application",
                         "/appApi/garesearch/application/studentList",
                         "/appApi/garesearch/application/alreadyApplied")
                 .order(2);
 
-        registry.addInterceptor(new HttpMethodInterceptor(Set.of("POST"), new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500201)))))
+        registry.addInterceptor(new HttpMethodInterceptor(Set.of("POST"), new RequireUserAuthInterceptor(List.of(List.of(500201)))))
                 .addPathPatterns("/appApi/garesearch/application")
                 .order(2);
 
-        registry.addInterceptor(new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500201))))
+        registry.addInterceptor(new RequireUserAuthInterceptor(List.of(List.of(500201))))
                 .addPathPatterns("/appApi/garesearch/applicant/**")
                 .order(2);
 
-        registry.addInterceptor(new HttpMethodInterceptor(Set.of("GET"), new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500301)))))
+        registry.addInterceptor(new HttpMethodInterceptor(Set.of("GET"), new RequireUserAuthInterceptor(List.of(List.of(500301)))))
                 .addPathPatterns("/appApi/garesearch/application/application",
                         "/appApi/garesearch/application/applicationManagement",
                         "/appApi/garesearch/lab/labsList",
@@ -61,12 +66,12 @@ public class WebConfig implements WebMvcConfigurer {
                         "/appApi/garesearch/posting/postingEditor")
                 .order(2);
 
-        registry.addInterceptor(new HttpMethodInterceptor(Set.of("POST"), new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500301)))))
+        registry.addInterceptor(new HttpMethodInterceptor(Set.of("POST"), new RequireUserAuthInterceptor(List.of(List.of(500301)))))
                 .addPathPatterns("/appApi/garesearch/lab/profileEditor",
                         "/appApi/garesearch/posting/postingEditor")
                 .order(2);
 
-        registry.addInterceptor(new HttpMethodInterceptor(Set.of("PUT"), new org.gatorapps.garesearch.middleware.RequireUserAuthInterceptor(List.of(List.of(500301)))))
+        registry.addInterceptor(new HttpMethodInterceptor(Set.of("PUT"), new RequireUserAuthInterceptor(List.of(List.of(500301)))))
                 .addPathPatterns("/appApi/garesearch/application/applicationStatus",
                         "/appApi/garesearch/lab/profileEditor",
                         "/appApi/garesearch/posting/postingEditor",

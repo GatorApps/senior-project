@@ -10,4 +10,7 @@ public interface PositionRepository extends MongoRepository<Position, String> {
     // Custom query methods can be defined here if needed
     Optional<Position> findById(String id);
     boolean existsById(String id);
+
+    Optional<Position> findByName(String name);
+    boolean existsByName(String name);
 }

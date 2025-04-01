@@ -80,7 +80,9 @@ public class ApplicationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // TODO: tests
+    /*
+        submit application for a particular position
+     */
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> submitApplication(
             @Valid HttpServletRequest request,

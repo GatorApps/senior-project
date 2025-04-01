@@ -1,0 +1,66 @@
+{
+  "errCode": "0",
+  "payload": {
+    "postingsList": {
+      "openPositions": [
+        {
+          "labId": "88dcf5a77621f49532e47b52",
+          "labName": "Ava's Testing Lab",
+          "positionId": "d162c110ed0a40bea3393855",
+          "name": "Ava's Testing Position electrical 3.2",
+          "lastUpdatedTimeStamp": "<timestamp>",
+          "postedTimeStamp": "2025-01-10T19:27:09.573+00:00",
+          "status": "open"
+        },
+        {
+          "labId": "88dcf5a77621f49532e47b52",
+          "labName": "Ava's Testing Lab",
+          "positionId": "67dcf57f1d3d5f5c7fcc5645",
+          "name": "Ava's Testing Position",
+          "lastUpdatedTimeStamp": "<timestamp>",
+          "postedTimeStamp": "2025-01-10T19:27:09.573+00:00",
+          "status": "open"
+        },
+        {
+          "labId": "88dcf5a77621f49532e47b52",
+          "labName": "Ava's Testing Lab",
+          "positionId": "67dcf586c42dde901cd44edd",
+          "name": "Popcorn Test",
+          "lastUpdatedTimeStamp": "<timestamp>",
+          "postedTimeStamp": "2025-01-10T19:27:09.573+00:00",
+          "status": "open"
+        },
+        {
+          "labId": "88dcf5a77621f49532e47b52",
+          "labName": "Ava's Testing Lab",
+          "positionId": "c163c180ed0a40bea3393855",
+          "name": "Psychology Literature Review",
+          "lastUpdatedTimeStamp": "<timestamp>",
+          "postedTimeStamp": "2025-01-10T19:27:09.573+00:00",
+          "status": "open"
+        },
+        {
+          "labId": "88dcf5a77621f49532e47b52",
+          "labName": "Ava's Testing Lab",
+          "positionId": "87d0c01ab87e195493ae9c10",
+          "name": "Ava's Testing Position biology 2",
+          "lastUpdatedTimeStamp": "<timestamp>",
+          "postedTimeStamp": "2025-05-10T19:27:09.573+00:00",
+          "status": "open"
+        }
+      ],
+      "closedPositions": [
+        {
+          "labId": "88dcf5a77621f49532e47b52",
+          "labName": "Ava's Testing Lab",
+          "positionId": "67dcf586c42dde901cd44ef2",
+          "name": "Ava's Testing CLOSED Position electrical 4",
+          "lastUpdatedTimeStamp": "<timestamp>",
+          "postedTimeStamp": "2025-03-02T02:19:05.806+00:00",
+          "status": "closed"
+        }
+      ],
+      "archivedPositions": []
+    }
+  }
+}

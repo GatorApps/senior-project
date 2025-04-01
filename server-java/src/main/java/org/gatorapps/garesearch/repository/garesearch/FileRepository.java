@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface FileRepository extends MongoRepository<File, String> {
     Optional<File> findById(String id);
     boolean existsById(String id);
+    boolean existsByName(String name);
+
 }
