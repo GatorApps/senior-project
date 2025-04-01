@@ -66,6 +66,12 @@ const MessageContent = styled(Box)(({ theme }) => ({
   },
 }));
 
+// Custom styled divider with spacing above and below
+const StyledDivider = styled(Divider)(({ theme }) => ({
+  marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+}));
+
 // Function to strip HTML tags for preview text
 const stripHtml = (html) => {
   const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -107,7 +113,7 @@ const MessageListSkeleton = () => {
           <Skeleton variant="text" width="80%" height={28} />
           <Skeleton variant="text" width="40%" height={20} />
           <Skeleton variant="text" width="60%" height={20} />
-          <Divider sx={{ mt: 2 }} />
+          <Divider sx={{ mt: 2.5, mb: 2 }} />
         </Box>
       ))}
     </Box>
@@ -379,7 +385,8 @@ const MessagesPage = ({ title }) => {
                                         {message.read ? <MarkEmailUnreadIcon fontSize="small" /> : <MarkEmailReadIcon fontSize="small" />}
                                       </IconButton>
                                     </MessageItem>
-                                    <Divider component="li" />
+                                    {/* Use StyledDivider instead of regular Divider */}
+                                    <StyledDivider component="li" />
                                   </React.Fragment>
                                 ))}
                               </List>
