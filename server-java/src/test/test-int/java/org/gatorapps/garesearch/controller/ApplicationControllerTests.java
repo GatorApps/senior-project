@@ -4,15 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gatorapps.garesearch.config.RestDocsConfig;
 import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
+import org.gatorapps.garesearch.service.MessageService;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -23,10 +26,12 @@ import java.nio.file.Files;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static reactor.core.publisher.Mono.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -40,6 +45,9 @@ public class ApplicationControllerTests  extends BaseTest {
     private ApplicationRepository applicationRepository;
 
     private final String applicationControllerRoute = "/appApi/garesearch/application";
+
+    @MockBean
+    MessageService msgService;
 
 
     /*------------------------- getStudentApplication -------------------------*/
@@ -123,6 +131,8 @@ public class ApplicationControllerTests  extends BaseTest {
     @Test // @PostMapping
     @Order(3)
     public void submitApplication_Valid() throws Exception {
+        doNothing().when(msgService).sendMessage(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+
         String requestBody = String.format("""
                     { 
                         "application": {

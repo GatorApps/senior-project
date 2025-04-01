@@ -199,7 +199,6 @@ public class ApplicationService {
         messageService.sendMessage(null, opid, "Your application is in!" ,
                 String.format("<p>Way to go, %s!<br><br>You have successfully submitted an application to <a href=\"%s\">%s</a>. Please remember to track your application status on the <a href=\"%s\">My Applications</a> module and reach out directly to the <a href=\"%s\">lab</a> you're applying to should you have any questions.<br><br>Best of luck!</p>",
                         applicant.getFirstName(), String.format("%s/posting?postingId=%s", frontendHost, positionId), foundPosition.getName(), String.format("%s/myapplications", frontendHost), String.format("%s/lab?labId=%s", frontendHost, foundPosition.getLabId())));
-      
     }
 
     public boolean alreadyApplied(String opid, String positionId) {
