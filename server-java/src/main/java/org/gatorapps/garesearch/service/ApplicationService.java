@@ -4,17 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
-import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
+import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.model.garesearch.Application;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.model.garesearch.Position;
-import org.gatorapps.garesearch.repository.garesearch.ApplicantProfileRepository;
 import org.gatorapps.garesearch.repository.garesearch.ApplicationRepository;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
-import org.gatorapps.garesearch.utils.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -32,13 +31,16 @@ public class ApplicationService {
     ApplicationRepository applicationRepository;
 
     @Autowired
-    ApplicantProfileRepository applicantProfileRepository;
-
-    @Autowired
     PositionRepository positionRepository;
 
     @Autowired
     private LabService labService;
+
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     @Qualifier("garesearchMongoTemplate")
@@ -53,17 +55,14 @@ public class ApplicationService {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ValidationUtil validationUtil;
-
-    @Autowired
-    ValidateUserAuthInterceptor validateUserAuthInterceptor;
-    @Autowired
     private FileRepository fileRepository;
+
+    @Value("${app.frontend-host}")
+    private String frontendHost;
 
     public Map<String, Object> convertToMap(Object object) {
         return objectMapper.convertValue(object, Map.class);
     }
-
 
     public Application getStudentApplication (String opid, String applicationId) throws Exception {
         // find by both opid and applicationId to ensure correct user is accessing the application
@@ -130,6 +129,13 @@ public class ApplicationService {
     }
 
     public void submitApplication (String opid, String positionId, Map<String, Object> application) throws Exception {
+        // Validate applicantOpid
+        Optional<User> applicantOptional = userService.getUserByOpid(opid);
+        if (applicantOptional.isEmpty()) {
+            throw new ResourceNotFoundException("", "Applicant not found");
+        }
+        User applicant = applicantOptional.get();
+
         // Check if position is valid and open
         Position foundPosition;
         try {
@@ -156,17 +162,20 @@ public class ApplicationService {
             throw new UnwantedResult("-", "You have already applied to this position");
         }
 
-        // Validate resumeId and transcriptId
+        // Validate resumeId
         String resumeId = (String) application.get("resumeId");
         File resumeFile = fileRepository.findById(resumeId)
                 .orElseThrow(() -> new ResourceNotFoundException("-", "Invalid resumeId (" + resumeId + "), please try again"));
+        // Check user owns the resume file
         if (!resumeFile.getOpid().equals(opid)){
             throw new UnwantedResult("-", "Invalid resumeId (" + resumeId + "), please try again");
         }
 
+        // Validate transcriptId
         String transcriptId = (String) application.get("transcriptId");
         File transcriptFile = fileRepository.findById(transcriptId)
                 .orElseThrow(() -> new ResourceNotFoundException("-", "Invalid transcriptId (" + transcriptId + "), please try again"));
+        // Check user owns the transcript file
         if (!transcriptFile.getOpid().equals(opid)){
             throw new UnwantedResult("-", "Invalid transcriptId (" + transcriptId + "), please try again");
         }
@@ -185,6 +194,12 @@ public class ApplicationService {
         } catch (Exception e){
             throw new Exception("Unable to process your request at this time", e);
         }
+      
+        // Send applicant confirmation message
+        messageService.sendMessage(null, opid, "Your application is in!" ,
+                String.format("<p>Way to go, %s!<br><br>You have successfully submitted an application to <a href=\"%s\">%s</a>. Please remember to track your application status on the <a href=\"%s\">My Applications</a> module and reach out directly to the <a href=\"%s\">lab</a> you're applying to should you have any questions.<br><br>Best of luck!</p>",
+                        applicant.getFirstName(), String.format("%s/posting?postingId=%s", frontendHost, positionId), foundPosition.getName(), String.format("%s/myapplications", frontendHost), String.format("%s/lab?labId=%s", frontendHost, foundPosition.getLabId())));
+      
     }
 
     public boolean alreadyApplied(String opid, String positionId) {
@@ -273,7 +288,7 @@ public class ApplicationService {
             if (e instanceof ResourceNotFoundException){
                 throw e;
             }
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
     }

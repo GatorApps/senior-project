@@ -1,7 +1,13 @@
 app:
   name: "garesearch"
-  frontend-host: "https://templateapp.dev-local.gatorapps.org:3500"
+  frontend-host: "https://research.dev-local.gatorapps.org:3500"
   prod-status: "dev"
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 session:
   global-cookie-name: "GATORAPPS_GLOBAL_SID"
@@ -9,8 +15,11 @@ session:
   auth-token-lifespan: "12h"
   max-web-sessions: 2
 
-spring:
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+aws:
+  s3:
+    region: "us-east-1"
+    bucket-name: "research-dev-gatorapps-org"
+  ses:
+    region: "us-east-1"
+    default-sender-name: "RESEARCH.UF"
+    default-sender-address: "research-no-reply@gatorapps.org"

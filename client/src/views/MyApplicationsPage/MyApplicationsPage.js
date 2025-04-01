@@ -10,53 +10,53 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { axiosPrivate } from '../../apis/backend';
 
-const response = {
-    errCode: '0',
-    payload: {
-        applications: {
-            activeApplications: [
-                {
-                    labName: "Demo Lab 1",
-                    positionName: "Demo Position 1",
-                    submissionTimeStamp: "2024-04-19T06:56:20.544+00:00",
-                    status: "Submitted"
-                },
-                {
-                    labName: "Demo Lab 2",
-                    positionName: "Demo Position 2",
-                    submissionTimeStamp: "2024-04-20T06:56:20.544+00:00",
-                    status: "Submitted"
-                },
-                {
-                    labName: "Demo Lab 3",
-                    positionName: "Demo Position 3",
-                    submissionTimeStamp: "2024-04-21T06:56:20.544+00:00",
-                    status: "Submitted"
-                }
-            ],
-            archivedApplications: [
-                {
-                    labName: "Demo Lab 1",
-                    positionName: "Demo Position 1",
-                    submissionTimeStamp: "2024-04-19T06:56:20.544+00:00",
-                    status: "Archived"
-                },
-                {
-                    labName: "Demo Lab 2",
-                    positionName: "Demo Position 2",
-                    submissionTimeStamp: "2024-04-20T06:56:20.544+00:00",
-                    status: "Archived"
-                },
-                {
-                    labName: "Demo Lab 3",
-                    positionName: "Demo Position 3",
-                    submissionTimeStamp: "2024-04-21T06:56:20.544+00:00",
-                    status: "Archived"
-                }
-            ]
-        }
-    }
-};
+// const response = {
+//     errCode: '0',
+//     payload: {
+//         applications: {
+//             activeApplications: [
+//                 {
+//                     labName: "Demo Lab 1",
+//                     positionName: "Demo Position 1",
+//                     submissionTimeStamp: "2024-04-19T06:56:20.544+00:00",
+//                     status: "Submitted"
+//                 },
+//                 {
+//                     labName: "Demo Lab 2",
+//                     positionName: "Demo Position 2",
+//                     submissionTimeStamp: "2024-04-20T06:56:20.544+00:00",
+//                     status: "Submitted"
+//                 },
+//                 {
+//                     labName: "Demo Lab 3",
+//                     positionName: "Demo Position 3",
+//                     submissionTimeStamp: "2024-04-21T06:56:20.544+00:00",
+//                     status: "Submitted"
+//                 }
+//             ],
+//             archivedApplications: [
+//                 {
+//                     labName: "Demo Lab 1",
+//                     positionName: "Demo Position 1",
+//                     submissionTimeStamp: "2024-04-19T06:56:20.544+00:00",
+//                     status: "Archived"
+//                 },
+//                 {
+//                     labName: "Demo Lab 2",
+//                     positionName: "Demo Position 2",
+//                     submissionTimeStamp: "2024-04-20T06:56:20.544+00:00",
+//                     status: "Archived"
+//                 },
+//                 {
+//                     labName: "Demo Lab 3",
+//                     positionName: "Demo Position 3",
+//                     submissionTimeStamp: "2024-04-21T06:56:20.544+00:00",
+//                     status: "Archived"
+//                 }
+//             ]
+//         }
+//     }
+// };
 
 const GenericPage = ({ title }) => {
     const userInfo = useSelector((state) => state.auth.userInfo);

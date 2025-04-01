@@ -13,7 +13,7 @@ import {
 import { axiosPrivate } from '../../apis/backend';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-// import 'react-pdf/dist/esm/Page/AnnotationLayer.css'; // Optional: For annotations
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css'; // Optional: For annotations
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.mjs',
@@ -26,8 +26,27 @@ const ApplicationViewer = ({ open, onClose, application }) => {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [supplementalResponses, setSupplementalResponses] = useState('');
+    const [resumeId, setResumeId] = useState(null);
+    const [transcriptId, setTranscriptId] = useState(null);
 
-    const { supplementalResponses, resumeId, transcriptId } = application || {};
+    useEffect(() => {
+        if (!application) return;
+        axiosPrivate.get(`/application/application?labId=${application.labId}&applicationId=${application.applicationId}`)
+            .then((response) => {
+                if (response.data && response.data.errCode === '0' && response.data.payload.application) {
+                    const app = response.data.payload.application;
+                    setSupplementalResponses(app.supplementalResponses);
+                    setResumeId(app.resumeId);
+                    setTranscriptId(app.transcriptId);
+                } else {
+                    setError('No application found');
+                }
+            }).catch((error) => {
+                setError(error.message || 'Error fetching application');
+            });
+
+    }, [application]);
 
     const fetchPdf = async (fileId) => {
         setLoading(true);

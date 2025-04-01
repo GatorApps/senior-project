@@ -14,7 +14,7 @@ import Tab from '@mui/material/Tab';
 
 
 const PostingPageCard = () => {
-    const [postings, setPostings] = useState({ openPositions: [], closedPositions: [] });
+    const [postings, setPostings] = useState({ openPositions: [], closedPositions: [], archivedPositions: [] });
     const [loading, setLoading] = useState(true);
     const [tabIndex, setTabIndex] = useState(0);
     const [error, setError] = useState(null);
@@ -23,7 +23,7 @@ const PostingPageCard = () => {
     useEffect(() => {
         axiosPrivate.get('/posting/postingManagement')
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 if (response.data && response.data.errCode === "0" && response.data.payload && response.data.payload.postingsList) {
                     setPostings(response.data.payload.postingsList);
                 } else {
@@ -41,7 +41,7 @@ const PostingPageCard = () => {
         setTabIndex(newIndex);
     };
 
-    const filteredPostings = tabIndex === 0 ? postings.openPositions : postings.closedPositions;
+    const filteredPostings = tabIndex === 0 ? postings.openPositions : postings.closedPositions
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -52,8 +52,9 @@ const PostingPageCard = () => {
                     </Typography>
                     <Box marginY="16px">
                         <Tabs value={tabIndex} onChange={handleTabChange} centered>
-                            <Tab label="Open Positions" />
-                            <Tab label="Closed Positions" />
+                            <Tab sx={{ fontSize: '0.75rem' }} label="Open Positions" />
+                            <Tab sx={{ fontSize: '0.75rem' }} label="Closed Positions" />
+                            {/* <Tab sx={{ fontSize: '0.75rem' }} label="Archived Positions" /> */}
                         </Tabs>
 
                         {loading ? (
@@ -77,7 +78,7 @@ const PostingPageCard = () => {
                     </Box>
                 </CardContent>
                 <CardActions>
-                    <Button size="medium" onClick={() => navigate('/postingManagement')}>Post New</Button>
+                    <Button size="medium" onClick={() => navigate('/postingEditor')}>Post New</Button>
                     <Button size="medium" onClick={() => navigate('/postingManagement')}>View All</Button>
                 </CardActions>
             </Card>

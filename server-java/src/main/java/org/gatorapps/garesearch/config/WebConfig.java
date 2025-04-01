@@ -42,6 +42,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .order(2);
 
         registry.addInterceptor(new HttpMethodInterceptor(Set.of("GET"), new RequireUserAuthInterceptor(List.of(List.of(500201)))))
+
                 .addPathPatterns("/appApi/garesearch/application",
                         "/appApi/garesearch/application/studentList",
                         "/appApi/garesearch/application/alreadyApplied")

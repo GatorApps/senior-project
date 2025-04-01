@@ -28,9 +28,9 @@ const Homepage = () => {
   };
 
   const updateColumns = () => {
-    if (window.innerWidth < 600) {
+    if (window.innerWidth < 825) {
       setNumColumns(1);
-    } else if (window.innerWidth < 960) {
+    } else if (window.innerWidth < 1200) {
       setNumColumns(2);
     } else {
       setNumColumns(3);
@@ -106,7 +106,7 @@ const Homepage = () => {
             {columns.map((column, colIndex) => (
               <Box key={colIndex} sx={{ flex: 1, minWidth: '300px' }}>
                 {column.map((card, cardIndex) => (
-                  <Box key={cardIndex} sx={{ width: '350px', marginBottom: '24px' }}>
+                  <Box key={cardIndex} sx={{ width: '380px', marginBottom: '24px' }}>
                     {card}
                   </Box>
                 ))}
