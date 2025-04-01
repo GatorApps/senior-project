@@ -1,12 +1,13 @@
 package org.gatorapps.garesearch.controller;
 
 import org.gatorapps.garesearch.config.RestDocsConfig;
-import org.gatorapps.garesearch.service.PositionService;
+import org.gatorapps.garesearch.model.garesearch.Position;
+import org.gatorapps.garesearch.repository.garesearch.PositionRepository;
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.Mock;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -21,15 +22,12 @@ import org.springframework.util.ResourceUtils;
 import java.nio.file.Files;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// TODO : fix searching functionality. will have to mock service likely. since no atlas search index can be created for testing
-
-
-// TODO : check the database for get, create, and update to ensure actually gets the correct get / updated / created
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,48 +39,10 @@ public class PositionControllerTests extends BaseTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Mock
-    private PositionService positionService;
+    @Autowired
+    private PositionRepository positionRepository;
 
     private final String positionControllerRoute = "/appApi/garesearch/posting";
-
-
-
-    /*------------------------- getSearchResults -------------------------*/
-
-    // @GetMapping("/searchList")
-    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(
-    //          @RequestParam(value = "searchParams") String searchParams)
-
-//    @Test // @GetMapping("/searchList")
-//    public void getSearchResults_Valid() throws Exception {
-//        //when(positionService.getSearchResults(anyString())).thenReturn();
-//        mockMvc.perform(get(positionControllerRoute + "/searchList")
-//                        .param("q", "lu 2")
-//                        .header(HEADER_NAME, VALID_HEADER_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
-//                .andDo(print())
-//                .andExpect(status().isOk())  // 200
-//                .andExpect(jsonPath("$.payload.positions").isArray());
-//                //.andDo(RestDocsConfig.getDefaultDocHandler("position-get-searchresults"));
-//    }
-//
-//    /*------------------------- getSearchIndexerResults -------------------------*/
-//
-//    // @GetMapping("/searchIndexer")
-//    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(
-//    //          @RequestParam(value = "searchParams") String searchParams)
-//    @Test // @GetMapping("/searchList")
-//    public void getSearchIndexerResults_Valid() throws Exception {
-//        mockMvc.perform(get(positionControllerRoute + "/searchIndexer")
-//                        .param("q", "lu 7")
-//                        .header(HEADER_NAME, VALID_HEADER_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
-//                .andDo(print())
-//                .andExpect(status().isOk())  // 200
-//                .andExpect(jsonPath("$.payload.positions").isArray())
-//                .andDo(RestDocsConfig.getDefaultDocHandler("position-get-searchresults_indexer"));
-//    }
 
 
     /*------------------------- getPositionPublicPosting -------------------------*/
@@ -327,11 +287,23 @@ public class PositionControllerTests extends BaseTest {
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload").isEmpty())
                 .andDo(RestDocsConfig.getDefaultDocHandler("position-create-new"));
+
+
+        // uploaded to database correctly
+        Position pos = positionRepository.findByName("Literature Review: Mechanical").get();
+        assertNotNull(pos, "Position not created to database successfully");
+
+        assertEquals("88dcf5a77621f49532e47b52", pos.getLabId(), "Position labId not set to database successfully");
+
+        assertEquals("<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>", pos.getDescription(), "Position description not set to database successfully");
+        assertEquals(Jsoup.parse(pos.getDescription()).text(), pos.getRawDescription(), "Position rawDescription not set to database successfully");
+        assertEquals("open", pos.getStatus(), "Position status not set to database successfully");
+        assertEquals("<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>", pos.getSupplementalQuestions(), "Position supplementalQuestions not set to database successfully");
     }
 
     @Test // @PostMapping("/postingEditor")
     @Order(6)
-    public void createNewPosition_Invalid() throws Exception {
+    public void createNewPosition_InvalidLabNotProvided() throws Exception {
         String requestBody = String.format("""
                 {
                     "labId": "",
@@ -357,7 +329,7 @@ public class PositionControllerTests extends BaseTest {
         String requestBody = String.format("""
                 {
                     "labId": "99dcf5a77621f49532e47b52",
-                    "name": "New position",
+                    "name": "createNewPosition_InvalidLabAccess",
                     "status": "open",
                     "postedTimeStamp":"2025-03-15T21:29:59.062+00:00"
                 }
@@ -374,6 +346,10 @@ public class PositionControllerTests extends BaseTest {
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access_position.json").toPath());
         JSONAssert.assertEquals(expectedResponse, response, false);
+
+        // ensure not uploaded to database
+        assertFalse(positionRepository.existsByName("createNewPosition_InvalidLabAccess"), "Position uploaded to database when it shouldnt");
+
     }
 
 
@@ -390,9 +366,8 @@ public class PositionControllerTests extends BaseTest {
                     "id": "67dcf57f1d3d5f5c7fcc5645",
                     "labId": "88dcf5a77621f49532e47b52",
                     "name": "Ava's Updated Test Position: 55",
-                    "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;<br><br><strong>Preferred Qualification</strong><br>3.0 GPA<br>Sophomore status</p>",
-                    "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
-                    "postedTimeStamp":"2025-03-15T21:29:59.062+00:00",
+                    "description": "<p><strong>Updated Description</strong><br></p>",
+                    "supplementalQuestions": "<ol><li><strong>NEW Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
                     "status": "open"
                 }
                 """);
@@ -405,22 +380,55 @@ public class PositionControllerTests extends BaseTest {
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload").isEmpty())
                 .andDo(RestDocsConfig.getDefaultDocHandler("position-update-existing"));
+
+
+        // updated to database correctly
+        Position pos = positionRepository.findById("67dcf57f1d3d5f5c7fcc5645").get();
+        assertNotNull(pos, "Position not exists in database");
+
+        assertEquals("88dcf5a77621f49532e47b52", pos.getLabId(), "Position labId not equal");
+        assertEquals("Ava's Updated Test Position: 55", pos.getName(), "Position name not updated correctly");
+
+        assertEquals("<p><strong>Updated Description</strong><br></p>", pos.getDescription(), "Position Description not updated correctly");
+        assertEquals(Jsoup.parse(pos.getDescription()).text(), pos.getRawDescription(), "Position rawDescription not updated correctly");
+        assertEquals("<ol><li><strong>NEW Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>", pos.getSupplementalQuestions(), "Position supplementalQuestions not updated correctly");
+        assertEquals("open", pos.getStatus(), "Position status not updated correctly");
     }
 
 
     @Test // @PostMapping("/postingEditor")
     @Order(7)
-    public void updateNewPosition_invalidLabAccess() throws Exception {
+    public void updateNewPosition_PositionIdNotProvided() throws Exception {
+        String requestBody = String.format("""
+                {
+                    "labId": "88dcf5a77621f49532e47b52",
+                    "name": "updateNewPosition_PositionIdNotProvided"
+                }
+                """);
+        mockMvc.perform(put(positionControllerRoute + "/postingEditor")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())  // 400
+                .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
+                .andExpect(jsonPath("$.errMsg").value("Missing required req params: positionId"))
+                .andExpect(jsonPath("$.payload").isEmpty());
+    }
+
+
+    @Test // @PostMapping("/postingEditor")
+    @Order(7)
+    public void updateNewPosition_InvalidLabAccess() throws Exception {
         String requestBody = String.format("""
                 {
                     "id": "67dcf54ab42f269d2da84622",
                     "labId": "99dcf5a77621f49532e47b52",
-                    "name": "new position",
-                    "status": "open",
-                    "postedTimeStamp":"2025-03-15T21:29:59.062+00:00"
+                    "name": "updateNewPosition_invalidLabAccess"
                 }
                 """);
-        String response = mockMvc.perform(post(positionControllerRoute + "/postingEditor")
+        String response = mockMvc.perform(put(positionControllerRoute + "/postingEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -432,6 +440,13 @@ public class PositionControllerTests extends BaseTest {
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access_position.json").toPath());
         JSONAssert.assertEquals(expectedResponse, response, false);
+
+        // ensure did not update to database
+        Position pos = positionRepository.findById("67dcf54ab42f269d2da84622").get();
+        assertNotNull(pos, "Position not exists in database");
+
+        assertEquals("99dcf5a77621f49532e47b52", pos.getLabId(), "Position labId not equal");
+        assertNotEquals("updateNewPosition_invalidLabAccess", pos.getName(), "Position name updated when it shouldnt have");
     }
 
 
@@ -445,39 +460,65 @@ public class PositionControllerTests extends BaseTest {
     @Test // @PutMapping("/postingStatus")
     @Order(8)
     public void updatePostingStatus_Valid() throws Exception {
+        String positionId = "c163c180ed0a40bea3393855";
+        String status = "archived";
+
         mockMvc.perform(put(positionControllerRoute + "/postingStatus")
-                        .param("positionId", "d162c110ed0a40bea3393855")
-                        .param("status", "open")
+                        .param("positionId", positionId)
+                        .param("status", status)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload").isEmpty())
                 .andDo(RestDocsConfig.getDefaultDocHandler("position-update-status"));
+
+        // updated to database correctly
+        Position pos = positionRepository.findById(positionId).get();
+        assertNotNull(pos, "Position not exists in database");
+
+        assertEquals(status, pos.getStatus(), "status not updated correctly to database");
     }
 
     @Test // @PutMapping("/postingStatus")
     @Order(8)
     public void updatePostingStatus_InvalidParam() throws Exception {
+        String positionId = "d162c110ed0a40bea3393855";
+        String status = "deleted";
+        Position position = positionRepository.findById(positionId).get();
+        String oldStatus = position.getStatus();
+
         mockMvc.perform(put(positionControllerRoute + "/postingStatus")
-                        .param("positionId", "d162c110ed0a40bea3393855")
-                        .param("status", "deleted")
+                        .param("positionId", positionId)
+                        .param("status", status)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
                 .andDo(print())
+
                 .andExpect(status().isBadRequest())  // 400
                 .andExpect(jsonPath("$.errCode").value("ERR_INPUT_FAIL_VALIDATION"))
                 .andExpect(jsonPath("$.errMsg").value("Position status must be one of 'open', 'closed', 'archived'"))
                 .andExpect(jsonPath("$.payload").isEmpty());
+
+        // ensure position was not updated
+        Position pos = positionRepository.findById(positionId).get();
+        assertNotNull(pos, "Position not exists in database");
+        assertEquals(oldStatus, pos.getStatus(), "status was changed when it shouldnt have");
+        assertNotEquals(status, pos.getStatus(), "status was updated when it shouldnt have");
     }
 
     @Test // @PutMapping("/postingStatus")
     @Order(8)
     public void updatePostingStatus_InvalidLabAccess() throws Exception {
+        String positionId = "67dcf54ab42f269d2da84622";
+        String status = "closed";
+        Position position = positionRepository.findById(positionId).get();
+        String oldStatus = position.getStatus();
+
         String response = mockMvc.perform(put(positionControllerRoute + "/postingStatus")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
-                        .param("positionId", "67dcf54ab42f269d2da84622")
+                        .param("positionId", positionId)
                         .param("status", "closed"))
                 .andDo(print())
                 .andReturn()
@@ -486,9 +527,93 @@ public class PositionControllerTests extends BaseTest {
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access_position.json").toPath());
         JSONAssert.assertEquals(expectedResponse, response, false);
+
+        // ensure position was not updated
+        Position pos = positionRepository.findById(positionId).get();
+        assertNotNull(pos, "Position not exists in database");
+        assertEquals(oldStatus, pos.getStatus(), "status was changed when it shouldnt have");
+        assertNotEquals(status, pos.getStatus(), "status was updated when it shouldnt have");
     }
 
 
+    @Test // @PutMapping("/postingStatus")
+    @Order(8)
+    public void updatePostingStatus_MissingParamStatus() throws Exception {
+        String positionId = "d162c110ed0a40bea3393855";
+        Position position = positionRepository.findById(positionId).get();
+        String oldStatus = position.getStatus();
+
+        mockMvc.perform(put(positionControllerRoute + "/postingStatus")
+                        .param("positionId", positionId)
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+
+                .andExpect(status().isBadRequest())  // 400
+                .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
+                .andExpect(jsonPath("$.errMsg").value("Missing required req params: status"))
+                .andExpect(jsonPath("$.payload").isEmpty());
+
+        // ensure position was not updated
+        Position pos = positionRepository.findById(positionId).get();
+        assertNotNull(pos, "Position not exists in database");
+        assertEquals(oldStatus, pos.getStatus(), "status was changed when it shouldnt have");
+    }
+
+    @Test // @PutMapping("/postingStatus")
+    @Order(8)
+    public void updatePostingStatus_MissingParamPositionId() throws Exception {
+        mockMvc.perform(put(positionControllerRoute + "/postingStatus")
+                        .param("status", "open")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+                .andDo(print())
+
+                .andExpect(status().isBadRequest())  // 400
+                .andExpect(jsonPath("$.errCode").value("ERR_REQ_MISSING_REQUIRED_PARAM"))
+                .andExpect(jsonPath("$.errMsg").value("Missing required req params: positionId"))
+                .andExpect(jsonPath("$.payload").isEmpty());
+    }
+
+
+
+    // searching functionality uses mongo atlas search indices which are not available through docker test db. Was tested on dev db and can be manually tested through postman
+
+    /*------------------------- getSearchResults -------------------------*/
+
+    // @GetMapping("/searchList")
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(
+    //          @RequestParam(value = "searchParams") String searchParams)
+
+//    @Test // @GetMapping("/searchList")
+//    public void getSearchResults_Valid() throws Exception {
+//        //when(positionService.getSearchResults(anyString())).thenReturn();
+//        mockMvc.perform(get(positionControllerRoute + "/searchList")
+//                        .param("q", "lu 2")
+//                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+//                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+//                .andDo(print())
+//                .andExpect(status().isOk())  // 200
+//                .andExpect(jsonPath("$.payload.positions").isArray());
+//                //.andDo(RestDocsConfig.getDefaultDocHandler("position-get-searchresults"));
+//    }
+//
+//    /*------------------------- getSearchIndexerResults -------------------------*/
+//
+//    // @GetMapping("/searchIndexer")
+//    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(
+//    //          @RequestParam(value = "searchParams") String searchParams)
+//    @Test // @GetMapping("/searchList")
+//    public void getSearchIndexerResults_Valid() throws Exception {
+//        mockMvc.perform(get(positionControllerRoute + "/searchIndexer")
+//                        .param("q", "lu 7")
+//                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+//                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
+//                .andDo(print())
+//                .andExpect(status().isOk())  // 200
+//                .andExpect(jsonPath("$.payload.positions").isArray())
+//                .andDo(RestDocsConfig.getDefaultDocHandler("position-get-searchresults_indexer"));
+//    }
 
 
 

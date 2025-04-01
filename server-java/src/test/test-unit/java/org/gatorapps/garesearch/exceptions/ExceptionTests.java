@@ -1,12 +1,10 @@
 package org.gatorapps.garesearch.exceptions;
 
-
 import org.gatorapps.garesearch.exception.FileValidationException;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

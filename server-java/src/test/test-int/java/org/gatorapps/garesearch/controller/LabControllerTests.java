@@ -1,6 +1,8 @@
 package org.gatorapps.garesearch.controller;
 
 import org.gatorapps.garesearch.config.RestDocsConfig;
+import org.gatorapps.garesearch.model.garesearch.Lab;
+import org.gatorapps.garesearch.repository.garesearch.LabRepository;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -17,17 +19,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
 
 import java.nio.file.Files;
-import java.util.Map;
-import java.util.Random;
 
 import static org.gatorapps.garesearch.constants.RequestConstants.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
-// TODO : check the database for get, create, and update to ensure actually gets the correct get / updated / created
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,6 +37,9 @@ public class LabControllerTests extends BaseTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    LabRepository labRepository;
 
     private final String labControllerRoute = "/appApi/garesearch/lab";
 
@@ -66,8 +68,6 @@ public class LabControllerTests extends BaseTest {
 
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
-
-
 
     @Test // @GetMapping
     @Order(1)
@@ -166,7 +166,6 @@ public class LabControllerTests extends BaseTest {
     }
 
 
-
     /*------------------------- createLabProfile -------------------------*/
     // @PostMapping("/profileEditor")
     //    public ResponseEntity<ApiResponse<Void>> createLabProfile(@Valid HttpServletRequest request,
@@ -177,12 +176,12 @@ public class LabControllerTests extends BaseTest {
     public void createNewLab_Valid() throws Exception {
         String requestBody = String.format("""
                     {
-                        "name": "Ava's New Test Lab %d",
+                        "name": "Ava's Test Lab for creating labs",
                         "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
                         "email": "testEmail@gmail.com",
                         "website": "https://testlab.gatorapps.org"
                     }
-                    """, new Random().nextInt(1000));
+                    """);
         mockMvc.perform(post(labControllerRoute + "/profileEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
@@ -192,12 +191,21 @@ public class LabControllerTests extends BaseTest {
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload").isEmpty())
                 .andDo(RestDocsConfig.getDefaultDocHandler("lab-create-new"));
+
+        // uploaded to database correctly
+        Lab lab = labRepository.findByName("Ava's Test Lab for creating labs").get();
+        assertNotNull(lab, "Lab not created to database successfully");
+
+        assertEquals("Ava's Test Lab for creating labs", lab.getName(), "Lab name not updated to database successfully");
+        assertEquals("<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing", lab.getDescription(), "Lab description not set to database successfully");
+        assertEquals("testEmail@gmail.com", lab.getEmail(), "Lab email not set to database successfully");
+        assertEquals("https://testlab.gatorapps.org", lab.getWebsite(), "Lab email not set to database successfully");
     }
 
 
     @Test // @PostMapping("/profileEditor")
     @Order(3)
-    public void createNewLab_invalid() throws Exception {
+    public void createNewLab_InvalidNoName() throws Exception {
         String requestBody = String.format("""
                     {
                         "name": "",
@@ -214,7 +222,8 @@ public class LabControllerTests extends BaseTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest()) // 400
                 .andExpect(jsonPath("$.errCode").value("ERR_INPUT_FAIL_VALIDATION"))
-                .andExpect(jsonPath("$.payload.name").isNotEmpty());
+                .andExpect(jsonPath("$.errMsg").value("Please fix the following errors and try again"))
+                .andExpect(jsonPath("$.payload.name").value("Lab name is required"));
     }
 
 
@@ -227,21 +236,16 @@ public class LabControllerTests extends BaseTest {
     @Test // @PutMapping("/profileEditor")
     @Order(4)
     public void updateLab_Valid() throws Exception {
+        String labId = "e7dd015e481a0b5b0bccbaa7";
         String requestBody = String.format("""
-                    {   
+                    {
                         "id": "e7dd015e481a0b5b0bccbaa7",
-                        "users": [
-                            {
-                                "opid": "%s",
-                                "role": "admin"
-                            }
-                        ],
-                        "name": "Ava's Updated Lab %d",
-                        "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
-                        "email": "testEmail@gmail.com",
-                        "website": "https://testlab.gatorapps.org"
+                        "name": "Ava's Updated Lab for testing robots",
+                        "description": "<p><strong>Updated Description</strong><br></p>",
+                        "email": "testEmail2@gmail.com",
+                        "website": "https://testlabnew.gatorapps.org"
                     }
-                    """, TEST_USER_OPID, new Random().nextInt(1000));
+                    """);
         mockMvc.perform(put(labControllerRoute + "/profileEditor")
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
@@ -251,6 +255,36 @@ public class LabControllerTests extends BaseTest {
                 .andExpect(status().isOk())  // 200
                 .andExpect(jsonPath("$.payload").isEmpty())
                 .andDo(RestDocsConfig.getDefaultDocHandler("lab-update-existing"));
+
+        // uploaded to database correctly
+        Lab lab = labRepository.findById(labId).get();
+        assertNotNull(lab, "Lab not updated to database successfully");
+        assertEquals("Ava's Updated Lab for testing robots", lab.getName(), "Lab name not updated to database successfully");
+        assertEquals("<p><strong>Updated Description</strong><br></p>", lab.getDescription(), "Lab description not updated to database successfully");
+        assertEquals("testEmail2@gmail.com", lab.getEmail(), "Lab email not updated to database successfully");
+        assertEquals("https://testlabnew.gatorapps.org", lab.getWebsite(), "Lab email not updated to database successfully");
+    }
+
+    @Test // @PutMapping("/profileEditor")
+    @Order(4)
+    public void updateLab_LabIdNotProvided() throws Exception {
+        String requestBody = String.format("""
+                    {
+                        "name": "updateLab_LabIdNotProvided"
+                    }
+                    """);
+        String response = mockMvc.perform(put(labControllerRoute + "/profileEditor")
+                        .header(HEADER_NAME, VALID_HEADER_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access.json").toPath());
+        JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
 
@@ -260,7 +294,7 @@ public class LabControllerTests extends BaseTest {
         String requestBody = String.format("""
                     {
                         "id": "67dd015e481a0b5b0bccbaa7",
-                        "name": "test lab",
+                        "name": "updateLab_InvalidLabAccess",
                         "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing",
                         "email": "testEmail@gmail.com",
                         "website": "https://testlab.gatorapps.org"
@@ -278,6 +312,12 @@ public class LabControllerTests extends BaseTest {
 
         String expectedResponse = Files.readString(ResourceUtils.getFile("classpath:responses/exceptions/invalid_lab_access.json").toPath());
         JSONAssert.assertEquals(expectedResponse, response, false);
+
+
+        // ensure not updated to database
+        Lab lab = labRepository.findById("e7dd015e481a0b5b0bccbaa7").get();
+        assertNotNull(lab);
+        assertNotEquals("updateLab_InvalidLabAccess", lab.getName(), "Lab name updated to database when it shouldnt have");
     }
 
 

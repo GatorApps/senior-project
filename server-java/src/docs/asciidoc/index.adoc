@@ -54,9 +54,15 @@ operation::application-get-studentList[snippets='http-request,http-response']
 
 [[index-get-application-already-applied]]
 === GET AlreadyApplied
-A `GET` request to retrieve indicate whether a student has already applied to a certain Posting.
+A `GET` request to retrieve information on whether a student has already applied to a certain Posting.
 
 operation::application-alreadyApplied[snippets='http-request,http-response']
+
+[[index-post-application]]
+=== POST SubmitApplication
+A `POST` request to Submit a single Application for a specific Position.
+
+operation::application-post-submit[snippets='http-request,http-response']
 
 == Application Faculty Only Routes
 

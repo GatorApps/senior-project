@@ -4,6 +4,7 @@ import org.gatorapps.garesearch.model.garesearch.Application;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 @Repository
 public interface ApplicationRepository extends MongoRepository<Application, String> {
@@ -11,4 +12,6 @@ public interface ApplicationRepository extends MongoRepository<Application, Stri
     Optional<Application> findByOpidAndId(String opid, String id);
     Optional<Application> findByOpidAndPositionId(String opid, String positionId);
     boolean existsByOpidAndPositionId(String opid, String positionId);
+
+    Optional<Application> findById(String id);
 }

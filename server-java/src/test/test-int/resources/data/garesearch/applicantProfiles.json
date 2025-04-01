@@ -5,8 +5,7 @@
       "$date": "2025-01-20T01:50:42.086Z"
     },
     "resumeId": "1a1cf5a77621f49532e47b52",
-    "transcriptId": "1a2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.ApplicantProfile"
+    "transcriptId": "1a2cf5a77621f49532e47b52"
   },
   {
     "id": {
@@ -17,8 +16,7 @@
       "$date": "2025-02-12T21:14:52.155Z"
     },
     "resumeId": "aa1cf5a77621f49532e47b52",
-    "transcriptId": "aa2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.ApplicantProfile"
+    "transcriptId": "aa2cf5a77621f49532e47b52"
   },
   {
     "opid": "c1fc3a9b-66ac-4a84-937c-3ffb4bebbd25",
@@ -26,8 +24,7 @@
       "$date": "2025-01-10T01:50:42.086Z"
     },
     "resumeId": "ba1cf5a77621f49532e47b52",
-    "transcriptId": "ba2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.ApplicantProfile"
+    "transcriptId": "ba2cf5a77621f49532e47b52"
   },
   {
     "opid": "4cdc3a9b-66ac-4a84-937c-3ffb4bebbd25",
@@ -35,7 +32,6 @@
       "$date": "2025-01-20T01:50:42.086Z"
     },
     "resumeId": "cc1cf5a77621f43332e47bcc",
-    "transcriptId": "cc2cf5a73321f49532e47bcc",
-    "_class": "org.gatorapps.garesearch.model.garesearch.ApplicantProfile"
+    "transcriptId": "cc2cf5a73321f49532e47bcc"
   }
 ]

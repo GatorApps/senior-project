@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-
-// TODO : fix how dates are uploaded . maybe just reformat jsons
 @Component
 @TestPropertySource("classpath:application-test.properties")
 public class MongoDataSeeder {

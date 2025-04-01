@@ -136,9 +136,9 @@ public class ApplicationService {
             foundPosition = positionRepository.findById(positionId)
                     .orElseThrow(() -> new ResourceNotFoundException("-", "PositionId " + positionId + " does not exist"));
         } catch (Exception e){
-            // TODO : check what e.getMessage would actually say for bad param
-            System.out.println(e.getMessage());
-
+            if (e instanceof ResourceNotFoundException){
+                throw e;
+            }
             if (e instanceof IllegalArgumentException && e.getMessage().contains("Invalid format")){
                 throw new MalformedParamException("ERR_REQ_INVALID_PARAM_MALFORMID", "positionId is malformed");
             }
@@ -153,12 +153,7 @@ public class ApplicationService {
         Optional<Application> foundApplication = applicationRepository.findByOpidAndPositionId(opid, positionId);
 
         if (foundApplication.isPresent()) {
-            if (!Objects.equals(foundApplication.get().getStatus(), "saved")) {
-                throw new UnwantedResult("-", "You have already applied to this position");
-            }
-//            else if (Objects.equals(saveApp, "true")) {
-//                throw new UnwantedResult("-", "You have already saved this position");
-//            }
+            throw new UnwantedResult("-", "You have already applied to this position");
         }
 
         // Validate resumeId and transcriptId
@@ -186,62 +181,10 @@ public class ApplicationService {
             newApp.setSupplementalResponses((String) application.get("supplementalResponses"));
             newApp.setStatus("submitted");
 
-            System.out.println(application);
-
-//            validationUtil.validate(newApp);
             garesearchMongoTemplate.save(newApp);
         } catch (Exception e){
-//            System.out.println(e.getMessage());
             throw new Exception("Unable to process your request at this time", e);
         }
-
-        // case to save application
-//        if (Objects.equals(saveApp, "true")) {
-//            try {
-//                Application newApp = new Application();
-//                newApp.setOpid(opid);
-//                newApp.setPositionId(positionId);
-//                newApp.setSubmissionTimeStamp(new Date());
-//                newApp.setStatus("saved");
-//
-//                validationUtil.validate(newApp);
-//                garesearchMongoTemplate.save(newApp);
-//                return;
-//            } catch (Exception e){
-//                throw new Exception("Unable to process your request at this time", e);
-//            }
-//        }
-
-//        Query profileQuery = new Query(Criteria.where("opid").is(opid).and("positionId").is(positionId));
-//        profileQuery.fields().exclude("_id").exclude("__v");
-//
-//        ApplicantProfile foundProfile = garesearchMongoTemplate.findOne(profileQuery, ApplicantProfile.class);
-//        if (foundProfile == null) {
-//            throw new ResourceNotFoundException("-", "Applicant profile has not been set up yet. Please create your profile to easily apply to all available positions");
-//        }
-//
-//        Map<String, Object> applicationData = convertToMap(foundProfile);
-//        applicationData.put("opid", opid);
-//        applicationData.put("positionId", positionId);
-//        applicationData.put("submissionTimeStamp", new Date());
-//        applicationData.put("status", "submitted");
-//
-//        try {
-//            Update update = new Update();
-//            applicationData.forEach(update::set);
-//
-//            Query applicationQuery = new Query(Criteria.where("opid").is(opid).and("positionId").is(positionId));
-//
-//            garesearchMongoTemplate.findAndModify(
-//                    applicationQuery,
-//                    update,
-//                    FindAndModifyOptions.options().upsert(true).returnNew(true),
-//                    Application.class
-//            );
-//        } catch (Exception e) {
-//            throw new Exception("Unable to process your request at this time", e);
-//        }
-
     }
 
     public boolean alreadyApplied(String opid, String positionId) {

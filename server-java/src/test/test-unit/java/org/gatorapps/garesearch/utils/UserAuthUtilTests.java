@@ -1,6 +1,5 @@
 package org.gatorapps.garesearch.utils;
 
-
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.account.User;
 import org.junit.jupiter.api.BeforeEach;

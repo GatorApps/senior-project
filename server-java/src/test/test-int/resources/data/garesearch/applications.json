@@ -11,8 +11,7 @@
     "status": "submitted",
     "resumeId": "aa1cf5a77621f49532e47b52",
     "transcriptId": "aa2cf5a77621f49532e47b52",
-    "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>"
   },
   {
     "opid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
@@ -23,8 +22,7 @@
     "status": "submitted",
     "resumeId": "67d1adaa3e62070388cfb96a",
     "transcriptId": "67d1adb93e62070388cfb96b",
-    "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>"
   },
   {
     "id": {
@@ -38,8 +36,7 @@
     "status": "submitted",
     "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
     "resumeId": "ba1cf5a77621f49532e47b52",
-    "transcriptId": "ba2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "transcriptId": "ba2cf5a77621f49532e47b52"
   },
   {
     "opid": "c1fc3a9b-66ac-4a84-937c-3ffb4bebbd25",
@@ -50,8 +47,7 @@
     "status": "submitted",
     "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
     "resumeId": "67db73d124dc65055862d4c6",
-    "transcriptId": "67db747224dc65055862d4c7",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "transcriptId": "67db747224dc65055862d4c7"
   },
   {
     "id": {
@@ -65,8 +61,7 @@
     "status": "submitted",
     "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
     "resumeId": "ba1cf5a77621f49532e47b52",
-    "transcriptId": "ba2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "transcriptId": "ba2cf5a77621f49532e47b52"
   },
   {
     "id": {
@@ -80,22 +75,20 @@
     "status": "submitted",
     "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
     "resumeId": "1a1cf5a77621f49532e47b52",
-    "transcriptId": "1a2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "transcriptId": "1a2cf5a77621f49532e47b52"
   },
   {
     "id": {
       "$oid": "b1c9c01ab87e195493ae9b56"
     },
     "opid": "52db512f-44ee-4337-81f0-e8cc595240e8",
-    "positionId": "67dcf54ab42f269d2da84622",
+    "positionId": "67dcf56a264b9db3ef415cb2",
     "submissionTimeStamp": {
       "$date": "2025-04-10T02:35:43.643Z"
     },
     "status": "submitted",
     "supplementalResponses": "<p><strong>Interest</strong></p><p>Why are you specifically interested in this opportunity?</p><p>&nbsp;</p><p>&nbsp;</p><p><strong>Bulleted List Demo</strong></p><p>Please list demo list items:</p><p><br></p><p><br></p><p><br></p><ul><li>Demo item 1</li><li>Demo item 2</li><li>Demo item 3</li></ul><p>&nbsp;</p><p><strong>Commitment</strong></p><p>How many hours per week can you dedicate to this position?</p><p>&nbsp;</p><p>&nbsp;</p><p>What are your other time commitments?</p><p>&nbsp;</p>",
     "resumeId": "1a1cf5a77621f49532e47b52",
-    "transcriptId": "1a2cf5a77621f49532e47b52",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Application"
+    "transcriptId": "1a2cf5a77621f49532e47b52"
   }
 ]

@@ -6,7 +6,6 @@ import org.gatorapps.garesearch.model.garesearch.Lab;
 import org.gatorapps.garesearch.model.garesearch.Position;
 import org.gatorapps.garesearch.model.garesearch.supportingclasses.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Arrays;

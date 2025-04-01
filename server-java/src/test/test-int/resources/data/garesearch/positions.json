@@ -12,7 +12,6 @@
     },
     "status": "open",
     "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Position",
     "postedTimeStamp": {
       "$date": "2025-01-10T19:27:09.573Z"
     }
@@ -31,7 +30,6 @@
       "$date": "2025-06-10T19:27:09.573Z"
     },
     "status": "open",
-    "__v": 0,
     "rawDescription": "test position chemistry"
   },
   {
@@ -48,8 +46,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "open",
-    "__v": 0
+    "status": "open"
   },
   {
     "id": {
@@ -65,8 +62,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "open",
-    "__v": 0
+    "status": "open"
   },
   {
     "id": {
@@ -82,8 +78,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "open",
-    "__v": 0
+    "status": "open"
   },
   {
     "id": {
@@ -99,8 +94,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "draft",
-    "__v": 0
+    "status": "archived"
   },
   {
     "id": {
@@ -116,8 +110,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "open",
-    "__v": 0
+    "status": "open"
   },
   {
     "id": {
@@ -133,8 +126,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "open",
-    "__v": 0
+    "status": "open"
   },
   {
     "id": {
@@ -150,8 +142,7 @@
     "lastUpdatedTimeStamp": {
       "$date": "2025-06-10T19:27:09.573Z"
     },
-    "status": "closed",
-    "__v": 0
+    "status": "closed"
   },
   {
     "id": {
@@ -167,7 +158,6 @@
       "$date": "2025-06-10T19:27:09.573Z"
     },
     "status": "open",
-    "__v": 0,
     "rawDescription": "test position"
   },
   {
@@ -182,7 +172,6 @@
       "$date": "2025-03-02T02:19:05.806Z"
     },
     "status": "closed",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Position",
     "lastUpdatedTimeStamp": {
       "$date": "2025-03-15T17:20:24.231Z"
     }
@@ -200,7 +189,23 @@
     },
     "status": "open",
     "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
-    "_class": "org.gatorapps.garesearch.model.garesearch.Position",
+    "postedTimeStamp": {
+      "$date": "2025-01-10T19:27:09.573Z"
+    }
+  },
+  {
+    "id": {
+      "$oid": "c163c180ed0a40bea3393855"
+    },
+    "labId": "88dcf5a77621f49532e47b52",
+    "name": "Psychology Literature Review",
+    "description": "<p><strong>Description</strong><br>This is a lab posting for students interested in pysch</p>",
+    "rawDescription": "Description This is a lab posting for students interested in psych",
+    "lastUpdatedTimeStamp": {
+      "$date": "2025-03-15T17:20:24.231Z"
+    },
+    "status": "open",
+    "supplementalQuestions": "<ol><li><strong>Tell us about your current interests and any related extracurricular ?</strong></li><li><strong>Do you have previous research experience?</strong></li><li><strong>Why are you interested in this position ?</strong></li></ol>",
     "postedTimeStamp": {
       "$date": "2025-01-10T19:27:09.573Z"
     }

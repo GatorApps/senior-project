@@ -1,7 +1,6 @@
 package org.gatorapps.garesearch.controller;
 
 import org.gatorapps.garesearch.config.RestDocsConfig;
-import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.junit.jupiter.api.*;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -16,8 +15,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ResourceUtils;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 
 import java.nio.file.Files;
@@ -40,17 +37,9 @@ public class ApplicantControllerTests extends BaseTest {
 
     private final String applicantControllerRoute = "/appApi/garesearch/applicant";
 
-    @Autowired
-    private S3Client s3Client;
 
     @Autowired
     private FileRepository fileRepository;
-
-    void createBucket(){
-        CreateBucketRequest bucketRequest = CreateBucketRequest.builder()
-                .bucket("testbucket").build();
-        s3Client.createBucket(bucketRequest);
-    }
 
 
     /*------------------------- getApplicantResumeMetadata -------------------------*/
@@ -75,7 +64,6 @@ public class ApplicantControllerTests extends BaseTest {
         response = response.replaceAll("\"uploadedTimeStamp\":\\d+", "\"uploadedTimeStamp\": \"<timestamp>\"");
 
         JSONAssert.assertEquals(expectedResponse, response, false);
-
     }
 
 
@@ -174,8 +162,6 @@ public class ApplicantControllerTests extends BaseTest {
     @Test // @PostMapping("/resume")
     @Order(3)
     public void postResume_Valid() throws Exception {
-        createBucket();
-
         String fileName = "test_resume_upload.pdf";
         String filepath = "/data/test.pdf";
 
@@ -192,7 +178,7 @@ public class ApplicantControllerTests extends BaseTest {
                 .andDo(RestDocsConfig.getDefaultDocHandler("applicant-resume-post"));
 
         // file was added to File collection in database successfully
-        assertTrue(fileRepository.existsByName(fileName));
+        assertTrue(fileRepository.existsByName(fileName), "File not uploaded to database successfully");
     }
 
     @Test // @PostMapping("/resume")
@@ -214,7 +200,7 @@ public class ApplicantControllerTests extends BaseTest {
                 .andDo(RestDocsConfig.getDefaultDocHandler("applicant-transcript-post"));
 
         // file was added to File collection in database successfully
-        assertTrue(fileRepository.existsByName(fileName));
+        assertTrue(fileRepository.existsByName(fileName), "File not uploaded to database successfully");
     }
 
 

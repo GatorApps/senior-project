@@ -6,6 +6,7 @@ import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.gatorapps.garesearch.utils.MongoDataSeeder;
+import org.gatorapps.garesearch.utils.S3Init;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
@@ -37,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
 @ActiveProfiles("test")
 public abstract class BaseTest implements ApplicationContextAware {
     static MongoDataSeeder mongoDataSeeder;
+    static S3Init s3Init;
 
     static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:latest");
 
@@ -58,16 +60,6 @@ public abstract class BaseTest implements ApplicationContextAware {
     static{
         mongoContainer.start();
         container.start();
-//        localStack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
-//                .withServices(LocalStackContainer.Service.S3);
-//        localStack.start();
-//
-//        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create("test", "test");
-//        s3Client = S3Client.builder()
-//                .endpointOverride(localStack.getEndpointOverride(LocalStackContainer.Service.S3))
-//                .region(Region.US_EAST_1)
-//                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
-//                .build();
     }
 
     @DynamicPropertySource
@@ -79,8 +71,9 @@ public abstract class BaseTest implements ApplicationContextAware {
     @BeforeAll
     static void insertData() throws IOException {
         mongoDataSeeder = context.getBean(MongoDataSeeder.class);
+        s3Init = context.getBean(S3Init.class);
         mongoDataSeeder.populateDatabase();
-
+        s3Init.createContainer();
     }
 
     @AfterAll
