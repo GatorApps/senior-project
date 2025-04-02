@@ -88,6 +88,7 @@ public class MongoDataSeeder {
         insertJsonData("test_garesearch", "files", "/data/garesearch/files.json", File.class);
         insertJsonData("test_garesearch", "labs", "/data/garesearch/labs.json", Lab.class);
         insertJsonData("test_garesearch", "positions", "/data/garesearch/positions.json", Position.class);
+        insertJsonData("test_garesearch", "messages", "/data/garesearch/messages.json", Message.class);
     }
 
 

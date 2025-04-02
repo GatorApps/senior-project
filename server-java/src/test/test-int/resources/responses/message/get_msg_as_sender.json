@@ -1,0 +1,14 @@
+{
+  "errCode": "0",
+  "payload": {
+    "message": {
+      "id": "a11335117621f49532e47b52",
+      "senderOpid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+      "recipientOpid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+      "title": "Test Sending Message",
+      "content": "<p>Hello, Luke!</p>",
+      "sentTimeStamp": "2025-03-02T00:58:16.627+00:00",
+      "read": false
+    }
+  }
+}

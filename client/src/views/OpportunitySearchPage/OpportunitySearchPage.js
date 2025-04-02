@@ -14,17 +14,26 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import Select from '@mui/material/Select';
 import SearchIcon from '@mui/icons-material/Search';
+import Pagination from '@mui/material/Pagination';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Toolbar from '@mui/material/Toolbar';
 import { debounce } from 'lodash';
 import { useNavigate } from 'react-router-dom';
+import { South } from '@mui/icons-material';
 
 
 const GenericPage = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const [size, setSize] = useState(5);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(1);
 
   // Get search param from URL
   const location = useLocation();
@@ -42,17 +51,20 @@ const GenericPage = ({ title }) => {
     setLoading(true);
     if (searchQuery) {
       setSearchText(searchQuery);
-      searchPositions(searchQuery);
+      searchPositions(searchQuery, page, size);
     } else {
       setLoading(false);
     }
   }, [searchQuery]);
 
-  const searchPositions = (text) => {
+  const searchPositions = (text, currPage, currSize) => {
+    console.log("size: " + currSize + "  page : " + currPage + "  totalPages: " + totalPages);
     setLoading(true);
-    axiosPrivate.get(`/posting/searchList?q=${text}`)
+    axiosPrivate.get(`/posting/searchList?q=${text}&size=${currSize}&page=${currPage}`)
       .then((response) => {
         setPositions(response.data.payload.positions || []);
+        setTotalPages(response.data.payload.totalPages || 1);
+        setTotalCount(response.data.payload.totalCount || 1);
         setLoading(false);
       })
       .catch((error) => {
@@ -61,10 +73,28 @@ const GenericPage = ({ title }) => {
       });
   };
 
-  const navigateSearch = (text) => {
-    if (text.trim() === '') return;
-    navigate(`/search?q=${text}`);
-  };
+
+  // handle page change
+  const handlePageChange = (newPage) => {
+    console.log("change from " + page + " to " + newPage);
+    setPage(newPage);
+    searchPositions(searchQuery, newPage, size);
+  }
+
+  // handle changing page size
+  const handlePageSizeChange = (event) => {
+    console.log("new page size: " + event.target.value);
+    setSize(event.target.value);
+    setPage(0);
+    searchPositions(searchText, 0, event.target.value);
+  }
+
+  // handles new search
+  const handleSearchButton = () => {
+    setPage(0);
+    searchPositions(searchText, 0, size);
+  }
+
 
   // Debounced API call for search
   const fetchSearchOptions = useCallback(
@@ -151,16 +181,14 @@ const GenericPage = ({ title }) => {
                         onKeyDown={(event) => {
                           if (event.key === 'Enter') {
                             if (searchText.trim() !== '') {
-                              navigateSearch(searchText);
-                              // refresh the page to trigger the search
-                              window.location.reload();
+                              handleSearchButton();
                             }
                           }
                         }}
                       />
                     )}
                   />
-                  <Button variant="contained" size="medium" onClick={() => searchPositions(searchText)}>Search</Button>
+                  <Button variant="contained" size="medium" onClick={() => handleSearchButton()}>Search</Button>
                 </Box>
 
                 {/* Search results */}
@@ -213,6 +241,47 @@ const GenericPage = ({ title }) => {
                     No positions found.
                   </Typography>
                 )}
+
+
+                {/* Page Size and Pagination Controls */}
+                <Box margin="20px 0" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+
+                  {/* Page Size Selector */}
+                  <Box sx={{ width: '100%', maxWidth: 250 }}>
+                    <FormControl fullWidth>
+                      <InputLabel>Page Size</InputLabel>
+                      <Select
+                        value={size}
+                        onChange={handlePageSizeChange}
+                        label="Page Size"
+                      >
+                        <MenuItem value={5}>5</MenuItem>
+                        <MenuItem value={10}>10</MenuItem>
+                        <MenuItem value={15}>15</MenuItem>
+                        <MenuItem value={30}>30</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+
+                  {/* Display Total Results */}
+                  <Box>
+                    <Typography variant="body2" color="textSecondary">
+                      {`Displaying ${Math.min(page * size + 1, totalCount)}-${Math.min((page + 1) * size, totalCount)} of ${totalCount}`}
+                    </Typography>
+                  </Box>
+
+                  {/* Pagination Controls */}
+                  <Box>
+                    <Pagination
+                      count={totalPages}
+                      page={page + 1}  // Adjust to 1-based pagination
+                      onChange={(event, newPage) => handlePageChange(newPage - 1)}  // Adjust for 0-based page index
+                      color="primary"
+                    />
+                  </Box>
+
+                </Box>
+
 
               </Paper>
             </Container>

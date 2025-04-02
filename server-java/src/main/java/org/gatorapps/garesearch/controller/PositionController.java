@@ -45,11 +45,8 @@ public class PositionController {
         response.payload returns: list of positions
      */
     @GetMapping("/searchList")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(@RequestParam(value = "q") String searchParams) throws Exception {
-        List<Map> positions = positionService.getSearchResults(searchParams);
-
-        Map<String, Object> payloadResponse = Map.of(
-                "positions", positions);
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getSearchResults(@RequestParam(value = "q") String searchParams, @RequestParam(value = "page") String page, @RequestParam (value = "size") String size) throws Exception {
+        Map<String, Object> payloadResponse = positionService.getSearchResults(searchParams, Integer.parseInt(page), Integer.parseInt(size));
 
         ApiResponse<Map<String, Object>> response = new ApiResponse<Map<String, Object>>("0", payloadResponse);
 

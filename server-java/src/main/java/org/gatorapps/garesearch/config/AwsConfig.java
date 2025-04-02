@@ -20,12 +20,9 @@ public class AwsConfig {
 
     @Bean
     public S3Client s3Client(){
-
-        System.out.println("accessKeyId: " + accessKeyId);
-        System.out.println("secretKey: " + secretKey);
-        System.out.println("region: " + region);
-
+        AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
         return S3Client.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                 .region(Region.of(region))
                 .build();
     }

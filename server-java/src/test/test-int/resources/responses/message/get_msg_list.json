@@ -1,0 +1,38 @@
+{
+  "errCode": "0",
+  "payload": {
+    "messages": [
+      {
+        "id": "c1d335117621f49532e47b52",
+        "senderOpid": null,
+        "recipientOpid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "title": "An update to your application status is available",
+        "contentPreview": "Hello, Ava! A status update has been posted to your application to Luke's Testing Position. You may ...",
+        "sentTimeStamp": "2025-04-02T00:58:16.627+00:00",
+        "read": false
+      },
+      {
+        "id": "c3d335117621f49532e47b52",
+        "senderOpid": null,
+        "recipientOpid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "title": "Your application is in!",
+        "contentPreview": "Way to go, Ava! You have successfully submitted an application to Luke's Testing Position. Please re...",
+        "sentTimeStamp": "2025-03-24T03:56:05.750+00:00",
+        "read": false
+      },
+      {
+        "id": "a12335117621f49532e47b52",
+        "senderOpid": "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+        "recipientOpid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+        "title": "Greetings Message",
+        "contentPreview": "Hello, Ava!",
+        "sentTimeStamp": "2025-03-05T00:58:16.627+00:00",
+        "read": false
+      }
+    ],
+    "totalMessages": 3,
+    "totalPages": 1,
+    "page": 0,
+    "size": 3
+  }
+}

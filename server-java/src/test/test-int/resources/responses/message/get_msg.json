@@ -1,0 +1,14 @@
+{
+  "errCode": "0",
+  "payload": {
+    "message": {
+      "id": "c1d335117621f49532e47b52",
+      "senderOpid": null,
+      "recipientOpid": "52db512f-44ee-4337-81f0-e8cc595240e8",
+      "title": "An update to your application status is available",
+      "content": "<p>Hello, Ava!<br><br>A status update has been posted to your application to <a href=\"https://research.dev-local.gatorapps.org:3500/posting?postingId=67dcf54ab42f269d2da84622\">Luke's Testing Position</a>. You may now check your application status on the <a href=\"https://research.dev-local.gatorapps.org:3500/myapplications\">My Applications</a> module. Please reach out directly to the <a href=\"https://research.dev-local.gatorapps.org:3500/lab?labId=99dcf5a77621f49532e47b52\">lab</a> you're applying to should you have any questions.<br><br>Thank you for using RESEARCH.UF!</p>",
+      "sentTimeStamp": "2025-04-02T00:58:16.627+00:00",
+      "read": false
+    }
+  }
+}
