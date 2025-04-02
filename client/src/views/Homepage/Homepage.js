@@ -9,7 +9,7 @@ import OpportunitySearchPageCard from '../../views/OpportunitySearchPage/Opportu
 import MyApplicationsPageCard from '../../views/MyApplicationsPage/MyApplicationsPageCard';
 import MyPostingsPageCard from '../../views/MyPostingsPage/MyPostingsPageCard';
 import ApplicationManagementPageCard from '../../views/ApplicationManagementPage/ApplicationManagementPageCard';
-import MessagesPageCard from '../../views/MessagesPage/MessagesPageCard';
+import MessagesPageCard from '../Messages/MessagesCard';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 

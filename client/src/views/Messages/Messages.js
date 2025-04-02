@@ -24,7 +24,8 @@ import {
   Container,
   useMediaQuery,
   useTheme,
-  Skeleton
+  Skeleton,
+  Tooltip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { formatDistanceToNow } from 'date-fns';
@@ -92,6 +93,13 @@ const PaginationContainer = styled(Box)(({ theme }) => ({
   overflow: 'auto',
   '& .MuiPagination-ul': {
     flexWrap: 'nowrap'
+  },
+  // Reduce spacing between pagination buttons on desktop
+  [theme.breakpoints.up('md')]: {
+    '& .MuiPaginationItem-root': {
+      margin: '0 0px', // Reduce margin between buttons (default is 0 8px)
+      padding: '0 1px', // Reduce padding inside buttons (default is 0 12px)
+    }
   }
 }));
 
@@ -143,7 +151,7 @@ const MessageListSkeleton = () => {
   );
 };
 
-const MessagesPage = ({ title }) => {
+const Messages = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -421,14 +429,16 @@ const MessagesPage = ({ title }) => {
                                           {getContentPreview(message.content)}
                                         </Typography>
                                       </Box>
-                                      <IconButton
-                                        size="small"
-                                        onClick={(e) => toggleMessageReadStatus(e, message.id, message.read)}
-                                        aria-label={message.read ? "Mark as unread" : "Mark as read"}
-                                        sx={{ ml: 'auto' }}
-                                      >
-                                        {message.read ? <MarkEmailUnreadIcon fontSize="small" /> : <MarkEmailReadIcon fontSize="small" />}
-                                      </IconButton>
+                                      <Tooltip title={message.read ? "Mark as unread" : "Mark as read"} arrow>
+                                        <IconButton
+                                          size="small"
+                                          onClick={(e) => toggleMessageReadStatus(e, message.id, message.read)}
+                                          aria-label={message.read ? "Mark as unread" : "Mark as read"}
+                                          sx={{ ml: 'auto' }}
+                                        >
+                                          {message.read ? <MarkEmailUnreadIcon fontSize="small" /> : <MarkEmailReadIcon fontSize="small" />}
+                                        </IconButton>
+                                      </Tooltip>
                                     </MessageItem>
                                     {/* Use StyledDivider instead of regular Divider */}
                                     <StyledDivider component="li" />
@@ -443,7 +453,7 @@ const MessagesPage = ({ title }) => {
                                     onChange={handlePageChange}
                                     color="primary"
                                     size={isMobile ? "small" : "medium"}
-                                    siblingCount={isMobile ? 0 : 1}
+                                    siblingCount={isMobile ? 1 : 1}
                                   />
                                 </PaginationContainer>
                               )}
@@ -498,6 +508,7 @@ const MessagesPage = ({ title }) => {
                                 </Typography>
                                 <Button
                                   variant="outlined"
+                                  size="small"
                                   startIcon={selectedMessage.read ? <MarkEmailUnreadIcon /> : <MarkEmailReadIcon />}
                                   onClick={(e) => toggleMessageReadStatus(e, selectedMessage.id, selectedMessage.read)}
                                   sx={{ mt: { xs: 1, sm: 0 } }}
@@ -542,4 +553,4 @@ const MessagesPage = ({ title }) => {
   );
 }
 
-export default MessagesPage;
+export default Messages;

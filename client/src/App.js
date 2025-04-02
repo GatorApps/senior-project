@@ -13,7 +13,7 @@ import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage
 import MyPostingsPage from './views/MyPostingsPage/MyPostingsPage';
 import ApplicationManagementPage from './views/ApplicationManagementPage/ApplicationManagementPage';
 import PostingEditorPage from './views/PostingEditorPage/PostingEditorPage';
-import MessagesPage from './views/MessagesPage/MessagesPage';
+import MessagesPage from './views/Messages/Messages';
 
 function App() {
   return (
