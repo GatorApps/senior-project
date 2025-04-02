@@ -9,7 +9,7 @@ import OpportunitySearchPageCard from '../../views/OpportunitySearchPage/Opportu
 import MyApplicationsPageCard from '../../views/MyApplicationsPage/MyApplicationsPageCard';
 import MyPostingsPageCard from '../../views/MyPostingsPage/MyPostingsPageCard';
 import ApplicationManagementPageCard from '../../views/ApplicationManagementPage/ApplicationManagementPageCard';
-import NotificationsPageCard from '../../views/NotificationsPage/NotificationsPageCard';
+import MessagesPageCard from '../Messages/MessagesCard';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
@@ -46,13 +46,13 @@ const Homepage = () => {
   const studentCards = [
     <OpportunitySearchPageCard />,
     <MyApplicationsPageCard />,
-    <NotificationsPageCard />,
+    <MessagesPageCard />,
   ];
 
   const facultyCards = [
     <MyPostingsPageCard />,
     <ApplicationManagementPageCard />,
-    <NotificationsPageCard />,
+    <MessagesPageCard />,
   ];
 
   const cards = view === 0 ? studentCards : facultyCards;

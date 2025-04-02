@@ -59,6 +59,8 @@ public class ApplicationService {
 
     @Value("${app.frontend-host}")
     private String frontendHost;
+    @Autowired
+    private PositionService positionService;
 
     public Map<String, Object> convertToMap(Object object) {
         return objectMapper.convertValue(object, Map.class);
@@ -280,6 +282,16 @@ public class ApplicationService {
 
             application.setStatus(status);
             applicationRepository.save(application);
+
+            // Send applicant status update notice
+            // Get applicant
+            User foundApplicant = userService.getUserByOpid(application.getOpid())
+                    .orElseThrow(() -> new ResourceNotFoundException("-", "Applicant with opid " + application.getOpid() + " does not exist"));
+            // Get position
+            Position foundPosition = positionService.getPosting(application.getPositionId());
+            messageService.sendMessage(null, foundApplicant.getOpid(), "An update to your application status is available" ,
+                    String.format("<p>Hello, %s!<br><br>A status update has been posted to your application to <a href=\"%s\">%s</a>. You may now check your application status on the <a href=\"%s\">My Applications</a> module. Please reach out directly to the <a href=\"%s\">lab</a> you're applying to should you have any questions.<br><br>Thank you for using RESEARCH.UF!</p>",
+                            foundApplicant.getFirstName(), String.format("%s/posting?postingId=%s", frontendHost, application.getPositionId()), foundPosition.getName(), String.format("%s/myapplications", frontendHost), String.format("%s/lab?labId=%s", frontendHost, foundPosition.getLabId())));
         } catch (Exception e){
             if (e instanceof AccessDeniedException) {
                 throw new AccessDeniedException("Insufficient permissions to modify the requested application");

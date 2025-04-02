@@ -1,6 +1,7 @@
 app:
   name: "garesearch"
   frontend-host: "https://research.dev-local.gatorapps.org:3500"
+  static-host: "https://static.gatorapps.org"
   prod-status: "dev"
 
 spring:
