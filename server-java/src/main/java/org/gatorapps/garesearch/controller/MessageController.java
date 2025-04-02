@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class MessageController {
         // Check user has access to message
         if (!(message.getRecipientOpid().equals(userAuthUtil.retrieveOpid(request)) ||
                 message.getSenderOpid().equals(userAuthUtil.retrieveOpid(request)))) {
-            throw new RuntimeException("Unauthorized to access message");
+            throw new AccessDeniedException("Unauthorized to access message");
         }
 
         Map<String, Object> payloadResponse = Map.of(
@@ -77,7 +78,7 @@ public class MessageController {
 
         // Check user is recipient of message
         if (!message.getRecipientOpid().equals(userAuthUtil.retrieveOpid(request))) {
-            throw new RuntimeException("Unauthorized to access message");
+            throw new AccessDeniedException("Unauthorized to access message");
         }
 
         messageService.setIsRead(messageId, isRead);

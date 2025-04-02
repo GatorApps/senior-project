@@ -41,13 +41,14 @@ public class PositionService {
     @Autowired
     private ValidationUtil validationUtil;
 
-
-    // add logic NOT archived ? / not closed
-    public List<Map> getSearchResults(String searchParams) throws Exception {
+    public Map<String, Object> getSearchResults(String searchParams, int page, int size) throws Exception {
         try {
+            // search the Atlas Search Index
             Bson searchStage = Aggregates.search(
                     SearchOperator.compound()
                             .should(List.of(
+                                    SearchOperator.text(SearchPath.fieldPath("name"), searchParams)
+                                            .score(SearchScore.boost(5)),
                                     SearchOperator.autocomplete(SearchPath.fieldPath("name"), searchParams)
                                             .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
                                                     .maxEdits(2)
@@ -56,9 +57,10 @@ public class PositionService {
                                     SearchOperator.autocomplete(SearchPath.fieldPath("rawDescription"), searchParams)
                                             .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
                                                     .maxEdits(2)
-                                                    .prefixLength(1)
+                                                    .prefixLength(2)
                                                     .maxExpansions(256))
                             )),
+
                     SearchOptions.searchOptions()
                             .index("positionSearchIndex")
                             .option("scoreDetails", true)
@@ -75,7 +77,11 @@ public class PositionService {
                             Projections.include("postedTimeStamp", "lastUpdatedTimeStamp"),
                             Projections.computed("score", new Document("$meta", "searchScore"))
                     )),
-                    Aggregates.sort(Sorts.descending("score")),
+                    Aggregates.sort(Sorts.orderBy(
+                            Sorts.descending("score"),
+                            Sorts.descending("postedTimeStamp"))),
+                    Aggregates.skip(page*size),
+                    Aggregates.limit(size),
                     Aggregates.lookup(
                             "labs",      // Collection to join
                             "labIdObjectId",  // Local field
@@ -102,7 +108,25 @@ public class PositionService {
             if (resultList.isEmpty()) {
                 throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "No Positions found. Try Expanding your search terms");
             }
-            return resultList;
+
+            List<Bson> countPipeline = Arrays.asList(
+                    searchStage,
+                    Aggregates.match(Filters.eq("status", "open")),
+                    Aggregates.count("totalCount") // Count matching documents
+            );
+            AggregateIterable<Document> totalResults = garesearchMongoTemplate.getCollection("positions").aggregate(countPipeline);
+            long totalCount = 0;
+            for (Document doc : totalResults) {
+                totalCount = doc.getInteger("totalCount");
+            }
+            long totalPages = totalCount / size + (totalCount % size == 0 ? 0 : 1);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("positions", resultList);
+            response.put("totalPages", totalPages);
+            response.put("totalCount", totalCount);
+
+            return response;
         } catch (Exception e) {
             if (e instanceof ResourceNotFoundException) {
                 throw e;

@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.model.garesearch;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Document(collection = "messages")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message{
 
     @Id

@@ -906,6 +906,14 @@ p{margin-bottom:1.25rem}
 <li><a href="#index-update-lab">PUT Update Existing Lab</a></li>
 </ul>
 </li>
+<li><a href="#_messages_routes">Messages Routes</a>
+<ul class="sectlevel2">
+<li><a href="#index-get-message-by-id">GET Message by ID</a></li>
+<li><a href="#index-get-message-list">GET Message List</a></li>
+<li><a href="#index-put-message-list">GET IsRead</a></li>
+<li><a href="#index-get-message-page">GET MessagePage</a></li>
+</ul>
+</li>
 <li><a href="#_position_routes">Position Routes</a>
 <ul class="sectlevel2">
 <li><a href="#index-get-position-by-id">GET Position by ID</a></li>
@@ -956,9 +964,9 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "errCode" : "0",
   "payload" : {
     "resumeMetadata" : {
-      "fileName" : "ava_resume.pdf",
+      "fileId" : "1a1cf5a77621f49532e47b52",
       "uploadedTimeStamp" : 1741794730460,
-      "fileId" : "1a1cf5a77621f49532e47b52"
+      "fileName" : "ava_resume.pdf"
     }
   }
 }</code></pre>
@@ -991,9 +999,9 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "errCode" : "0",
   "payload" : {
     "transcriptMetadata" : {
-      "fileName" : "ava_transcript.pdf",
+      "fileId" : "1a2cf5a77621f49532e47b52",
       "uploadedTimeStamp" : 1741794730460,
-      "fileId" : "1a2cf5a77621f49532e47b52"
+      "fileName" : "ava_transcript.pdf"
     }
   }
 }</code></pre>
@@ -1015,9 +1023,9 @@ Content-Type: multipart/form-data;charset=UTF-8; boundary=6o2knFse3p53ty9dmcQvWA
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
 
-
 Content-Disposition: form-data; name=resume; filename=test_resume_upload.pdf
-Content-Type: application/pdf</code></pre>
+Content-Type: application/pdf
+</code></pre>
 </div>
 </div>
 </div>
@@ -1050,7 +1058,8 @@ GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
 
 Content-Disposition: form-data; name=transcript; filename=test_transcript_upload.pdf
-Content-Type: application/pdf</code></pre>
+Content-Type: application/pdf
+</code></pre>
 </div>
 </div>
 </div>
@@ -1151,8 +1160,8 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "applicationId" : "b1c9c01ab87e195493ae9b56",
         "labName" : "Luke's Testing Lab 1"
       } ],
-      "archivedApplications" : [ ],
-      "movingApplications" : [ ]
+      "movingApplications" : [ ],
+      "archivedApplications" : [ ]
     }
   }
 }</code></pre>
@@ -1321,8 +1330,8 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "lastName" : "Zhou",
         "email" : "ericzhou@ufl.edu"
       } ],
-      "archivedApplications" : [ ],
-      "movingApplications" : [ ]
+      "movingApplications" : [ ],
+      "archivedApplications" : [ ]
     }
   }
 }</code></pre>
@@ -1405,31 +1414,31 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "positionName" : "Luke's Testing Position",
         "positionDescription" : "This is a testing position.",
         "postedTimeStamp" : "2024-04-10T19:27:09.573+00:00",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:46.389+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:14.738+00:00",
         "positionId" : "67dcf54ab42f269d2da84622"
       }, {
         "positionName" : "Luke's Testing Position 2",
         "positionDescription" : "This is a testing position.",
         "postedTimeStamp" : "2024-04-19T06:11:08.984+00:00",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:46.390+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:14.739+00:00",
         "positionId" : "67dcf555237a412943ec26be"
       }, {
         "positionName" : "Luke's Testing Position 4",
         "positionDescription" : "This is a testing position.",
         "postedTimeStamp" : "2024-04-19T06:11:46.499+00:00",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:46.391+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:14.740+00:00",
         "positionId" : "67dcf55ce8e62d8cafd302ee"
       }, {
         "positionName" : "Luke's Testing Position 6",
         "positionDescription" : "This is a testing position.",
         "postedTimeStamp" : "2024-04-19T18:32:56.523+00:00",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:46.393+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:14.743+00:00",
         "positionId" : "67dcf56a264b9db3ef415cb2"
       }, {
         "positionName" : "Luke's Testing Position 7",
         "positionDescription" : "This is a testing position.",
         "postedTimeStamp" : "2024-04-19T18:32:59.047+00:00",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:46.394+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:14.745+00:00",
         "positionId" : "67dcf572d600cb3d03968c0f"
       } ]
     }
@@ -1615,6 +1624,169 @@ Content-Length: 251
 </div>
 </div>
 <div class="sect1">
+<h2 id="_messages_routes"><a class="link" href="#_messages_routes">Messages Routes</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="index-get-message-by-id"><a class="link" href="#index-get-message-by-id">GET Message by ID</a></h3>
+<div class="paragraph">
+<p>A <code>GET</code> request used to retrieve a Message by its unique <code>messageId</code>.</p>
+</div>
+<div class="sect3">
+<h4 id="index-get-message-by-id_http_request"><a class="link" href="#index-get-message-by-id_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/message/single?messageId=c1d335117621f49532e47b52 HTTP/1.1
+GATORAPPS_APP: garesearch
+Authorization: &lt;Authentication Token&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="index-get-message-by-id_http_response"><a class="link" href="#index-get-message-by-id_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+
+{
+  "errCode" : "0",
+  "payload" : {
+    "message" : {
+      "id" : "c1d335117621f49532e47b52",
+      "senderOpid" : null,
+      "recipientOpid" : "52db512f-44ee-4337-81f0-e8cc595240e8",
+      "title" : "An update to your application status is available",
+      "content" : "&lt;p&gt;Hello, Ava!&lt;br&gt;&lt;br&gt;A status update has been posted to your application to &lt;a href=\"https://research.dev-local.gatorapps.org:3500/posting?postingId=67dcf54ab42f269d2da84622\"&gt;Luke's Testing Position&lt;/a&gt;. You may now check your application status on the &lt;a href=\"https://research.dev-local.gatorapps.org:3500/myapplications\"&gt;My Applications&lt;/a&gt; module. Please reach out directly to the &lt;a href=\"https://research.dev-local.gatorapps.org:3500/lab?labId=99dcf5a77621f49532e47b52\"&gt;lab&lt;/a&gt; you're applying to should you have any questions.&lt;br&gt;&lt;br&gt;Thank you for using RESEARCH.UF!&lt;/p&gt;",
+      "sentTimeStamp" : "2025-04-02T00:58:16.627+00:00",
+      "read" : false
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="index-get-message-list"><a class="link" href="#index-get-message-list">GET Message List</a></h3>
+<div class="paragraph">
+<p>A <code>GET</code> request used to retrieve a list of Messages sent to and from the User.</p>
+</div>
+<div class="sect3">
+<h4 id="index-get-message-list_http_request"><a class="link" href="#index-get-message-list_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/message/list?page=0&amp;size=5 HTTP/1.1
+GATORAPPS_APP: garesearch
+Authorization: &lt;Authentication Token&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="index-get-message-list_http_response"><a class="link" href="#index-get-message-list_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+
+{
+  "errCode" : "0",
+  "payload" : {
+    "totalMessages" : 3,
+    "messages" : [ {
+      "id" : "c1d335117621f49532e47b52",
+      "senderOpid" : null,
+      "recipientOpid" : "52db512f-44ee-4337-81f0-e8cc595240e8",
+      "title" : "An update to your application status is available",
+      "contentPreview" : "Hello, Ava! A status update has been posted to your application to Luke's Testing Position. You may ...",
+      "sentTimeStamp" : "2025-04-02T00:58:16.627+00:00",
+      "read" : false
+    }, {
+      "id" : "c3d335117621f49532e47b52",
+      "senderOpid" : null,
+      "recipientOpid" : "52db512f-44ee-4337-81f0-e8cc595240e8",
+      "title" : "Your application is in!",
+      "contentPreview" : "Way to go, Ava! You have successfully submitted an application to Luke's Testing Position. Please re...",
+      "sentTimeStamp" : "2025-03-24T03:56:05.750+00:00",
+      "read" : false
+    }, {
+      "id" : "a12335117621f49532e47b52",
+      "senderOpid" : "664b78a3-6cf0-42fc-876c-2aa1893722ba",
+      "recipientOpid" : "52db512f-44ee-4337-81f0-e8cc595240e8",
+      "title" : "Greetings Message",
+      "contentPreview" : "Hello, Ava!",
+      "sentTimeStamp" : "2025-03-05T00:58:16.627+00:00",
+      "read" : false
+    } ],
+    "size" : 3,
+    "page" : 0,
+    "totalPages" : 1
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="index-put-message-list"><a class="link" href="#index-put-message-list">GET IsRead</a></h3>
+<div class="paragraph">
+<p>A <code>GET</code> request used to update the read status of a message.</p>
+</div>
+<div class="sect3">
+<h4 id="index-put-message-list_http_request"><a class="link" href="#index-put-message-list_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/message/readStatus?messageId=c1d335117621f49532e47b52&amp;isRead=true HTTP/1.1
+GATORAPPS_APP: garesearch
+Authorization: &lt;Authentication Token&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="index-put-message-list_http_response"><a class="link" href="#index-put-message-list_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+
+{
+  "errCode" : "0",
+  "payload" : null
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="index-get-message-page"><a class="link" href="#index-get-message-page">GET MessagePage</a></h3>
+<div class="paragraph">
+<p>A <code>GET</code> request used to retrieve the page number of a Message.</p>
+</div>
+<div class="sect3">
+<h4 id="index-get-message-page_http_request"><a class="link" href="#index-get-message-page_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/message/messagePage?messageId=c3d335117621f49532e47b52&amp;size=5 HTTP/1.1
+GATORAPPS_APP: garesearch
+Authorization: &lt;Authentication Token&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="index-get-message-page_http_response"><a class="link" href="#index-get-message-page_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+
+{
+  "errCode" : "0",
+  "payload" : {
+    "page" : 0
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_position_routes"><a class="link" href="#_position_routes">Position Routes</a></h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -1643,7 +1815,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "payload" : {
     "position" : {
       "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
-      "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.111+00:00",
+      "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.352+00:00",
       "status" : "open",
       "positionId" : "d162c110ed0a40bea3393855",
       "positionName" : "Ava's Testing Position electrical 3.2",
@@ -1666,9 +1838,13 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 <h4 id="index-get-position-searchresults_http_request"><a class="link" href="#index-get-position-searchresults_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/searchList?q=lu HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/searchList?q=lu&amp;size=5&amp;page=0 HTTP/1.1
 GATORAPPS_APP: garesearch
-Authorization: &lt;Authentication Token&gt;</code></pre>
+Authorization: &lt;Authentication Token&gt;
+
+q=lu
+size=5
+page=0</code></pre>
 </div>
 </div>
 </div>
@@ -1679,52 +1855,48 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 
 {
-  "errCode" : "0",
-  "payload" : {
-    "positions" : [ {
-      "postedTimeStamp" : "2024-04-19T06:11:08.984+00:00",
-      "positionId" : "66220afc9aee0d2ebb58db67",
-      "positionName" : "Luke's Testing Position 2",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab"
-    }, {
-      "postedTimeStamp" : "2024-04-19T18:32:59.047+00:00",
-      "positionId" : "6622b8dbceb54473205d08b6",
-      "positionName" : "Luke's Testing Position 7",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab"
-    }, {
-      "postedTimeStamp" : "2024-04-19T18:32:56.523+00:00",
-      "positionId" : "6622b8d8ceb54473205d08b0",
-      "positionName" : "Luke's Testing Position 6",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab"
-    }, {
-      "postedTimeStamp" : "2024-04-19T06:11:46.499+00:00",
-      "positionId" : "66220b229aee0d2ebb58db72",
-      "positionName" : "Luke's Testing Position 4",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab 2"
-    }, {
-      "postedTimeStamp" : "2024-04-10T19:27:09.573+00:00",
-      "positionId" : "6616e80db011bd7cff112a25",
-      "positionName" : "Luke's Testing Position",
-      "positionDescription" : "This is a testing position.",
-      "labName" : "Luke's Testing Lab"
-    }, {
-      "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
-      "positionId" : "67c3c01ab87e185493ae9c10",
-      "positionName" : "Ava's Testing Position electrical 3.2",
-      "positionDescription" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
-      "labName" : "Ava's Testing Lab 2"
-    }, {
-      "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
-      "positionId" : "67d5d23345ad7501f03159cf",
-      "positionName" : "Ava's Test Position 39",
-      "positionDescription" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
-      "labName" : "Ava's Testing Lab 2"
-    } ]
-  }
+    "errCode": "0",
+    "payload": {
+        "totalPages": 1,
+        "positions": [
+            {
+                "postedTimeStamp": "2024-04-19T18:32:59.047+00:00",
+                "positionId": "6622b8dbceb54473205d08b6",
+                "positionName": "Luke's Testing Position 7",
+                "positionDescription": "This is a testing position.",
+                "labName": "Luke's Testing Lab"
+            },
+            {
+                "postedTimeStamp": "2024-04-19T18:32:56.523+00:00",
+                "positionId": "6622b8d8ceb54473205d08b0",
+                "positionName": "Luke's Testing Position 6",
+                "positionDescription": "This is a testing position.",
+                "labName": "Luke's Testing Lab"
+            },
+            {
+                "postedTimeStamp": "2024-04-19T06:11:46.499+00:00",
+                "positionId": "66220b229aee0d2ebb58db72",
+                "positionName": "Luke's Testing Position 4",
+                "positionDescription": "This is a testing position.",
+                "labName": "Luke's Testing Lab 2"
+            },
+            {
+                "postedTimeStamp": "2024-04-19T06:11:08.984+00:00",
+                "positionId": "66220afc9aee0d2ebb58db67",
+                "positionName": "Luke's Testing Position 2",
+                "positionDescription": "This is a testing position.",
+                "labName": "Luke's Testing Lab"
+            },
+            {
+                "postedTimeStamp": "2024-04-10T19:27:09.573+00:00",
+                "positionId": "6616e80db011bd7cff112a25",
+                "positionName": "Luke's Testing Position",
+                "positionDescription": "This is a testing position.",
+                "labName": "Luke's Testing Lab"
+            }
+        ],
+        "totalCount": 5
+    }
 }</code></pre>
 </div>
 </div>
@@ -1919,21 +2091,12 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
   "errCode" : "0",
   "payload" : {
     "postingsList" : {
-      "closedPositions" : [ {
-        "labId" : "88dcf5a77621f49532e47b52",
-        "labName" : "Ava's Testing Lab",
-        "positionId" : "67dcf586c42dde901cd44ef2",
-        "name" : "Ava's Testing CLOSED Position electrical 4",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.124+00:00",
-        "postedTimeStamp" : "2025-03-02T02:19:05.806+00:00",
-        "status" : "closed"
-      } ],
       "openPositions" : [ {
         "labId" : "88dcf5a77621f49532e47b52",
         "labName" : "Ava's Testing Lab",
         "positionId" : "d162c110ed0a40bea3393855",
         "name" : "Ava's Testing Position electrical 3.2",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.111+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.352+00:00",
         "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
         "status" : "open"
       }, {
@@ -1941,7 +2104,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "labName" : "Ava's Testing Lab",
         "positionId" : "67dcf57f1d3d5f5c7fcc5645",
         "name" : "Ava's Testing Position",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.123+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.361+00:00",
         "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
         "status" : "open"
       }, {
@@ -1949,7 +2112,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "labName" : "Ava's Testing Lab",
         "positionId" : "67dcf586c42dde901cd44edd",
         "name" : "Popcorn Test",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.126+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.363+00:00",
         "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
         "status" : "open"
       }, {
@@ -1957,7 +2120,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "labName" : "Ava's Testing Lab",
         "positionId" : "c163c180ed0a40bea3393855",
         "name" : "Psychology Literature Review",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.127+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.365+00:00",
         "postedTimeStamp" : "2025-01-10T19:27:09.573+00:00",
         "status" : "open"
       }, {
@@ -1965,9 +2128,18 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
         "labName" : "Ava's Testing Lab",
         "positionId" : "87d0c01ab87e195493ae9c10",
         "name" : "Ava's Testing Position biology 2",
-        "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.113+00:00",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.353+00:00",
         "postedTimeStamp" : "2025-05-10T19:27:09.573+00:00",
         "status" : "open"
+      } ],
+      "closedPositions" : [ {
+        "labId" : "88dcf5a77621f49532e47b52",
+        "labName" : "Ava's Testing Lab",
+        "positionId" : "67dcf586c42dde901cd44ef2",
+        "name" : "Ava's Testing CLOSED Position electrical 4",
+        "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.362+00:00",
+        "postedTimeStamp" : "2025-03-02T02:19:05.806+00:00",
+        "status" : "closed"
       } ],
       "archivedPositions" : [ ]
     }
@@ -2008,7 +2180,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
       "description" : "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&amp;nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
       "rawDescription" : "Description This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms. Preferred Qualification 3.0 GPA Sophomore status",
       "postedTimeStamp" : "2025-03-02T02:19:05.806+00:00",
-      "lastUpdatedTimeStamp" : "2025-04-01T07:36:47.124+00:00",
+      "lastUpdatedTimeStamp" : "2025-04-02T11:06:16.362+00:00",
       "status" : "closed",
       "supplementalQuestions" : null
     }
@@ -2138,7 +2310,7 @@ status=archived</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-01 03:39:34 -0400
+Last updated 2025-04-02 08:02:23 -0400
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

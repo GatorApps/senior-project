@@ -120,6 +120,37 @@ A `PUT` request to update an existing Lab.
 operation::lab-update-existing[snippets='http-request,http-response']
 
 
+
+== Messages Routes
+
+[[index-get-message-by-id]]
+=== GET Message by ID
+A `GET` request used to retrieve a Message by its unique `messageId`.
+
+operation::msg-get-single[snippets='http-request,http-response']
+
+
+[[index-get-message-list]]
+=== GET Message List
+A `GET` request used to retrieve a list of Messages sent to and from the User.
+
+operation::msg-get-list[snippets='http-request,http-response']
+
+
+[[index-put-message-list]]
+=== GET IsRead
+A `GET` request used to update the read status of a message.
+
+operation::msg-put-read-status[snippets='http-request,http-response']
+
+
+[[index-get-message-page]]
+=== GET MessagePage
+A `GET` request used to retrieve the page number of a Message.
+
+operation::msg-get-page[snippets='http-request,http-response']
+
+
 == Position Routes
 
 [[index-get-position-by-id]]

@@ -522,6 +522,8 @@ public class ApplicationControllerTests  extends BaseTest {
     @Test // @PutMapping("/applicationStatus")
     @Order(7)
     public void updateApplicationStatus_Valid() throws Exception {
+        doNothing().when(msgService).sendMessage(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+
         String applicationId = "abc0c01ab87e195493ae9c10";
         String status = "moving forward";
         mockMvc.perform(put(applicationControllerRoute + "/applicationStatus")
