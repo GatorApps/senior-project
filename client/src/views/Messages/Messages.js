@@ -523,7 +523,7 @@ const Messages = ({ title }) => {
                           ) : (
                             <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                               <Typography variant="body1" color="text.secondary">
-                                No messages found
+                                Yay, empty inbox. Enjoy your day!
                               </Typography>
                             </Box>
                           )}
@@ -588,9 +588,18 @@ const Messages = ({ title }) => {
                             </Box>
                           ) : (
                             <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                              <Typography variant="body1" color="text.secondary">
-                                Select a message to view
-                              </Typography>
+                              {!loading && (
+                                <Typography variant="body1" color="text.secondary" align="center">
+                                  {messages.length === 0 ? (
+                                    <React.Fragment>
+                                      You have not received any messages yet.<br />
+                                      When you receive messages, they will appear here.
+                                    </React.Fragment>
+                                  ) : (
+                                    "Select a message to view"
+                                  )}
+                                </Typography>
+                              )}
                             </Box>
                           )}
                         </MessageViewContainer>

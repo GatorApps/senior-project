@@ -160,7 +160,8 @@ const MessagesCard = () => {
               </List>
             ) : (
               <Typography variant="body2" sx={{ fontSize: '0.938rem' }}>
-                You have no messages. Messages related to your applications and postings will appear here.
+                Yay, empty inbox. Enjoy your day!<br /><br />
+                You have not received any messages yet. When you receive messages, they will appear here.
               </Typography>
             )}
           </Box>

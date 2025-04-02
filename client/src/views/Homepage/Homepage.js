@@ -80,17 +80,57 @@ const Homepage = () => {
           // If not
           <></>
         )} */}
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-            <Tabs value={view} onChange={handleChange} aria-label="view selector">
-              {userInfo?.roles?.includes(500201) && // Check if user is a student
-                // Only show Student View tab if user is a student
-                <Tab label="Student View" />
-              }
-              {userInfo?.roles?.includes(500301) && // Check if user is faculty/staff
-                // Only show Faculty View tab if user is faculty/staff
-                <Tab label="Faculty View" />
-              }
-            </Tabs>
+          <Box
+            sx={{
+              width: '100%',
+              backgroundColor: '#ffffff', // White background
+              borderBottom: '1px solid #e0e0e0'
+            }}
+          >
+            <Box
+              sx={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                padding: '0 16px'
+              }}
+            >
+              <Tabs
+                value={view}
+                onChange={handleChange}
+                aria-label="view selector"
+                variant="standard"
+                sx={{
+                  '& .MuiTabs-indicator': {
+                    backgroundColor: '#FA4616', // UF orange color for the indicator
+                    height: '2px'
+                  },
+                  '& .MuiTabs-flexContainer': {
+                    justifyContent: 'flex-start',
+                  },
+                  '& .MuiTab-root': {
+                    color: '#333333', // Dark text for tabs
+                    fontSize: '16px',
+                    fontWeight: 400,
+                    textTransform: 'none',
+                    padding: '12px 16px',
+                    minWidth: '120px',
+                    '&.Mui-selected': {
+                      color: 'rgb(40, 87, 151)', // UF blue color for active tab
+                      fontWeight: 500
+                    }
+                  }
+                }}
+              >
+                {userInfo?.roles?.includes(500201) && // Check if user is a student
+                  // Only show Student View tab if user is a student
+                  <Tab label="Student" />
+                }
+                {userInfo?.roles?.includes(500301) && // Check if user is faculty/staff
+                  // Only show Faculty View tab if user is faculty/staff
+                  <Tab label="Faculty / Staff" />
+                }
+              </Tabs>
+            </Box>
           </Box>
           <Box
             component="workspace"
