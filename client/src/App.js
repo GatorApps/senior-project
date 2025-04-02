@@ -56,7 +56,7 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
-          <Route path="/messagecenter" element={<MessagesPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100999]} />}>

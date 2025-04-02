@@ -31,6 +31,7 @@ import { formatDistanceToNow } from 'date-fns';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import DOMPurify from 'dompurify'; // Add this package for sanitizing HTML
 
 // Styled components for the message center layout - removed shadows and borders
@@ -70,6 +71,28 @@ const MessageContent = styled(Box)(({ theme }) => ({
 const StyledDivider = styled(Divider)(({ theme }) => ({
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(1),
+}));
+
+// Custom styled Typography for truncated titles
+const TruncatedTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 'inherit',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  width: '100%',
+  display: 'block',
+  maxWidth: '100%'
+}));
+
+// Styled pagination container to prevent wrapping
+const PaginationContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  marginTop: theme.spacing(2),
+  overflow: 'auto',
+  '& .MuiPagination-ul': {
+    flexWrap: 'nowrap'
+  }
 }));
 
 // Function to strip HTML tags for preview text
@@ -133,7 +156,7 @@ const MessagesPage = ({ title }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState(null);
   const [showMessageView, setShowMessageView] = useState(false);
-  const pageSize = 10;
+  const pageSize = 5;
 
   // Fetch message list on component mount and when page changes
   useEffect(() => {
@@ -163,8 +186,15 @@ const MessagesPage = ({ title }) => {
 
       if (data.errCode === "0" && data.payload && data.payload.messages) {
         setMessages(data.payload.messages);
-        // In a real implementation, would calculate totalPages from response metadata
-        setTotalPages(Math.ceil(data.payload.messages.length / pageSize));
+
+        // Use the totalPages value from the API response
+        if (data.payload.totalPages !== undefined) {
+          setTotalPages(data.payload.totalPages);
+        } else {
+          // Fallback calculation if totalPages is not provided
+          const totalMessages = data.payload.totalMessages || data.payload.messages.length;
+          setTotalPages(Math.ceil(totalMessages / pageSize));
+        }
       } else {
         throw new Error("Failed to fetch messages");
       }
@@ -193,7 +223,7 @@ const MessagesPage = ({ title }) => {
         setSelectedMessage(data.payload.message);
         // Mark message as read if it's not already read
         if (!data.payload.message.read) {
-          markMessageAsRead(messageId);
+          markMessageAsRead(messageId, data.payload.message);
         }
       } else {
         throw new Error("Failed to fetch message details");
@@ -211,16 +241,24 @@ const MessagesPage = ({ title }) => {
     }
   };
 
-  const markMessageAsRead = async (messageId) => {
+  const markMessageAsRead = async (messageId, messageObj = null) => {
     try {
       const response = await axiosPrivate.get(`/message/readStatus?messageId=${messageId}&isRead=true`);
       const data = response.data;
 
       if (data.errCode === "0") {
-        // Update the local state to mark the message as read
+        // Update the local state to mark the message as read in the list
         setMessages(messages.map(message =>
           message.id === messageId ? { ...message, read: true } : message
         ));
+
+        // Also update the selected message if it's the one being marked as read
+        if (selectedMessage && selectedMessage.id === messageId) {
+          setSelectedMessage(prev => ({ ...prev, read: true }));
+        } else if (messageObj) {
+          // If we have a message object (from fetchMessageDetails), update it
+          setSelectedMessage({ ...messageObj, read: true });
+        }
       }
     } catch (err) {
       console.error("Failed to mark message as read:", err);
@@ -327,7 +365,7 @@ const MessagesPage = ({ title }) => {
                   <Grid container spacing={2}>
                     {/* Message List - show only if not in mobile view with message details */}
                     {(!isMobile || (isMobile && !showMessageView)) && (
-                      <Grid item xs={12} md={3}>
+                      <Grid item xs={12} md={3.6}>
                         <MessageListContainer>
                           {loading ? (
                             // Use MessageListSkeleton for message list loading
@@ -343,44 +381,51 @@ const MessagesPage = ({ title }) => {
                                       unread={!message.read}
                                       onClick={() => handleSelectMessage(message.id)}
                                     >
-                                      <ListItemText
-                                        primary={
-                                          <Box display="flex" alignItems="center">
-                                            <Badge color="primary" variant="dot" invisible={message.read}>
-                                              <Typography variant="subtitle1" noWrap sx={{ fontWeight: message.read ? 'normal' : 'bold' }}>
-                                                {message.title}
-                                              </Typography>
-                                            </Badge>
-                                          </Box>
-                                        }
-                                        secondary={
-                                          <>
-                                            {/* Using relative time format for message list */}
-                                            <Typography variant="body2" color="text.secondary">
-                                              {formatRelativeTime(message.sentTimeStamp)}
-                                            </Typography>
-                                            {/* Message content preview */}
-                                            <Typography
-                                              variant="body2"
-                                              color="text.secondary"
+                                      <Box sx={{ width: 'calc(100% - 40px)', overflow: 'hidden' }}>
+                                        <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
+                                          {/* Unread indicator dot at the beginning */}
+                                          {!message.read && (
+                                            <FiberManualRecordIcon
+                                              color="primary"
                                               sx={{
-                                                display: '-webkit-box',
-                                                WebkitLineClamp: 2,
-                                                WebkitBoxOrient: 'vertical',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                mt: 0.5
+                                                fontSize: '10px',
+                                                mr: 1,
+                                                flexShrink: 0
                                               }}
-                                            >
-                                              {getContentPreview(message.content)}
-                                            </Typography>
-                                          </>
-                                        }
-                                      />
+                                            />
+                                          )}
+                                          <TruncatedTitle
+                                            variant="subtitle1"
+                                            sx={{ fontWeight: message.read ? 'normal' : 'bold' }}
+                                          >
+                                            {message.title}
+                                          </TruncatedTitle>
+                                        </Box>
+                                        {/* Using relative time format for message list */}
+                                        <Typography variant="body2" color="text.secondary">
+                                          {formatRelativeTime(message.sentTimeStamp)}
+                                        </Typography>
+                                        {/* Message content preview */}
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                          sx={{
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            mt: 0.5
+                                          }}
+                                        >
+                                          {getContentPreview(message.content)}
+                                        </Typography>
+                                      </Box>
                                       <IconButton
                                         size="small"
                                         onClick={(e) => toggleMessageReadStatus(e, message.id, message.read)}
                                         aria-label={message.read ? "Mark as unread" : "Mark as read"}
+                                        sx={{ ml: 'auto' }}
                                       >
                                         {message.read ? <MarkEmailUnreadIcon fontSize="small" /> : <MarkEmailReadIcon fontSize="small" />}
                                       </IconButton>
@@ -390,14 +435,18 @@ const MessagesPage = ({ title }) => {
                                   </React.Fragment>
                                 ))}
                               </List>
-                              <Box display="flex" justifyContent="center" mt={2}>
-                                <Pagination
-                                  count={totalPages}
-                                  page={page + 1}
-                                  onChange={handlePageChange}
-                                  color="primary"
-                                />
-                              </Box>
+                              {totalPages > 1 && (
+                                <PaginationContainer>
+                                  <Pagination
+                                    count={totalPages}
+                                    page={page + 1}
+                                    onChange={handlePageChange}
+                                    color="primary"
+                                    size={isMobile ? "small" : "medium"}
+                                    siblingCount={isMobile ? 0 : 1}
+                                  />
+                                </PaginationContainer>
+                              )}
                             </>
                           ) : (
                             <Box display="flex" justifyContent="center" alignItems="center" height="100%">
@@ -417,7 +466,7 @@ const MessagesPage = ({ title }) => {
 
                     {/* Message View - show only if not in mobile view or if in mobile view with message selected */}
                     {(!isMobile || (isMobile && showMessageView)) && (
-                      <Grid item xs={12} md={9 - (isMobile ? 0 : 0.5)}>
+                      <Grid item xs={12} md={8.4 - (isMobile ? 0 : 0.5)}>
                         <MessageViewContainer>
                           {messageLoading ? (
                             // Use CircularProgress for message content loading

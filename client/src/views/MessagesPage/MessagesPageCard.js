@@ -42,7 +42,7 @@ const MessagesPageCard = () => {
         </CardContent>
         <CardActions>
           <Button size="medium" onClick={() => {
-            navigate('/messagecenter');
+            navigate('/messages');
           }}>View All</Button>
         </CardActions>
       </Card>

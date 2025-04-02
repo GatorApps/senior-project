@@ -2,6 +2,7 @@ package org.gatorapps.garesearch.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.dto.PaginatedMessagesResponse;
 import org.gatorapps.garesearch.model.garesearch.Message;
 import org.gatorapps.garesearch.service.MessageService;
 import org.gatorapps.garesearch.utils.UserAuthUtil;
@@ -32,10 +33,15 @@ public class MessageController {
             @RequestParam(value = "page", required = true) int page,
             @RequestParam(value = "size", required = true) int size
     ) throws Exception {
-        List<Message> messages = messageService.getUserMessages(userAuthUtil.retrieveOpid(request), page, size);
+        PaginatedMessagesResponse paginatedMessages = messageService.getUserMessages(userAuthUtil.retrieveOpid(request), page, size);
 
         Map<String, Object> payloadResponse = Map.of(
-                "messages", messages);
+                "messages", paginatedMessages.getMessages(),
+                "page", paginatedMessages.getCurrentPage(),
+                "size", paginatedMessages.getMessages().size(),
+                "totalPages", paginatedMessages.getTotalPages(),
+                "totalMessages", paginatedMessages.getTotalMessages()
+        );
 
         ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -1,5 +1,6 @@
 package org.gatorapps.garesearch.service;
 
+import org.gatorapps.garesearch.dto.PaginatedMessagesResponse;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.model.garesearch.Message;
@@ -55,9 +56,9 @@ public class MessageService {
         sesService.sendBrandedEmail(recipient.getEmails().get(0), title, content, links);
     }
 
-    public List<Message> getUserMessages(String recipientOpid, int page, int size) {
-        Page<Message> messages = messageRepository.findByRecipientOpidOrderBySentTimeStampDesc(recipientOpid, PageRequest.of(page, size));
-        return messages.getContent();
+    public PaginatedMessagesResponse getUserMessages(String recipientOpid, int page, int size) {
+        Page<Message> messagesPage = messageRepository.findByRecipientOpidOrderBySentTimeStampDesc(recipientOpid, PageRequest.of(page, size));
+        return new PaginatedMessagesResponse(messagesPage);
     }
 
     public Message getMessage(String messageId) {
