@@ -180,7 +180,7 @@ operation::position-get-searchresults_indexer[snippets='http-request,http-respon
 === GET SupplementalQuestions
 A `GET` request to retrieve the Supplemental Questions for a particular Position.
 
-operation::position-get-list[snippets='http-request,http-response']
+operation::position-get-supplemental-questions[snippets='http-request,http-response']
 
 
 [[index-get-position-list]]
