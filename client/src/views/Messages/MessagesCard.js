@@ -43,18 +43,6 @@ const MessagesCard = () => {
     fetchRecentMessages();
   }, []);
 
-  // Function to strip HTML tags for preview text
-  const stripHtml = (html) => {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
-  };
-
-  // Get a preview of the message content (first 60 characters)
-  const getContentPreview = (content) => {
-    const plainText = stripHtml(content);
-    return plainText.length > 60 ? plainText.substring(0, 60) + '...' : plainText;
-  };
-
   // Format relative time (e.g., "2 days ago")
   const formatRelativeTime = (dateString) => {
     try {
@@ -96,18 +84,30 @@ const MessagesCard = () => {
                       }}
                       onClick={() => navigate(`/messages`)}
                     >
-                      <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
-                        {!message.read && (
-                          <FiberManualRecordIcon
-                            color="primary"
-                            sx={{
-                              fontSize: '10px',
-                              mr: 1,
-                              mt: 0.8,
-                              flexShrink: 0
-                            }}
-                          />
+                      <Box sx={{ display: 'flex', width: '100%' }}>
+                        {/* Unread indicator dot at the beginning - with consistent vertical alignment */}
+                        {!message.read ? (
+                          <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            mr: 1,
+                            mt: 0.5,
+                            alignSelf: 'flex-start',
+                            flexShrink: 0
+                          }}>
+                            <FiberManualRecordIcon
+                              color="primary"
+                              sx={{
+                                fontSize: '10px',
+                              }}
+                            />
+                          </Box>
+                        ) : (
+                          // Empty box to maintain consistent spacing when no dot
+                          <Box sx={{ width: 18, flexShrink: 0 }} />
                         )}
+
+                        {/* Content container - all content is indented consistently */}
                         <Box sx={{ width: '100%', overflow: 'hidden' }}>
                           <Typography
                             variant="body2"
@@ -121,6 +121,8 @@ const MessagesCard = () => {
                           >
                             {message.title}
                           </Typography>
+
+                          {/* Using contentPreview from API */}
                           <Typography
                             variant="body2"
                             color="text.secondary"
@@ -132,8 +134,9 @@ const MessagesCard = () => {
                               overflow: 'hidden'
                             }}
                           >
-                            {getContentPreview(message.content)}
+                            {message.contentPreview}
                           </Typography>
+
                           <Typography
                             variant="caption"
                             color="text.secondary"

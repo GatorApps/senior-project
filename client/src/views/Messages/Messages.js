@@ -343,12 +343,6 @@ const Messages = ({ title }) => {
     return { __html: contentContainer.innerHTML };
   };
 
-  // Get a preview of the message content (first 100 characters)
-  const getContentPreview = (content) => {
-    const plainText = stripHtml(content);
-    return plainText.length > 100 ? plainText.substring(0, 100) + '...' : plainText;
-  };
-
   return (
     <HelmetComponent title={"Messages"}>
       <div className='GenericPage'>
@@ -413,7 +407,7 @@ const Messages = ({ title }) => {
                                         <Typography variant="body2" color="text.secondary">
                                           {formatRelativeTime(message.sentTimeStamp)}
                                         </Typography>
-                                        {/* Message content preview */}
+                                        {/* Message content preview - now using the contentPreview field from API */}
                                         <Typography
                                           variant="body2"
                                           color="text.secondary"
@@ -426,7 +420,7 @@ const Messages = ({ title }) => {
                                             mt: 0.5
                                           }}
                                         >
-                                          {getContentPreview(message.content)}
+                                          {message.contentPreview}
                                         </Typography>
                                       </Box>
                                       <Tooltip title={message.read ? "Mark as unread" : "Mark as read"} arrow>
