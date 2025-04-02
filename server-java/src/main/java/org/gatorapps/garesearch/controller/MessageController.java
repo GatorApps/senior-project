@@ -85,4 +85,18 @@ public class MessageController {
         ApiResponse<Map<String, Object>> response = new ApiResponse<>("0");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/messagePage")
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getMessagePage(
+            HttpServletRequest request,
+            @RequestParam String messageId,
+            @RequestParam int size
+    ) throws Exception {
+        String recipientOpid = userAuthUtil.retrieveOpid(request);
+
+        int pageNumber = messageService.getMessagePage(recipientOpid, messageId, size);
+
+        ApiResponse<Map<String, Integer>> response = new ApiResponse<>("0", Map.of("page", pageNumber));
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -34,6 +34,7 @@ import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import DOMPurify from 'dompurify'; // Add this package for sanitizing HTML
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // Styled components for the message center layout - removed shadows and borders
 const MessageListContainer = styled(Box)(({ theme }) => ({
@@ -151,10 +152,18 @@ const MessageListSkeleton = () => {
   );
 };
 
+// Helper function to get query parameters from URL
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
 const Messages = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const query = useQuery();
+  const navigate = useNavigate();
+  const messageIdFromUrl = query.get('messageId');
 
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -164,12 +173,68 @@ const Messages = ({ title }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState(null);
   const [showMessageView, setShowMessageView] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const pageSize = 5;
 
-  // Fetch message list on component mount and when page changes
+  // Handle initial load with messageId in URL
+  useEffect(() => {
+    const handleMessageIdInUrl = async () => {
+      if (messageIdFromUrl) {
+        try {
+          // First, find which page this message is on
+          const pageResponse = await axiosPrivate.get(`/message/messagePage?messageId=${messageIdFromUrl}&size=${pageSize}`);
+
+          if (pageResponse.data.errCode === "0" && pageResponse.data.payload && pageResponse.data.payload.page !== undefined) {
+            const messagePage = pageResponse.data.payload.page;
+
+            // Set the page and wait for the messages to load
+            setPage(messagePage);
+
+            // We'll let the page change trigger the message list loading
+            // Then the useEffect below will handle loading the specific message
+          } else {
+            throw new Error("Failed to find message page");
+          }
+        } catch (err) {
+          console.error("Error finding message page:", err);
+          setError("Failed to locate the specified message. Please try again later.");
+          // Still load the first page of messages
+          fetchMessages();
+        }
+      } else {
+        // No messageId in URL, just load the first page
+        fetchMessages();
+      }
+    };
+
+    handleMessageIdInUrl();
+  }, [messageIdFromUrl]);
+
+  // Fetch message list when page changes
   useEffect(() => {
     fetchMessages();
   }, [page]);
+
+  // Handle loading specific message after messages are loaded
+  useEffect(() => {
+    const loadSpecificMessage = async () => {
+      if (messageIdFromUrl && messages.length > 0 && !initialLoadComplete) {
+        // Check if the message is in the current page
+        const messageInCurrentPage = messages.find(msg => msg.id === messageIdFromUrl);
+
+        if (messageInCurrentPage) {
+          // Message is in the current page, select it
+          fetchMessageDetails(messageIdFromUrl);
+          setInitialLoadComplete(true);
+
+          // Remove the messageId from URL to avoid reloading on refresh
+          navigate('/messages', { replace: true });
+        }
+      }
+    };
+
+    loadSpecificMessage();
+  }, [messages, messageIdFromUrl, initialLoadComplete]);
 
   // This useEffect handles modifying all links to open in new tabs
   useEffect(() => {
@@ -187,7 +252,10 @@ const Messages = ({ title }) => {
 
   const fetchMessages = async () => {
     setLoading(true);
-    setSelectedMessage(null);
+    if (!messageIdFromUrl) {
+      setSelectedMessage(null);
+    }
+
     try {
       const response = await axiosPrivate.get(`/message/list?page=${page}&size=${pageSize}`);
       const data = response.data;

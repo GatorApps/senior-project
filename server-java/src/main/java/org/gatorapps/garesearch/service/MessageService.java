@@ -72,4 +72,16 @@ public class MessageService {
         message.setRead(isRead);
         messageRepository.save(message);
     }
+
+    public int getMessagePage(String recipientOpid, String messageId, int pageSize) {
+        // Retrieve the message
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("-", "Message not found"));
+
+        // Count how many messages are newer (i.e., have a later sentTimeStamp)
+        long newerMessagesCount = messageRepository.countNewerMessages(recipientOpid, message.getSentTimeStamp());
+
+        // Page number calculation (zero-based index)
+        return (int) (newerMessagesCount / pageSize);
+    }
 }

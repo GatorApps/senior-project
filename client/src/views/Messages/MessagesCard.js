@@ -53,6 +53,11 @@ const MessagesCard = () => {
     }
   };
 
+  // Navigate to specific message with messageId query parameter
+  const navigateToMessage = (messageId) => {
+    navigate(`/messages?messageId=${messageId}`);
+  };
+
   return (
     <Box sx={{ width: '100%' }}>
       <Card variant="outlined">
@@ -82,7 +87,7 @@ const MessagesCard = () => {
                           bgcolor: 'action.hover',
                         }
                       }}
-                      onClick={() => navigate(`/messages`)}
+                      onClick={() => navigateToMessage(message.id)}
                     >
                       <Box sx={{ display: 'flex', width: '100%' }}>
                         {/* Unread indicator dot at the beginning - with consistent vertical alignment */}
