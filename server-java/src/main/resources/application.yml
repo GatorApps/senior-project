@@ -1,8 +1,8 @@
 app:
   name: "garesearch"
-  frontend-host: "https://research.dev-local.gatorapps.org:3500"
+  frontend-host: ${APP_FRONTEND-HOST}
   static-host: "https://static.gatorapps.org"
-  prod-status: "dev"
+  prod-status: ${APP_PROD-STATUS}
   database:
     global: "global"
     account: "account"
@@ -29,6 +29,9 @@ spring:
       uri: ${SPRING_DATA_MONGODB_URI}
   session:
     store-type: "mongodb"
+  web:
+    resources:
+      static-locations: "classpath:/static/"
 
 server:
   port: ${PORT:8500}
