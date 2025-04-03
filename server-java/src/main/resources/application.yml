@@ -3,12 +3,40 @@ app:
   frontend-host: "https://research.dev-local.gatorapps.org:3500"
   static-host: "https://static.gatorapps.org"
   prod-status: "dev"
+  database:
+    global: "global"
+    account: "account"
+    garesearch: "garesearch"
+  session:
+    cookie:
+      secret: ${APP_SESSION_COOKIE_SECRET}
+  user:
+    auth:
+      token:
+        public-key: ${APP_USER_AUTH_TOKEN_PUBLIC-KEY}
 
 spring:
+  application:
+    name: "garesearch"
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: "10MB"
+      max-request-size: "10MB"
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI}
+  session:
+    store-type: "mongodb"
+
+server:
+  port: ${PORT:8500}
+  servlet:
+    session:
+      cookie:
+        name: "GATORAPPS_GLOBAL_SID"
+        domain: "gatorapps.org"
 
 session:
   global-cookie-name: "GATORAPPS_GLOBAL_SID"
@@ -17,6 +45,8 @@ session:
   max-web-sessions: 2
 
 aws:
+  accessKeyId: ${AWS_ACCESSKEYID}
+  secretKey: ${AWS_SECRETKEY}
   s3:
     region: "us-east-1"
     bucket-name: "research-dev-gatorapps-org"

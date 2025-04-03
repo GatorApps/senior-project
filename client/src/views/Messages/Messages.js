@@ -424,7 +424,7 @@ const Messages = ({ title }) => {
                 </Box>
                 <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
                   <Box className="GenericPage__container_title_flexBox_right">
-                    <Button variant="contained" size="medium" onClick={fetchMessages}>Refresh</Button>
+                    <Button variant="contained" size="medium" onClick={() => { fetchMessages(); setPage(0); }}>Refresh</Button>
                   </Box>
                 </Box>
               </Box>
