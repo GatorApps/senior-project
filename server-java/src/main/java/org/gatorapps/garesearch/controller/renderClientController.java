@@ -96,19 +96,24 @@ public class renderClientController {
                             Map.of(
                                     "heading", "Student",
                                     "items", List.of(
-                                            Map.of("label", "Dashboard", "route", "/?t=student")
+                                            Map.of("label", "Dashboard", "route", "/?t=student"),
+                                            Map.of("label", "Search for Opportunities", "route", "/search")
                                     )
                             )
-
                     );
                 }
                 // Faculty
                 if (userRoles.contains(500301)) {
                     leftMenuItems.add(
                             Map.of(
-                                    "heading", "Faculty",
+                                    "heading", "Faculty / Staff",
                                     "items", List.of(
-                                            Map.of("label", "Dashboard", "route", "/?t=faculty")
+                                            Map.of("label", "Dashboard", "route", "/?t=faculty"),
+                                            Map.of("label", "My Postings", "subItems", List.of(
+                                                    Map.of("label", "Posting Management", "route", "/postingManagement"),
+                                                    Map.of("label", "Create New Posting", "route", "/postingEditor")
+                                            )),
+                                            Map.of("label", "Application Management", "route", "/applicationManagement")
                                     )
                             )
                     );

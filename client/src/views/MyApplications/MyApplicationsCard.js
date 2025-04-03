@@ -16,8 +16,7 @@ import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
-
-const GenericPageCard = ({ title }) => {
+const MyApplicationsCard = ({ title }) => {
   const userInfo = useSelector((state) => state.auth.userInfo);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -62,9 +61,9 @@ const GenericPageCard = ({ title }) => {
                   <Tab label="Active" />
                   <Tab label="Archived" />
                 </Tabs>
-                {(tabValue === 0 ? data.activeApplications : data.archivedApplications)
-                  .slice(0, 2)
-                  .map((app, index) => (
+                {(tabValue === 0 ? data?.activeApplications : data?.archivedApplications)
+                  ?.slice(0, 2)
+                  ?.map((app, index) => (
                     <div key={index} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="h7">{app.positionName}</Typography>
                       <Typography sx={{ marginX: '8px', fontWeight: '100', fontSize: '12px', color: app.status === "submitted" ? "green" : "gray" }}>
@@ -85,4 +84,4 @@ const GenericPageCard = ({ title }) => {
   );
 };
 
-export default GenericPageCard;
+export default MyApplicationsCard;
