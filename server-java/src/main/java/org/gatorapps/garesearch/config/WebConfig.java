@@ -31,7 +31,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(validateOriginInterceptor)
-                .addPathPatterns("/**")
+                .addPathPatterns("/appApi/garesearch/**")
                 .order(1);
         registry.addInterceptor(validateUserAuthInterceptor)
                 .addPathPatterns("/appApi/garesearch/**")

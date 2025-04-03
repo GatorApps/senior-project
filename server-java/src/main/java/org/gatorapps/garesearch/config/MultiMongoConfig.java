@@ -35,15 +35,15 @@ public class MultiMongoConfig {
     public MongoTemplate globalMongoTemplate() {
         return new MongoTemplate(mongoClient(),
                 prodStatus.equals("prod") ? globalDbName :
-                prodStatus.equals("dev") ? "dev_" + globalDbName :
-                "test_" + globalDbName);
+                        prodStatus.equals("dev") || prodStatus.equals("dev-local") ? "dev_" + globalDbName :
+                                "test_" + globalDbName);
     }
 
     @Bean(name = "accountMongoTemplate")
     public MongoTemplate accountMongoTemplate() {
         return new MongoTemplate(mongoClient(),
                 prodStatus.equals("prod") ? accountDbName :
-                        prodStatus.equals("dev") ? "dev_" + accountDbName :
+                        prodStatus.equals("dev") || prodStatus.equals("dev-local") ? "dev_" + accountDbName :
                                 "test_" + accountDbName);
     }
 
@@ -51,7 +51,7 @@ public class MultiMongoConfig {
     public MongoTemplate garesearchMongoTemplate() {
         return new MongoTemplate(mongoClient(),
                 prodStatus.equals("prod") ? garesearchDbName :
-                        prodStatus.equals("dev") ? "dev_" + garesearchDbName :
+                        prodStatus.equals("dev") || prodStatus.equals("dev-local")? "dev_" + garesearchDbName :
                                 "test_" + garesearchDbName);
     }
 

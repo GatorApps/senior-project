@@ -31,7 +31,7 @@ spring:
     store-type: "mongodb"
   web:
     resources:
-      static-locations: "classpath:/static/"
+      static-locations: "file:../client/build/"
 
 server:
   port: ${PORT:8500}

@@ -62,7 +62,7 @@ public class ValidateUserAuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // Accept simulated user auth in dev mode
-        if (appConfig.getProdStatus().equals("dev") || appConfig.getProdStatus().equals("test")) {
+        if (appConfig.getProdStatus().equals("dev-local") || appConfig.getProdStatus().equals("test")) {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String opid = authHeader.substring(7);  // Remove "Bearer " prefix
