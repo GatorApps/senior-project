@@ -85,13 +85,22 @@ const PaginationContainer = styled(Box)(({ theme }) => ({
   },
 }))
 
+// Styled search container wrapper for centering
+const SearchContainerWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  width: "100%",
+  marginTop: "50px",
+}))
+
 // Styled search container
 const SearchContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: "16px",
-  margin: "30px",
+  width: "70%", // Take 70% of the screen width on desktop
   [theme.breakpoints.down("sm")]: {
+    width: "90%", // Take more width on mobile
     flexDirection: "column",
   },
 }))
@@ -125,6 +134,7 @@ const OpportunitySearch = ({ title }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
   const [snackbarSeverity, setSnackbarSeverity] = useState("error")
+  const [activeSearchTerm, setActiveSearchTerm] = useState("") // Track the active search term
 
   // Router hooks
   const location = useLocation()
@@ -136,6 +146,7 @@ const OpportunitySearch = ({ title }) => {
   useEffect(() => {
     if (searchQuery) {
       setSearchText(searchQuery)
+      setActiveSearchTerm(searchQuery)
       searchPositions(searchQuery, 0, size)
     }
   }, [searchQuery])
@@ -155,6 +166,7 @@ const OpportunitySearch = ({ title }) => {
     setLoading(true)
     setError(null)
     setHasSearched(true)
+    setActiveSearchTerm(text) // Update the active search term
 
     // Update URL with search query immediately
     const newSearchParams = new URLSearchParams(location.search)
@@ -195,7 +207,9 @@ const OpportunitySearch = ({ title }) => {
   // Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage)
-    searchPositions(searchText, newPage, size)
+    // Use the active search term (from URL) instead of the current searchText
+    // This ensures pagination works with the original search term
+    searchPositions(activeSearchTerm, newPage, size)
     // Scroll to top of results
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
@@ -295,78 +309,85 @@ const OpportunitySearch = ({ title }) => {
 
             <Container maxWidth="lg">
               <Paper className="GenericPage__container_paper" variant="outlined">
-                {/* Search bar */}
-                <SearchContainer>
-                  <Autocomplete
-                    freeSolo
-                    open={showDropdown && searchOptions.length > 0}
-                    sx={{
-                      width: "100%",
-                      maxWidth: "100%",
-                      backgroundColor: "white",
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "8px",
-                        transition: "all 0.2s ease",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-                        "&:hover": {
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                        },
-                        "&.Mui-focused": {
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        },
-                      },
-                    }}
-                    value={searchText}
-                    onChange={(event, newValue) => {
-                      if (typeof newValue === "string") {
-                        setSearchText(newValue)
-                      } else if (newValue && newValue.positionName) {
-                        setSearchText(newValue.positionName)
-                      } else {
-                        setSearchText("")
-                      }
-                    }}
-                    onInputChange={handleSearchChange}
-                    options={searchOptions}
-                    getOptionLabel={(option) => (typeof option === "string" ? option : option.positionName || "")}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="outlined"
-                        size="small"
-                        placeholder="Search for opportunities..."
-                        sx={{
-                          ...params.sx,
-                          height: "65px",
-                          "& .MuiInputBase-root": {
-                            height: "100%",
+                {/* Search bar - now wrapped in a centered container */}
+                <SearchContainerWrapper>
+                  <SearchContainer>
+                    <Autocomplete
+                      freeSolo
+                      open={showDropdown && searchOptions.length > 0}
+                      sx={{
+                        width: "100%",
+                        maxWidth: "100%",
+                        backgroundColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                          "&:hover": {
+                            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                           },
-                        }}
-                        InputProps={{
-                          ...params.InputProps,
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon color="action" />
-                            </InputAdornment>
-                          ),
-                        }}
-                        onKeyDown={handleKeyDown}
-                      />
-                    )}
-                  />
-                  <Button
-                    variant="contained"
-                    size="medium"
-                    onClick={handleSearchButton}
-                    disabled={loading}
-                    sx={{
-                      minWidth: { xs: "100%", sm: "120px" }, // Fixed width to prevent shrinking
-                      height: "65px",
-                    }}
-                  >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : "Search"}
-                  </Button>
-                </SearchContainer>
+                          "&.Mui-focused": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                          },
+                        },
+                        // Increase font size for the input text
+                        "& .MuiInputBase-input": {
+                          fontSize: "1.1rem",
+                        },
+                      }}
+                      value={searchText}
+                      onChange={(event, newValue) => {
+                        if (typeof newValue === "string") {
+                          setSearchText(newValue)
+                        } else if (newValue && newValue.positionName) {
+                          setSearchText(newValue.positionName)
+                        } else {
+                          setSearchText("")
+                        }
+                      }}
+                      onInputChange={handleSearchChange}
+                      options={searchOptions}
+                      getOptionLabel={(option) => (typeof option === "string" ? option : option.positionName || "")}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          size="small"
+                          placeholder="Search for opportunities..."
+                          sx={{
+                            ...params.sx,
+                            height: "55px", // Restore to original height
+                            "& .MuiInputBase-root": {
+                              height: "100%",
+                            },
+                          }}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <InputAdornment position="start" sx={{ ml: 1 }}>
+                                <SearchIcon color="action" fontSize="medium" sx={{ fontSize: "1.5rem" }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                          onKeyDown={handleKeyDown}
+                        />
+                      )}
+                    />
+                    <Button
+                      variant="contained"
+                      size="medium"
+                      onClick={handleSearchButton}
+                      disabled={loading}
+                      sx={{
+                        minWidth: { xs: "100%", sm: "100px" },
+                        height: "40px", // Restore to original height
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      {loading ? <CircularProgress size={22} color="inherit" /> : "Search"}
+                    </Button>
+                  </SearchContainer>
+                </SearchContainerWrapper>
 
                 {/* Error message - only show for actual errors, not for "no results" */}
                 {error && (
