@@ -38,3 +38,6 @@ src/main/resources/keystore.p12
 
 ### VS Code ###
 .vscode/
+
+### Frontend build ###
+src/main/resources/static

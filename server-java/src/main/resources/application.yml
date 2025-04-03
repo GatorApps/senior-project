@@ -29,9 +29,6 @@ spring:
       uri: ${SPRING_DATA_MONGODB_URI}
   session:
     store-type: "mongodb"
-  web:
-    resources:
-      static-locations: "file:../client/build/"
 
 server:
   port: ${PORT:8500}
