@@ -6,7 +6,7 @@ import Settings from './views/Settings/Settings';
 import RequireAuth from './components/RequireAuth/RequireAuth';
 import { Routes, Route } from 'react-router-dom';
 import GenericPage from './components/GenericPage/GenericPage';
-import OpportunitySearchPage from './views/OpportunitySearchPage/OpportunitySearchPage';
+import OpportunitySearchPage from './views/OpportunitySearch/OpportunitySearch';
 import MyApplicationsPage from './views/MyApplications/MyApplications';
 import LabDetailsPage from './views/LabDetailsPage/LabDetailsPage';
 import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage';

@@ -624,4 +624,4 @@ const Messages = ({ title }) => {
   );
 }
 
-export default Messages;
+export default Messages

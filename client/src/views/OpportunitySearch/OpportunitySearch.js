@@ -106,21 +106,6 @@ const ActionButton = styled(IconButton)(({ theme }) => ({
   },
 }))
 
-// Styled search button
-const SearchButton = styled(Button)(({ theme }) => ({
-  height: "56px",
-  fontWeight: 600,
-  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-  transition: "all 0.2s ease",
-  "&:hover": {
-    boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
-    transform: "translateY(-1px)",
-  },
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-  },
-}))
-
 const OpportunitySearch = ({ title }) => {
   // Redux state
   const userInfo = useSelector((state) => state.auth.userInfo)
@@ -369,17 +354,18 @@ const OpportunitySearch = ({ title }) => {
                       />
                     )}
                   />
-                  <SearchButton
+                  <Button
                     variant="contained"
-                    size="large"
+                    size="medium"
                     onClick={handleSearchButton}
                     disabled={loading}
                     sx={{
                       minWidth: { xs: "100%", sm: "120px" }, // Fixed width to prevent shrinking
+                      height: "65px",
                     }}
                   >
                     {loading ? <CircularProgress size={24} color="inherit" /> : "Search"}
-                  </SearchButton>
+                  </Button>
                 </SearchContainer>
 
                 {/* Error message - only show for actual errors, not for "no results" */}

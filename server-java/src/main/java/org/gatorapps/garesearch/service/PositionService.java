@@ -106,7 +106,7 @@ public class PositionService {
             results.forEach(resultList::add);
 
             if (resultList.isEmpty()) {
-                throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "No Positions found. Try Expanding your search terms");
+                throw new ResourceNotFoundException("ERR_SEARCH_NO_RESULTS_FOUND", "No positions found. Try adjusting your search terms");
             }
 
             List<Bson> countPipeline = Arrays.asList(
