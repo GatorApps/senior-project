@@ -7,6 +7,7 @@
         {
           "submissionTimeStamp": "2025-04-10T02:35:43.643+00:00",
           "status": "submitted",
+          "positionId": "67dcf54ab42f269d2da84622",
           "positionName": "Luke's Testing Position",
           "applicationId": "b1c9c01ab87e195493ae9b67",
           "labName": "Luke's Testing Lab 1"
@@ -14,6 +15,7 @@
         {
           "submissionTimeStamp": "2025-04-10T02:35:43.643+00:00",
           "status": "submitted",
+          "positionId": "67dcf56a264b9db3ef415cb2",
           "positionName": "Luke's Testing Position 6",
           "applicationId": "b1c9c01ab87e195493ae9b56",
           "labName": "Luke's Testing Lab 1"

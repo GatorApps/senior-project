@@ -28,6 +28,7 @@ const GenericPage = ({ title }) => {
     const [name, setName] = useState("");
     const [rawDescription, setRawDescription] = useState("");
     const [supplementalQuestions, setSupplementalQuestions] = useState(null);
+    const [status, setStatus] = useState("");
 
     const [labs, setLabs] = useState([]);
 
@@ -42,7 +43,7 @@ const GenericPage = ({ title }) => {
 
     const handleSave = async () => {
         try {
-            const payload = { id, labId, name, description: rawDescription, supplementalQuestions, status: 'open' };
+            const payload = { id, labId, name, description: rawDescription, supplementalQuestions, status };
             if (postingId) {
                 await axiosPrivate.put('/posting/postingEditor', payload);
             } else {
@@ -64,6 +65,7 @@ const GenericPage = ({ title }) => {
             setName(response.data.payload.position.name);
             setRawDescription(response.data.payload.position.description);
             setSupplementalQuestions(response.data.payload.position.supplementalQuestions);
+            setStatus(response.data.payload.position.status);
         } catch (error) {
             setError(error.message);
         } finally {
@@ -155,13 +157,46 @@ const GenericPage = ({ title }) => {
                                         />
 
                                         <Typography variant='h5' marginBottom={1} marginTop={2}>Description</Typography>
-                                        <Box sx={{ marginBottom: 4 }}>
-                                            <ReactQuill value={rawDescription} onChange={(value) => setRawDescription(value)} />
+                                        <Box sx={{
+                                            marginBottom: 4,
+                                            '.ql-editor': {
+                                                overflow: 'hidden',
+                                                resize: 'vertical',
+                                                minHeight: '40px'
+                                            }
+                                        }}>
+
+                                            <ReactQuill value={rawDescription} onChange={(value) => setRawDescription(value)}
+                                                sx={{ minHeight: '100px' }} />
                                         </Box>
 
                                         <Typography variant='h5' marginBottom={1} marginTop={2}>Supplemental Questions</Typography>
-                                        <Box sx={{ marginBottom: 4 }}>
+                                        <Box sx={{
+                                            marginBottom: 4,
+                                            '.ql-editor': {
+                                                overflow: 'hidden',
+                                                resize: 'vertical',
+                                                minHeight: '40px'
+                                            }
+                                        }}>
                                             <ReactQuill value={supplementalQuestions} onChange={(value) => setSupplementalQuestions(value)} />
+                                        </Box>
+
+
+
+                                        <Typography variant='h5' marginBottom={1} marginTop={2}>Status</Typography>
+                                        <Box sx={{ marginBottom: 4 }}>
+
+                                            <FormControl fullWidth sx={{ minWidth: 150 }}>
+                                                <Select
+                                                    value={status}
+                                                    onChange={(e) => setStatus(e.target.value)}
+                                                >
+                                                    <MenuItem value="open">Open</MenuItem>
+                                                    <MenuItem value="closed">Closed</MenuItem>
+                                                    <MenuItem value="archived">Archived</MenuItem>
+                                                </Select>
+                                            </FormControl>
                                         </Box>
 
                                         <Box sx={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>

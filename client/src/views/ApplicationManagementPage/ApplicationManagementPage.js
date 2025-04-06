@@ -146,6 +146,7 @@ const ApplicationManagement = () => {
                                     [applications.activeApplications, applications.movingApplications, applications.archivedApplications][selectedTab].map((app) => (
                                         <Box key={app.opid} sx={{ marginBottom: '16px', padding: '16px', borderBottom: '1px solid #ddd' }}>
                                             <Typography variant="h6">Applicant Name: {app.firstName} {app.lastName}</Typography>
+                                            <Typography variant="body2">Applicant Email: {app.email}</Typography>
                                             {/* <Typography variant="h6">Student OPID: {app.opid}</Typography> */}
                                             <Typography variant="body2" color="textSecondary">
                                                 Submitted: {new Date(app.submissionTimeStamp).toLocaleString()}

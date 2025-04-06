@@ -14,6 +14,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
+import { Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const MyApplicationsCard = ({ title }) => {
@@ -50,7 +52,7 @@ const MyApplicationsCard = ({ title }) => {
   return (
     <Box sx={{ width: '100%' }}>
       <Card variant='outlined'>
-        <CardContent sx={{ height: '250px', display: 'flex', flexDirection: 'column' }}>
+        <CardContent sx={{ height: '250px', display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
           <Typography gutterBottom variant="h2" component="div" sx={{ lineHeight: 1.2, fontSize: '1.3125rem', fontWeight: 400 }}>My Applications</Typography>
           <Paper elevation={0} sx={{ marginTop: '16px' }}>
             {loading ? (
@@ -64,12 +66,24 @@ const MyApplicationsCard = ({ title }) => {
                 {(tabValue === 0 ? data?.activeApplications : data?.archivedApplications)
                   ?.slice(0, 2)
                   ?.map((app, index) => (
-                    <div key={index} sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="h7">{app.positionName}</Typography>
-                      <Typography sx={{ marginX: '8px', fontWeight: '100', fontSize: '12px', color: app.status === "submitted" ? "green" : "gray" }}>
-                        {app.status}
-                      </Typography>
-                    </div>
+                    <Link href={`/posting?postingId=${app.positionId}`} target="_blank" style={{ textDecoration: 'none', color: "black" }}>
+                      <Box key={app.applicationId} sx={{
+                        px: 1.5,
+                        py: 1,
+                        cursor: 'pointer',
+                        borderRadius: 1,
+                        mb: 0.5,
+                        '&:hover': {
+                          bgcolor: 'action.hover',
+                        }
+                      }}>
+                        <Typography variant="h7">{app.positionName}</Typography>
+                        <Typography sx={{ marginX: '8px', fontWeight: '100', fontSize: '12px', color: app.status === "submitted" ? "green" : "gray" }}>
+                          {app.status}
+                        </Typography>
+                      </Box>
+                      <Divider sx={{ my: 0.5 }} />
+                    </Link>
                   ))}
               </>
             )}

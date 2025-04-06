@@ -94,7 +94,7 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                width: 600,
+                width: '70%',
                 bgcolor: 'background.paper',
                 boxShadow: 24,
                 p: 4,
@@ -147,7 +147,15 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                 {activeStep === 1 && (
                     <Paper sx={{ p: 3, minHeight: 300, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Typography variant="body1">Answer the following questions:</Typography>
-                        <ReactQuill value={answers} onChange={setAnswers} />
+                        <Box sx={{
+                            '.ql-editor': {
+                                overflow: 'hidden',
+                                resize: 'vertical',
+                                minHeight: '80px'
+                            }
+                        }}>
+                            <ReactQuill value={answers} onChange={setAnswers} />
+                        </Box>
                         {/* <button onClick={() => console.log(answers)}>Log answers</button> */}
                         <Box display="flex" justifyContent="space-between" sx={{ marginTop: 'auto' }}>
                             <Button onClick={handleBack}>Back</Button>
