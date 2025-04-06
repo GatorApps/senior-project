@@ -31,7 +31,7 @@ public class ApplicantProfile extends BaseApplicationProfileSchema {
     private String opid;
 
     @LastModifiedDate
-    @Field("lastUpdateTimeStamp")
-    @NotNull(message = "lastUpdateTimeStamp is required")
-    private Date lastUpdateTimeStamp;
+    @Field("lastUpdatedTimeStamp")
+    @NotNull(message = "lastUpdatedTimeStamp is required")
+    private Date lastUpdatedTimeStamp;
 }

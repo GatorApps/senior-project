@@ -319,7 +319,7 @@ const Messages = ({ title }) => {
 
   const markMessageAsRead = async (messageId, messageObj = null) => {
     try {
-      const response = await axiosPrivate.get(`/message/readStatus?messageId=${messageId}&isRead=true`);
+      const response = await axiosPrivate.put(`/message/readStatus?messageId=${messageId}&isRead=true`);
       const data = response.data;
 
       if (data.errCode === "0") {
@@ -346,7 +346,7 @@ const Messages = ({ title }) => {
 
     try {
       const newReadStatus = !currentReadStatus;
-      const response = await axiosPrivate.get(`/message/readStatus?messageId=${messageId}&isRead=${newReadStatus}`);
+      const response = await axiosPrivate.put(`/message/readStatus?messageId=${messageId}&isRead=${newReadStatus}`);
       const data = response.data;
 
       if (data.errCode === "0") {

@@ -138,8 +138,8 @@ operation::msg-get-list[snippets='http-request,http-response']
 
 
 [[index-put-message-list]]
-=== GET IsRead
-A `GET` request used to update the read status of a message.
+=== PUT IsRead
+A `PUT` request used to update the read status of a message.
 
 operation::msg-put-read-status[snippets='http-request,http-response']
 

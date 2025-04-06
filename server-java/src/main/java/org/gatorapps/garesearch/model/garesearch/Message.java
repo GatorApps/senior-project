@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.model.garesearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,13 +23,13 @@ public class Message{
 
     private String senderOpid;
 
-    @NotNull(message = "recipientOpid is required")
+    @NotBlank(message = "recipientOpid is required")
     private String recipientOpid;
 
-    @NotNull(message = "title is required")
+    @NotBlank(message = "title is required")
     private String title;
 
-    @NotNull(message = "content is required")
+    @NotBlank(message = "content is required")
     private String content;
 
     @CreatedDate
