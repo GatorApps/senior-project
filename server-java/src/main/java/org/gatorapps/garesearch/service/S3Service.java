@@ -2,13 +2,11 @@ package org.gatorapps.garesearch.service;
 
 import org.apache.tika.Tika;
 import org.gatorapps.garesearch.exception.FileValidationException;
-import org.gatorapps.garesearch.exception.UnwantedResult;
 import org.gatorapps.garesearch.model.garesearch.File;
 import org.gatorapps.garesearch.repository.garesearch.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,10 +35,6 @@ public class S3Service {
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
-
-
-
-
 
     public File uploadFile(MultipartFile file, List<String> allowedTypes, Long maxSize, String S3PathPrefix, String uploaderOpid, String category) throws IOException {
 

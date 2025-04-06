@@ -902,8 +902,8 @@ p{margin-bottom:1.25rem}
 <ul class="sectlevel2">
 <li><a href="#index-get-lab-list">GET LabList</a></li>
 <li><a href="#index-get-lab">GET Lab</a></li>
-<li><a href="#index-post-lab">POST Create New Lab</a></li>
-<li><a href="#index-update-lab">PUT Update Existing Lab</a></li>
+<li><a href="#index-post-lab">POST New Lab</a></li>
+<li><a href="#index-update-lab">PUT Existing Lab</a></li>
 </ul>
 </li>
 <li><a href="#_messages_routes">Messages Routes</a>
@@ -927,8 +927,8 @@ p{margin-bottom:1.25rem}
 <li><a href="#index-get-position-list">GET PositionList</a></li>
 <li><a href="#index-get-position-management-list">GET PositionManagementList</a></li>
 <li><a href="#index-get-position">GET Position</a></li>
-<li><a href="#index-post-position">POST Create New Position</a></li>
-<li><a href="#index-update-position">PUT Update Existing Position</a></li>
+<li><a href="#index-post-position">POST New Position</a></li>
+<li><a href="#index-update-position">PUT Existing Position</a></li>
 <li><a href="#index-update-position-status">PUT Position Status</a></li>
 </ul>
 </li>
@@ -1348,15 +1348,10 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 <h4 id="index-update-application-status_http_request"><a class="link" href="#index-update-application-status_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /appApi/garesearch/application/applicationStatus HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /appApi/garesearch/application/applicationStatus?applicationId=abc0c01ab87e195493ae9c10&amp;labId=88dcf5a77621f49532e47b52&amp;status=moving+forward HTTP/1.1
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 93
-
-applicationId=abc0c01ab87e195493ae9c10&amp;
-labId=88dcf5a77621f49532e47b52&amp;
-status=moving+forward</code></pre>
+</code></pre>
 </div>
 </div>
 </div>
@@ -1545,7 +1540,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="index-post-lab"><a class="link" href="#index-post-lab">POST Create New Lab</a></h3>
+<h3 id="index-post-lab"><a class="link" href="#index-post-lab">POST New Lab</a></h3>
 <div class="paragraph">
 <p>A <code>POST</code> request to create a new Lab.</p>
 </div>
@@ -1583,7 +1578,7 @@ Content-Length: 302
 </div>
 </div>
 <div class="sect2">
-<h3 id="index-update-lab"><a class="link" href="#index-update-lab">PUT Update Existing Lab</a></h3>
+<h3 id="index-update-lab"><a class="link" href="#index-update-lab">PUT Existing Lab</a></h3>
 <div class="paragraph">
 <p>A <code>PUT</code> request to update an existing Lab.</p>
 </div>
@@ -1838,13 +1833,10 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 <h4 id="index-get-position-searchresults_http_request"><a class="link" href="#index-get-position-searchresults_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/searchList?q=lu&amp;size=5&amp;page=0 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /appApi/garesearch/posting/searchList?q=test&size=5&amp;page=0 HTTP/1.1
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
-
-q=lu
-size=5
-page=0</code></pre>
+</code></pre>
 </div>
 </div>
 </div>
@@ -1857,45 +1849,45 @@ page=0</code></pre>
 {
     "errCode": "0",
     "payload": {
-        "totalPages": 1,
+        "totalPages": 4,
         "positions": [
             {
-                "postedTimeStamp": "2024-04-19T18:32:59.047+00:00",
-                "positionId": "6622b8dbceb54473205d08b6",
-                "positionName": "Luke's Testing Position 7",
-                "positionDescription": "This is a testing position.",
-                "labName": "Luke's Testing Lab"
+                "postedTimeStamp": "2025-03-18T21:07:40.964+00:00",
+                "positionId": "67d9e09d58035a1e10da1464",
+                "positionName": "Ava's Test Position 708",
+                "positionDescription": "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
+                "labName": "Ava's Testing Lab 2"
             },
             {
-                "postedTimeStamp": "2024-04-19T18:32:56.523+00:00",
-                "positionId": "6622b8d8ceb54473205d08b0",
-                "positionName": "Luke's Testing Position 6",
-                "positionDescription": "This is a testing position.",
-                "labName": "Luke's Testing Lab"
+                "postedTimeStamp": "2025-03-15T22:59:36.712+00:00",
+                "positionId": "67d6065842a2df78b8428456",
+                "positionName": "Ava's Test Position 830",
+                "positionDescription": "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
+                "labName": "Ava's Testing Lab 2"
             },
             {
-                "postedTimeStamp": "2024-04-19T06:11:46.499+00:00",
-                "positionId": "66220b229aee0d2ebb58db72",
-                "positionName": "Luke's Testing Position 4",
-                "positionDescription": "This is a testing position.",
-                "labName": "Luke's Testing Lab 2"
+                "postedTimeStamp": "2025-01-10T19:27:09.573+00:00",
+                "positionId": "67d5d23345ad7501f03159cf",
+                "positionName": "Ava's Test Position 134",
+                "positionDescription": "&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;br&gt;This is a lab posting for students interested in mechanical, robots, hardware, ai. We work with path-finding algorithms.&nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt;br&gt;3.0 GPA&lt;br&gt;Sophomore status&lt;/p&gt;",
+                "labName": "Ava's Testing Lab 2"
             },
             {
-                "postedTimeStamp": "2024-04-19T06:11:08.984+00:00",
-                "positionId": "66220afc9aee0d2ebb58db67",
-                "positionName": "Luke's Testing Position 2",
-                "positionDescription": "This is a testing position.",
-                "labName": "Luke's Testing Lab"
+                "postedTimeStamp": "2026-04-10T19:27:09.573+00:00",
+                "positionId": "67ddf24344c53033691a7908",
+                "positionName": "Eric's Testing Position 4",
+                "positionDescription": "&lt;p&gt;This is a testing position 4.&lt;/p&gt;",
+                "labName": "Eric's Test Lab 892"
             },
             {
-                "postedTimeStamp": "2024-04-10T19:27:09.573+00:00",
-                "positionId": "6616e80db011bd7cff112a25",
-                "positionName": "Luke's Testing Position",
-                "positionDescription": "This is a testing position.",
-                "labName": "Luke's Testing Lab"
+                "postedTimeStamp": "2026-04-10T19:27:09.573+00:00",
+                "positionId": "67ddf22f44c53033691a7907",
+                "positionName": "Eric's Testing Position 3",
+                "positionDescription": "This is a testing position 3.",
+                "labName": "Eric's Test Lab 892"
             }
         ],
-        "totalCount": 5
+        "totalCount": 19
     }
 }</code></pre>
 </div>
@@ -2172,7 +2164,7 @@ Authorization: &lt;Authentication Token&gt;</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="index-post-position"><a class="link" href="#index-post-position">POST Create New Position</a></h3>
+<h3 id="index-post-position"><a class="link" href="#index-post-position">POST New Position</a></h3>
 <div class="paragraph">
 <p>A <code>POST</code> request to create a new Position.</p>
 </div>
@@ -2213,7 +2205,7 @@ nbsp;&lt;br&gt;&lt;br&gt;&lt;strong&gt;Preferred Qualification&lt;/strong&gt;&lt
 </div>
 </div>
 <div class="sect2">
-<h3 id="index-update-position"><a class="link" href="#index-update-position">PUT Update Existing Position</a></h3>
+<h3 id="index-update-position"><a class="link" href="#index-update-position">PUT Existing Position</a></h3>
 <div class="paragraph">
 <p>A <code>PUT</code> request to update an existing Position.</p>
 </div>
@@ -2261,14 +2253,12 @@ Content-Length: 497
 <h4 id="index-update-position-status_http_request"><a class="link" href="#index-update-position-status_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /appApi/garesearch/posting/postingStatus HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /appApi/garesearch/posting/postingStatus?positionId=c163c180ed0a40bea3393855&amp;status=archived HTTP/1.1
 GATORAPPS_APP: garesearch
 Authorization: &lt;Authentication Token&gt;
 Content-Type: application/x-www-form-urlencoded
 Content-Length: 52
-
-positionId=c163c180ed0a40bea3393855&amp;
-status=archived</code></pre>
+</code></pre>
 </div>
 </div>
 </div>
