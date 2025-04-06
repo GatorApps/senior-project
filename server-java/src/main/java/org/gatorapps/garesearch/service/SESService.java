@@ -1,11 +1,9 @@
 package org.gatorapps.garesearch.service;
 
 import org.jsoup.Jsoup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.*;
 
@@ -16,7 +14,8 @@ import java.util.stream.Collectors;
 @Service
 public class SESService {
 
-    private final SesClient sesClient;
+    @Autowired
+    private SesClient sesClient;
 
     @Value("${aws.ses.default-sender-name}")
     private String senderName;
@@ -29,18 +28,6 @@ public class SESService {
 
     @Value("${app.static-host}")
     private String staticHost;
-
-    public SESService(
-            @Value("${aws.accessKeyId}") String accessKeyId,
-            @Value("${aws.secretKey}") String secretKey,
-            @Value("${aws.ses.region}") String region
-    ) {
-        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKeyId, secretKey);
-        this.sesClient = SesClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
-                .build();
-    }
 
     public void sendEmail(String to, String subject, String htmlBody, String textBody) {
 //        if (textBody == null) {

@@ -174,14 +174,14 @@ A `GET` request to search for Positions based on a search query. This request re
 operation::position-get-searchresults_indexer[snippets='http-request,http-response']
 
 
-== Posting Faculty Only Routes
-
 [[index-get-supplemental-questions]]
 === GET SupplementalQuestions
 A `GET` request to retrieve the Supplemental Questions for a particular Position.
 
 operation::position-get-supplemental-questions[snippets='http-request,http-response']
 
+
+== Posting Faculty Only Routes
 
 [[index-get-position-list]]
 === GET PositionList

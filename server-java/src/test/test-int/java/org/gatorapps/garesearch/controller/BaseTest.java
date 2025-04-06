@@ -28,6 +28,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.CreateBucketResponse;
+import software.amazon.awssdk.services.ses.SesClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,10 +41,13 @@ public abstract class BaseTest implements ApplicationContextAware {
     static MongoDataSeeder mongoDataSeeder;
     static S3Init s3Init;
 
+    @Autowired
+    private SesClient sesClient;
+
     static MongoDBContainer mongoContainer = new MongoDBContainer("mongo:latest");
 
     static LocalStackContainer container = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
-            .withServices(LocalStackContainer.Service.S3)
+            .withServices(LocalStackContainer.Service.S3, LocalStackContainer.Service.SES)
             .withCreateContainerCmdModifier(cmd -> cmd.getHostConfig().withPortBindings(new PortBinding(
                     Ports.Binding.bindPort(4566), new ExposedPort(4566)
             )));
