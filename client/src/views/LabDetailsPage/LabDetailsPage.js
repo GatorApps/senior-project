@@ -97,7 +97,7 @@ const GenericPage = ({ title }) => {
                                         <Button variant="contained" sx={{ mb: 3 }}>
                                             Express Interest
                                         </Button>
-                                        <IconButton sx={{ ml: 2, borderRadius: "50%", bgcolor: "grey.200", "&:hover": { bgcolor: "grey.300" } }}>
+                                        <IconButton sx={{ ml: 2, mb: 3, borderRadius: "50%", bgcolor: "grey.200", "&:hover": { bgcolor: "grey.300" } }}>
                                             <StarBorderIcon />
                                         </IconButton>
 
@@ -106,30 +106,32 @@ const GenericPage = ({ title }) => {
                                         </Typography>
 
                                         {labDetails.lab.positions.map((position, index) => (
-                                            <Box
-                                                key={index}
-                                                sx={{
-                                                    p: 3,
-                                                    mb: 2,
-                                                    borderRadius: 2,
-                                                    boxShadow: 2,
-                                                    bgcolor: "grey.100",
-                                                    transition: "0.3s",
-                                                    "&:hover": { boxShadow: 4, bgcolor: "grey.200" },
-                                                }}
-                                            >
-                                                <Typography variant="h4" sx={{ fontSize: "1.25rem", fontWeight: "bold", mb: 1 }}>
-                                                    {position.positionName}
-                                                </Typography>
-                                                <Typography
-                                                    variant="body1"
-                                                    sx={{ color: "text.secondary", mb: 1 }}
-                                                    dangerouslySetInnerHTML={{ __html: position.positionDescription }}
-                                                />
-                                                <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.disabled" }}>
-                                                    Posted: {position.postedTimeStamp}
-                                                </Typography>
-                                            </Box>
+                                            <Link href={`/posting?postingId=${position.positionId}`} target="_blank" style={{ textDecoration: 'none', color: "black" }}>
+                                                <Box
+                                                    key={index}
+                                                    sx={{
+                                                        p: 3,
+                                                        mb: 2,
+                                                        borderRadius: 2,
+                                                        boxShadow: 2,
+                                                        bgcolor: "grey.100",
+                                                        transition: "0.3s",
+                                                        "&:hover": { boxShadow: 4, bgcolor: "grey.200" },
+                                                    }}
+                                                >
+                                                    <Typography variant="h4" sx={{ fontSize: "1.25rem", fontWeight: "bold", mb: 1 }}>
+                                                        {position.positionName}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{ color: "text.secondary", mb: 1 }}
+                                                        dangerouslySetInnerHTML={{ __html: position.positionDescription }}
+                                                    />
+                                                    <Typography variant="body2" sx={{ fontStyle: "italic", color: "text.disabled" }}>
+                                                        Posted: Posted: {new Date(position.postedTimeStamp).toLocaleDateString()}
+                                                    </Typography>
+                                                </Box>
+                                            </Link>
                                         ))}
                                     </Box>
                                 )}

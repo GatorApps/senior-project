@@ -6,6 +6,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { FormControl, MenuItem, Select, Typography } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
+import Box from '@mui/material/Box';
 
 // Response format
 const response = {
@@ -175,12 +176,20 @@ const CreateLabPopup = ({ open, onClose, labs }) => {
                     Description
                 </Typography>
 
-                <ReactQuill
-                    theme="snow"
-                    value={description || ''}
-                    onChange={setDescription}
-                    style={{ marginBottom: '24px' }}  // Adds margin below ReactQuill for space
-                />
+                <Box sx={{
+                    '.ql-editor': {
+                        overflow: 'hidden',
+                        resize: 'vertical',
+                        minHeight: '40px'
+                    }
+                }}>
+                    <ReactQuill
+                        theme="snow"
+                        value={description || ''}
+                        onChange={setDescription}
+                        style={{ marginBottom: '24px' }}  // Adds margin below ReactQuill for space
+                    />
+                </Box>
 
             </DialogContent>
             <DialogActions sx={{ margin: 2, padding: 2 }}>

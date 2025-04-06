@@ -23,6 +23,7 @@ public class AwsTestConfig {
 
     @Bean
     public S3Client s3Client(){
+        System.out.println("aws test config");
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
         return S3Client.builder()
                 .endpointOverride(URI.create(endpoint))

@@ -88,7 +88,8 @@ public class ApplicationService {
                     Aggregation.project()
                             .andExpression("toObjectId(positionId)").as("positionIdObjectId")
                             .andInclude("status",
-                                    "submissionTimeStamp"),
+                                    "submissionTimeStamp",
+                                    "positionId"),
 
                     // join with 'positions' collection
                     Aggregation.lookup(
@@ -103,7 +104,8 @@ public class ApplicationService {
                             .andExpression("toObjectId(position.labId)").as("labIdObjectId")
                             .and("position.name").as("positionName")
                             .andInclude("status",
-                                    "submissionTimeStamp"),
+                                    "submissionTimeStamp",
+                                    "positionId"),
                     // join with 'labs' collection
                     Aggregation.lookup(
                             "labs",
@@ -117,7 +119,8 @@ public class ApplicationService {
                             .and("lab.name").as("labName")
                             .andInclude("positionName",
                                     "status",
-                                    "submissionTimeStamp")
+                                    "submissionTimeStamp",
+                                    "positionId")
                             .andExclude("_id")
             );
 

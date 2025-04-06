@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Link from '@mui/material/Link';
 import { axiosPrivate } from '../../apis/backend';
 
 // const response = {
@@ -105,14 +106,20 @@ const GenericPage = ({ title }) => {
                                 <Typography>Loading...</Typography>
                             ) : (
                                 (tabValue === 0 ? data.activeApplications : data.archivedApplications).map((app, index) => (
-                                    <Box key={index} sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: '4px' }}>
-                                        <Typography variant="h6">{app.labName}</Typography>
-                                        <Typography variant="body1">{app.positionName}</Typography>
-                                        <Typography variant="caption">Submitted: {new Date(app.submissionTimeStamp).toLocaleDateString()}</Typography>
-                                        <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold', color: app.status === "submitted" ? "green" : "gray" }}>
-                                            {app.status}
-                                        </Typography>
-                                    </Box>
+                                    <Link href={`/posting?postingId=${app.positionId}`} target="_blank" style={{ textDecoration: 'none', color: "black" }}>
+                                        <Box key={index} sx={{
+                                            mb: 2, p: 2, border: '1px solid #ccc', borderRadius: '4px', '&:hover': { bgcolor: 'action.hover' }
+                                        }}>
+
+                                            <Typography variant="body1">{app.labName}</Typography>
+                                            <Typography variant="h6">{app.positionName}</Typography>
+                                            <Typography variant="caption">Submitted: {new Date(app.submissionTimeStamp).toLocaleDateString()}</Typography>
+                                            <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold', color: app.status === "submitted" ? "green" : "gray" }}>
+                                                {app.status}
+                                            </Typography>
+
+                                        </Box>
+                                    </Link>
                                 ))
                             )}
                         </Paper>

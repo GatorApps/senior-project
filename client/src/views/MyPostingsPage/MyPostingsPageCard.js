@@ -11,7 +11,8 @@ import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
 import { axiosPrivate } from '../../apis/backend';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-
+import Link from '@mui/material/Link';
+import { Divider } from '@mui/material';
 
 const PostingPageCard = () => {
     const [postings, setPostings] = useState({ openPositions: [], closedPositions: [], archivedPositions: [] });
@@ -51,7 +52,7 @@ const PostingPageCard = () => {
                         My Postings
                     </Typography>
                     <Box marginY="16px">
-                        <Tabs value={tabIndex} onChange={handleTabChange} centered>
+                        <Tabs value={tabIndex} onChange={handleTabChange} centered sx={{ marginBottom: '16px' }}>
                             <Tab sx={{ fontSize: '0.75rem' }} label="Open Positions" />
                             <Tab sx={{ fontSize: '0.75rem' }} label="Closed Positions" />
                             {/* <Tab sx={{ fontSize: '0.75rem' }} label="Archived Positions" /> */}
@@ -65,14 +66,26 @@ const PostingPageCard = () => {
                             <Typography variant="body1" color="textSecondary">No postings available.</Typography>
                         ) : (
                             filteredPostings.map((posting) => (
-                                <Box key={posting.positionId} sx={{ marginBottom: '8px', padding: '8px', borderBottom: '1px solid #ddd' }}>
-                                    <Typography variant="h7" color="textSecondary">{posting.labName}</Typography>
-                                    <Typography variant="h6" sx={{ fontWeight: 500 }}>{posting.name}</Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        Last Updated: {posting.postedTimeStamp ? new Date(posting.postedTimeStamp).toLocaleString() : "N/A"}
-                                    </Typography>
+                                <Link href={`/postingEditor?postingId=${posting.positionId}`} target="_blank" style={{ textDecoration: 'none', color: "black" }}>
+                                    <Box key={posting.positionId} sx={{
+                                        px: 1,
+                                        py: 1,
+                                        cursor: 'pointer',
+                                        borderRadius: 1,
+                                        mb: 0.5,
+                                        '&:hover': {
+                                            bgcolor: 'action.hover',
+                                        }
+                                    }}>
+                                        <Typography variant="h7" color="textSecondary">{posting.labName}</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 500 }}>{posting.name}</Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Last Updated: {posting.postedTimeStamp ? new Date(posting.postedTimeStamp).toLocaleString() : "N/A"}
+                                        </Typography>
 
-                                </Box>
+                                    </Box>
+                                    <Divider sx={{ my: 0.5 }} />
+                                </Link>
                             ))
                         )}
                     </Box>
