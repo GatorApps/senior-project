@@ -9,10 +9,7 @@ import org.gatorapps.garesearch.utils.UserAuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -49,7 +46,7 @@ public class MessageController {
     }
 
     @GetMapping("/single")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getMessageList(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getMessage(
             HttpServletRequest request,
             @RequestParam(value = "messageId", required = true) String messageId
     ) throws Exception {
@@ -68,8 +65,8 @@ public class MessageController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/readStatus")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getMessageList(
+    @PutMapping("/readStatus")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updateReadStatus(
             HttpServletRequest request,
             @RequestParam(value = "messageId", required = true) String messageId,
             @RequestParam(value = "isRead", required = true) boolean isRead

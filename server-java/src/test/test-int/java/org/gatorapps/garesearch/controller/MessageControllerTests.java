@@ -151,7 +151,7 @@ public class MessageControllerTests extends BaseTest {
         JSONAssert.assertEquals(expectedResponse, response, false);
     }
 
-    @Test //@GetMapping("/single")
+    @Test // @GetMapping("/single")
     @Order(2)
     public void getMessage_InvalidPermission() throws Exception {
         String messageId = "a12135117621f49532e47b52";
@@ -171,7 +171,7 @@ public class MessageControllerTests extends BaseTest {
 
 
 
-    @Test // @GetMapping("/list")
+    @Test // @GetMapping("/single")
     @Order(2)
     public void getMessage_MissingParam() throws Exception {
         mockMvc.perform(get(messageControllerRoute + "/single")
@@ -187,14 +187,14 @@ public class MessageControllerTests extends BaseTest {
 
     /*------------------------- update read status -------------------------*/
 
-    // @GetMapping("/readStatus")
-    //    public ResponseEntity<ApiResponse<Map<String, Object>>> getMessageList(
+    // @PutMapping("/readStatus")
+    //    public ResponseEntity<ApiResponse<Map<String, Object>>> updateReadStatus(
     //            HttpServletRequest request,
     //            @RequestParam(value = "messageId", required = true) String messageId,
     //            @RequestParam(value = "isRead", required = true) boolean isRead
     //    )
 
-    @Test // @GetMapping("/readStatus")
+    @Test // @PutMapping("/readStatus")
     @Order(3)
     public void updateReadStaus_Valid() throws Exception {
         String messageId = "c1d335117621f49532e47b52";
@@ -202,7 +202,7 @@ public class MessageControllerTests extends BaseTest {
         boolean origStatus = origMsg.isRead();
         boolean isReadStatus = !origStatus;
 
-        mockMvc.perform(get(messageControllerRoute + "/readStatus")
+        mockMvc.perform(put(messageControllerRoute + "/readStatus")
                         .param("messageId", messageId)
                         .param("isRead", String.valueOf(isReadStatus))
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -219,7 +219,7 @@ public class MessageControllerTests extends BaseTest {
     }
 
 
-    @Test // @GetMapping("/single")
+    @Test // @PutMapping("/readStatus")
     @Order(3)
     public void updateReadStaus_InvalidPermission() throws Exception {
         String messageId = "a12135117621f49532e47b52";
@@ -228,7 +228,7 @@ public class MessageControllerTests extends BaseTest {
         boolean origStatus = origMsg.isRead();
         boolean isReadStatus = !origStatus;
 
-        mockMvc.perform(get(messageControllerRoute + "/readStatus")
+        mockMvc.perform(put(messageControllerRoute + "/readStatus")
                         .param("messageId", messageId)
                         .param("isRead", String.valueOf(isReadStatus))
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -244,7 +244,7 @@ public class MessageControllerTests extends BaseTest {
         assertEquals(origStatus, msg.isRead(), "Message status was changed when it shouldnt have");
     }
 
-    @Test // @GetMapping("/single")
+    @Test // @PutMapping("/readStatus")
     @Order(3)
     public void updateReadStaus_InvalidPermissionAsSender() throws Exception {
         String messageId = "a11335117621f49532e47b52";
@@ -254,7 +254,7 @@ public class MessageControllerTests extends BaseTest {
         boolean origStatus = origMsg.isRead();
         boolean isReadStatus = !origStatus;
 
-        mockMvc.perform(get(messageControllerRoute + "/readStatus")
+        mockMvc.perform(put(messageControllerRoute + "/readStatus")
                         .param("messageId", messageId)
                         .param("isRead", String.valueOf(isReadStatus))
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
@@ -271,10 +271,10 @@ public class MessageControllerTests extends BaseTest {
     }
 
 
-    @Test // @GetMapping("/list")
+    @Test // @PutMapping("/readStatus")
     @Order(1)
-    public void updateMessage_MissingParamMessageId() throws Exception {
-        mockMvc.perform(get(messageControllerRoute + "/readStatus")
+    public void updateReadStatus_MissingParamMessageId() throws Exception {
+        mockMvc.perform(put(messageControllerRoute + "/readStatus")
                         .param("isRead", String.valueOf(true))
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
@@ -285,11 +285,11 @@ public class MessageControllerTests extends BaseTest {
     }
 
 
-    @Test // @GetMapping("/list")
+    @Test // @PutMapping("/readStatus")
     @Order(1)
     public void updateReadStatus_MissingParamIsRead() throws Exception {
         String messageId = "c1d335117621f49532e47b52";
-        mockMvc.perform(get(messageControllerRoute + "/readStatus")
+        mockMvc.perform(put(messageControllerRoute + "/readStatus")
                         .param("messageId", messageId)
                         .header(HEADER_NAME, VALID_HEADER_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, VALID_COOKIE_VALUE))
@@ -328,7 +328,7 @@ public class MessageControllerTests extends BaseTest {
     }
 
 
-    @Test // @GetMapping("/list")
+    @Test // @GetMapping("/messagePage")
     @Order(1)
     public void getMessagePage_MissingParamMessageId() throws Exception {
         mockMvc.perform(get(messageControllerRoute + "/messagePage")
@@ -342,7 +342,7 @@ public class MessageControllerTests extends BaseTest {
     }
 
 
-    @Test // @GetMapping("/list")
+    @Test // @GetMapping("/messagePage")
     @Order(1)
     public void getMessagePage_MissingParamSize() throws Exception {
         String messageId = "c3d335117621f49532e47b52";
