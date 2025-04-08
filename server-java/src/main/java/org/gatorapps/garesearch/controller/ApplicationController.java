@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import org.gatorapps.garesearch.dto.ApiResponse;
+import org.gatorapps.garesearch.dto.ApplicationWithUserInfo;
 import org.gatorapps.garesearch.middleware.ValidateUserAuthInterceptor;
 import org.gatorapps.garesearch.model.account.User;
 import org.gatorapps.garesearch.model.garesearch.Application;
@@ -123,11 +124,10 @@ public class ApplicationController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getApplication(@Valid HttpServletRequest request,
                                                                      @RequestParam(value = "labId") String labId,
                                                                      @RequestParam(value = "applicationId") String applicationId) throws Exception {
-        Application application = applicationService.getApplication(userAuthUtil.retrieveOpid(request), labId, applicationId);
+        ApplicationWithUserInfo application = applicationService.getApplication(userAuthUtil.retrieveOpid(request), labId, applicationId);
 
         Map<String, Object> payloadResponse = Map.of(
                 "application", application);
-
 
         ApiResponse<Map<String, Object>> response = new ApiResponse<>("0", payloadResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);

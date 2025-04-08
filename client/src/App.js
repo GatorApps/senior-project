@@ -11,7 +11,7 @@ import MyApplicationsPage from './views/MyApplications/MyApplications';
 import LabDetailsPage from './views/LabDetailsPage/LabDetailsPage';
 import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage';
 import MyPostingsPage from './views/MyPostingsPage/MyPostingsPage';
-import ApplicationManagementPage from './views/ApplicationManagementPage/ApplicationManagementPage';
+import ApplicationManagement from './views/ApplicationManagement/ApplicationManagement';
 import PostingEditorPage from './views/PostingEditorPage/PostingEditorPage';
 import MessagesPage from './views/Messages/Messages';
 
@@ -52,7 +52,7 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
-          <Route path="/applicationmanagement" element={<ApplicationManagementPage />} />
+          <Route path="/applicationmanagement" element={<ApplicationManagement />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>

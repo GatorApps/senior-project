@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.gatorapps.garesearch.dto.ApplicationWithUserInfo;
 import org.gatorapps.garesearch.exception.MalformedParamException;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.exception.UnwantedResult;
@@ -210,9 +211,39 @@ public class ApplicationService {
         return applicationRepository.existsByOpidAndPositionId(opid, positionId);
     }
 
-    public Application getApplication(String opid, String labId, String applicationId) throws Exception {
+    public ApplicationWithUserInfo getApplication(String opid, String labId, String applicationId) throws Exception {
         labService.checkPermission(opid, labId);
-        return applicationRepository.findById(applicationId).orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
+
+        String applicantOpid = application.getOpid();
+
+        // Fetch user info
+        Query query = new Query(Criteria.where("opid").is(applicantOpid));
+        Map user = accountMongoTemplate.findOne(query, Map.class, "users");
+
+        ApplicationWithUserInfo result = new ApplicationWithUserInfo();
+        result.setApplicationId(application.getId());
+        result.setOpid(application.getOpid());
+        result.setPositionId(application.getPositionId());
+        result.setResumeId(application.getResumeId());
+        result.setTranscriptId(application.getTranscriptId());
+        result.setSupplementalResponses(application.getSupplementalResponses());
+        result.setSubmissionTimeStamp(application.getSubmissionTimeStamp());
+        result.setStatus(application.getStatus());
+
+        if (user != null) {
+            result.setFirstName((String) user.get("firstName"));
+            result.setLastName((String) user.get("lastName"));
+
+            List<String> emails = (List<String>) user.get("emails");
+            if (emails != null && !emails.isEmpty()) {
+                result.setEmail(emails.get(0));
+            }
+        }
+
+        return result;
     }
 
     public List<Map> getApplicationList(String opid, String positionId) throws Exception {
@@ -277,6 +308,7 @@ public class ApplicationService {
             throw new Exception("Unable to process your request at this time");
         }
     }
+
     public void updateStatus(String opid, String labId, String applicationId, String status) throws Exception {
         try {
             labService.checkPermission(opid, labId);
