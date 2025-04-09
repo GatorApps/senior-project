@@ -4,7 +4,7 @@ import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
-import ApplicationViewer from '../../components/ApplicationViewerPopup/ApplicationViewerPopup';
+import ApplicationViewer from '../../components/ApplicationViewer/ApplicationViewer';
 import {
   Box,
   Button,
@@ -19,8 +19,14 @@ import {
   InputLabel,
   Alert,
   Snackbar,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Divider,
+  IconButton
 } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 const ApplicationManagement = () => {
   // State management
@@ -36,6 +42,13 @@ const ApplicationManagement = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedPosition, setSelectedPosition] = useState('');
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [applicationStatus, setApplicationStatus] = useState('submitted');
+  const [statusUpdating, setStatusUpdating] = useState(false);
+  const [applicantInfo, setApplicantInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -56,7 +69,36 @@ const ApplicationManagement = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
-  // Update application status
+  // Update application status from the popup
+  const updateApplicationStatusFromPopup = async (newStatus) => {
+    if (!selectedApplication) return;
+
+    setStatusUpdating(true);
+    try {
+      await axiosPrivate.put(`/application/applicationStatus`, null, {
+        params: {
+          labId: selectedApplication.labId,
+          applicationId: selectedApplication.applicationId,
+          status: newStatus
+        }
+      });
+
+      setApplicationStatus(newStatus);
+      showSnackbar(`Application status updated to ${newStatus === "submitted" ? "active" : newStatus}`, 'success');
+
+      // Also update the application in the list
+      fetchApplications();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      const errorMessage = error.response?.data?.message || "Error updating application status";
+      setError(errorMessage);
+      showSnackbar(errorMessage, 'error');
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
+  // Update application status from the list
   const updateApplicationStatus = async (app, newStatus) => {
     try {
       setLoading(true);
@@ -150,6 +192,19 @@ const ApplicationManagement = () => {
   // Handle viewing an application
   const handleViewApplication = (application) => {
     setSelectedApplication(application);
+    setApplicationStatus(application.status || 'submitted');
+
+    // Set applicant info
+    setApplicantInfo({
+      firstName: application.firstName || '',
+      lastName: application.lastName || '',
+      email: application.email || ''
+    });
+  };
+
+  // Handle closing the application viewer
+  const handleCloseViewer = () => {
+    setSelectedApplication(null);
   };
 
   // Handle tab change
@@ -389,11 +444,27 @@ const ApplicationManagement = () => {
                                 View
                               </Button>
 
-                              <FormControl sx={{ minWidth: 150 }}>
+                              {/* Fixed width for status dropdown */}
+                              <FormControl sx={{ width: 170 }}>
                                 <Select
                                   value={app.status || 'submitted'}
                                   onChange={(e) => updateApplicationStatus(app, e.target.value)}
                                   size="small"
+                                  sx={{
+                                    width: '100%',
+                                    '& .MuiSelect-select': {
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap'
+                                    }
+                                  }}
+                                  MenuProps={{
+                                    PaperProps: {
+                                      style: {
+                                        width: 170
+                                      }
+                                    }
+                                  }}
                                 >
                                   <MenuItem value="submitted">Active</MenuItem>
                                   <MenuItem value="moving forward">Moving Forward</MenuItem>
@@ -411,11 +482,117 @@ const ApplicationManagement = () => {
             </Container>
 
             {/* Application Viewer Modal */}
-            <ApplicationViewer
+            <Dialog
               open={Boolean(selectedApplication)}
-              onClose={() => setSelectedApplication(null)}
-              application={selectedApplication}
-            />
+              onClose={handleCloseViewer}
+              maxWidth="md"
+              fullWidth
+              PaperProps={{
+                sx: {
+                  height: '80vh',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }
+              }}
+            >
+              <DialogTitle sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                pb: 2,
+                pr: 1
+              }}>
+                <Box>
+                  {applicantInfo.firstName && (
+                    <Typography variant="subtitle1">
+                      {`${applicantInfo.firstName} ${applicantInfo.lastName}`}
+                    </Typography>
+                  )}
+                  {applicantInfo.email && (
+                    <Typography variant="body2" color="text.secondary">
+                      {applicantInfo.email}
+                    </Typography>
+                  )}
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FormControl sx={{ width: 180 }}>
+                    <Select
+                      value={applicationStatus}
+                      onChange={(e) => updateApplicationStatusFromPopup(e.target.value)}
+                      size="small"
+                      disabled={statusUpdating}
+                      sx={{
+                        height: 36,
+                        '& .MuiSelect-select': {
+                          display: 'flex',
+                          alignItems: 'center',
+                          paddingRight: statusUpdating ? '32px' : '32px' // Keep consistent padding
+                        }
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: { width: 180 }
+                        }
+                      }}
+                      // Render value with loading indicator inside
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                          {selected === 'submitted' ? 'Active' :
+                            selected === 'moving forward' ? 'Moving Forward' : 'Archived'}
+                          {statusUpdating && (
+                            <CircularProgress
+                              size={16}
+                              sx={{
+                                position: 'absolute',
+                                right: -20,
+                                color: 'primary.main'
+                              }}
+                            />
+                          )}
+                        </Box>
+                      )}
+                    >
+                      <MenuItem value="submitted">Active</MenuItem>
+                      <MenuItem value="moving forward">Moving Forward</MenuItem>
+                      <MenuItem value="archived">Archived</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <IconButton
+                    onClick={handleCloseViewer}
+                    size="small"
+                    aria-label="close"
+                    sx={{
+                      ml: 1,
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                      }
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              </DialogTitle>
+
+              <Divider />
+
+              <DialogContent
+                sx={{
+                  flex: 1,
+                  p: 0,
+                  overflow: 'hidden'
+                }}
+              >
+                {/* Render the ApplicationViewer component */}
+                {selectedApplication && (
+                  <ApplicationViewer
+                    application={selectedApplication}
+                    applicantInfo={applicantInfo}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
 
             {/* Snackbar for notifications */}
             <Snackbar
