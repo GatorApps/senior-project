@@ -68,6 +68,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   const [transcriptId, setTranscriptId] = useState(null);
   const [useIframe, setUseIframe] = useState(pdfWorkerConfigFailed); // Initialize based on worker config status
   const pdfTimeoutRef = useRef(null);
+  const previousPdfUrlRef = useRef(null);
 
   // Fetch application details when application prop changes
   useEffect(() => {
@@ -135,6 +136,12 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
 
+      // Revoke the previous URL after setting the new one
+      if (previousPdfUrlRef.current) {
+        URL.revokeObjectURL(previousPdfUrlRef.current);
+      }
+      previousPdfUrlRef.current = url;
+
       // Only set timeout if we're not already using iframe
       if (!pdfWorkerConfigFailed) {
         // Set a timeout to fall back to iframe if react-pdf takes too long
@@ -153,8 +160,6 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
 
   // Fetch PDF when tab changes
   useEffect(() => {
-    let oldUrl = pdfUrl;
-
     if (tabValue === 0 && resumeId) {
       fetchPdf(resumeId);
     } else if (tabValue === 1 && transcriptId) {
@@ -164,11 +169,6 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     }
 
     return () => {
-      // Clean up
-      if (oldUrl) {
-        URL.revokeObjectURL(oldUrl);
-      }
-
       // Clear any timeout
       if (pdfTimeoutRef.current) {
         clearTimeout(pdfTimeoutRef.current);
@@ -176,6 +176,15 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       }
     };
   }, [tabValue, resumeId, transcriptId]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (previousPdfUrlRef.current) {
+        URL.revokeObjectURL(previousPdfUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);

@@ -1,164 +1,373 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup'; // Assuming you have a SkeletonGroup component for loading state
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Paper from '@mui/material/Paper';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import { axiosPrivate } from '../../apis/backend'
 import { useNavigate } from 'react-router-dom';
+import { axiosPrivate } from '../../apis/backend';
+import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
+import {
+  Box,
+  Card,
+  CardActions,
+  CardContent,
+  Button,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Alert,
+  CircularProgress
+} from '@mui/material';
 
+const ApplicationManagementCard = () => {
+  // State management
+  const [applications, setApplications] = useState({
+    activeApplications: [],
+    movingApplications: [],
+    archivedApplications: []
+  });
+  const [positions, setPositions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [positionsLoading, setPositionsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedPosition, setSelectedPosition] = useState('');
+  const navigate = useNavigate();
 
-const GenericPageCard = () => {
-    const [applications, setApplications] = useState({ activeApplications: [], movingApplications: [], archivedApplications: [] });
-    const [positions, setPositions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [selectedTab, setSelectedTab] = useState(0);
-    const [selectedPosition, setSelectedPosition] = useState('');
-    const [selectedApplication, setSelectedApplication] = useState(null);
-    const navigate = useNavigate();
-
-    const updateApplicationStatus = async (app, newStatus) => {
-        try {
-            await axiosPrivate.put(`/application/applicationStatus`, null, {
-                params: {
-                    labId: app.labId,
-                    applicationId: app.applicationId,
-                    status: newStatus
-                }
-            });
-            fetchApplications();
-        } catch (error) {
-            setError("Error updating status");
+  // Update application status
+  const updateApplicationStatus = async (app, newStatus) => {
+    try {
+      setLoading(true);
+      await axiosPrivate.put(`/application/applicationStatus`, null, {
+        params: {
+          labId: app.labId,
+          applicationId: app.applicationId,
+          status: newStatus
         }
-    };
+      });
+      fetchApplications();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Error updating application status";
+      setError(errorMessage);
+      setLoading(false);
+    }
+  };
 
-    const fetchApplications = async () => {
-        if (selectedPosition) {
-            setLoading(true);
-            axiosPrivate.get(`/application/applicationManagement?positionId=${selectedPosition}`)
-                .then((response) => {
-                    if (response.data && response.data.errCode === "0" && response.data.payload.applications) {
-                        setApplications(response.data.payload.applications);
-                        // console.log(response.data.payload.applications);
-                    } else {
-                        setError("No applications found");
-                    }
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    setError(error.message || "Error fetching applications");
-                    setLoading(false);
-                });
-        }
-    };
-
-    // Fetch positions from API
-    useEffect(() => {
-        axiosPrivate.get('/posting/postingsList')
-            .then((response) => {
-                // console.log(response.data);
-                if (response.data && response.data.errCode === "0" && response.data.payload.positions) {
-                    setPositions(response.data.payload.positions);
-                    setSelectedPosition(response.data.payload.positions[0].positionId);
-                } else {
-                    setError("No positions found");
-                }
-            })
-            .catch((error) => {
-                setError(error.message || "Error fetching positions");
-            });
-        setLoading(false);
-    }, []);
-
-    // Fetch applications when a position is selected
-    useEffect(() => {
-        fetchApplications();
-    }, [selectedPosition]);
-
-    const handleViewApplication = (application) => {
-        console.log(application);
-        setSelectedApplication(application);
+  // Fetch applications for selected position
+  const fetchApplications = async () => {
+    if (!selectedPosition) {
+      setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] });
+      return;
     }
 
-    return (
-        <Box sx={{ width: '100%' }}>
-            <Card variant="outlined">
-                <CardContent>
-                    <Typography gutterBottom variant="h2" component="div" sx={{ lineHeight: 1.2, fontSize: '1.3125rem', fontWeight: 400 }}>
-                        Application Management
+    setLoading(true);
+    try {
+      const response = await axiosPrivate.get(`/application/applicationManagement?positionId=${selectedPosition}`);
+
+      if (response.data && response.data.errCode === "0" && response.data.payload.applications) {
+        setApplications(response.data.payload.applications);
+        setError(null);
+      } else {
+        setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] });
+        setError("No applications found for this position");
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Error fetching applications";
+      setError(errorMessage);
+      setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch positions on component mount
+  useEffect(() => {
+    const fetchPositions = async () => {
+      setPositionsLoading(true);
+      try {
+        const response = await axiosPrivate.get('/posting/postingsList');
+
+        if (response.data && response.data.errCode === "0" && response.data.payload.positions) {
+          const positionsList = response.data.payload.positions;
+          setPositions(positionsList);
+
+          // Set the first position as selected if available
+          if (positionsList.length > 0) {
+            setSelectedPosition(positionsList[0].positionId);
+          } else {
+            setError("No positions available");
+          }
+        } else {
+          setError("No positions found");
+          setPositions([]);
+        }
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || "Error fetching positions";
+        setError(errorMessage);
+        setPositions([]);
+      } finally {
+        setPositionsLoading(false);
+      }
+    };
+
+    fetchPositions();
+  }, []);
+
+  // Fetch applications when a position is selected
+  useEffect(() => {
+    if (selectedPosition) {
+      fetchApplications();
+    }
+  }, [selectedPosition]);
+
+  // Handle tab change
+  const handleTabChange = (index) => {
+    setSelectedTab(index);
+  };
+
+  // Get current applications based on selected tab
+  const getCurrentApplications = () => {
+    switch (selectedTab) {
+      case 0:
+        return applications.activeApplications || [];
+      case 1:
+        return applications.movingApplications || [];
+      case 2:
+        return applications.archivedApplications || [];
+      default:
+        return [];
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleString();
+    } catch (error) {
+      return "Invalid date";
+    }
+  };
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Card variant="outlined">
+        <CardContent>
+          <Typography
+            gutterBottom
+            variant="h2"
+            component="div"
+            sx={{
+              lineHeight: 1.2,
+              fontSize: '1.3125rem',
+              fontWeight: 500,
+              mb: 2
+            }}
+          >
+            Application Management
+          </Typography>
+
+          <Box sx={{ mb: 2 }}>
+            {/* Position Dropdown */}
+            <FormControl
+              disabled={positionsLoading}
+              sx={{
+                backgroundColor: 'white',
+                width: 250,
+                my: 1,
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderRadius: '4px'
+                }
+              }}
+            >
+              <InputLabel
+                id="position-select-label"
+                sx={{
+                  fontSize: '0.875rem',
+                  fontWeight: 500
+                }}
+              >
+                Position
+              </InputLabel>
+              <Select
+                labelId="position-select-label"
+                id="position-select"
+                value={selectedPosition}
+                onChange={(e) => setSelectedPosition(e.target.value)}
+                sx={{
+                  height: '40px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  '& .MuiSelect-select': {
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+                label="Position"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                      width: 250
+                    }
+                  }
+                }}
+              >
+                {positionsLoading ? (
+                  <MenuItem disabled>Loading positions...</MenuItem>
+                ) : positions.length === 0 ? (
+                  <MenuItem disabled>No positions available</MenuItem>
+                ) : (
+                  positions.map((pos) => (
+                    <MenuItem
+                      key={pos.positionId}
+                      value={pos.positionId}
+                      sx={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '100%'
+                      }}
+                      title={pos.name}
+                    >
+                      {pos.name}
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+            </FormControl>
+
+            {/* Custom Tabs */}
+            <Box sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              mt: 1.5
+            }}>
+              <Box sx={{
+                display: 'flex',
+                width: 'fit-content',
+                maxWidth: '100%',
+                border: '1px solid #1e4b94',
+                borderRadius: '4px',
+                overflow: 'hidden'
+              }}>
+                {['Active', 'Moving Forward', 'Archived'].map((label, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => handleTabChange(index)}
+                    sx={{
+                      padding: '4px 12px',
+                      minWidth: '80px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      backgroundColor: selectedTab === index ? '#1e4b94' : 'transparent',
+                      color: selectedTab === index ? 'white' : '#1e4b94',
+                      fontWeight: 500,
+                      fontSize: '0.75rem',
+                      borderRight: index < 2 ? '1px solid #1e4b94' : 'none',
+                      borderColor: 'rgba(40, 87, 151, 0.5)',
+                      transition: 'background-color 0.3s, color 0.3s',
+                      '&:hover': {
+                        backgroundColor: selectedTab === index ? '#1e4b94' : '#f0f4fa',
+                      }
+                    }}
+                  >
+                    {label}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Error Display */}
+            {error && !loading && (
+              <Alert
+                severity="error"
+                sx={{ mb: 2 }}
+                onClose={() => setError(null)}
+              >
+                {error}
+              </Alert>
+            )}
+
+            {/* Application List */}
+            <Box
+              sx={{
+                padding: '12px',
+                minHeight: '200px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: loading ? 'center' : 'flex-start'
+              }}
+            >
+              {/* Loading State */}
+              {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <>
+                  {/* Empty State */}
+                  {getCurrentApplications().length === 0 ? (
+                    <Typography
+                      variant="body1"
+                      color="textSecondary"
+                      sx={{
+                        textAlign: 'center',
+                        py: 2
+                      }}
+                    >
+                      No available applications of this status
                     </Typography>
-                    <Box marginY="16px">
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
-                            {/* Decrease size of the select box */}
-                            <FormControl sx={{ minWidth: 200, backgroundColor: 'white' }}>
-                                <InputLabel id="position-select-label">Position</InputLabel>
-                                <Select
-                                    labelId="position-select-label"
-                                    id="position-select"
-                                    value={selectedPosition}
-                                    onChange={(e) => setSelectedPosition(e.target.value)}
-                                    sx={{ minWidth: 200, backgroundColor: 'white', height: '40px' }}  // Decrease size of the select box
-                                    label="Position"
-                                >
-                                    {positions.map((pos) => (
-                                        <MenuItem key={pos.positionId} value={pos.positionId}>
-                                            {pos.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Box>
-
-                        {/* Application Tabs (Shrink the size) */}
-                        <Tabs
-                            value={selectedTab}
-                            onChange={(e, newValue) => setSelectedTab(newValue)}
-                            centered
+                  ) : (
+                    /* Application List - Limited to 3 items - Removed margin between items */
+                    getCurrentApplications().slice(0, 3).map((app, index, array) => (
+                      <Box
+                        key={app.applicationId || `${app.opid}-${app.email}`}
+                        sx={{
+                          p: 1.5,
+                          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none',
+                          mb: 0 // Removed margin between items
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: '0.875rem',
+                            mb: 0.5
+                          }}
                         >
-                            <Tab label="Active" sx={{ fontSize: '0.75rem' }} />
-                            <Tab label="Moving Forward" sx={{ fontSize: '0.75rem' }} />
-                            <Tab label="Archived" sx={{ fontSize: '0.75rem' }} />
-                        </Tabs>
+                          {app.firstName ? `${app.firstName} ${app.lastName}` : 'Unnamed Applicant'}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="textSecondary"
+                          sx={{ fontSize: '0.75rem' }}
+                        >
+                          Submitted: {formatDate(app.submissionTimeStamp)}
+                        </Typography>
+                      </Box>
+                    ))
+                  )}
+                </>
+              )}
+            </Box>
+          </Box>
+        </CardContent>
+        <CardActions>
+          {/* Restored original button styling */}
+          <Button
+            size="medium"
+            onClick={() => navigate('/applicationManagement')}
+          >
+            View All
+          </Button>
+        </CardActions>
+      </Card>
+    </Box>
+  );
+};
 
-                        {/* Application List */}
-                        <Paper variant="outlined" sx={{ padding: '6px', marginTop: 2 }}>
-                            {loading ? (
-                                <SkeletonGroup boxPadding={'0'} />
-                            ) : error ? (
-                                <Typography color="error">{error}</Typography>
-                            ) : ([applications.activeApplications, applications.movingApplications, applications.archivedApplications][selectedTab].length === 0 ? (
-                                <Typography variant="body1" color="textSecondary" sx={{ marginBottom: '8px', padding: '16px' }}>No applications available.</Typography>
-                            ) : (
-                                [applications.activeApplications, applications.movingApplications, applications.archivedApplications][selectedTab].slice(0, 3).map((app) => (
-                                    <Box key={app.opid} sx={{ marginBottom: '16px', padding: '16px', borderBottom: '1px solid #ddd' }}>
-                                        <Typography variant="h7">Applicant Name: {app.firstName} {app.lastName}</Typography>
-                                        {/* <Typography variant="h6">Student OPID: {app.opid}</Typography> */}
-                                        <Typography variant="body2" color="textSecondary">
-                                            Submitted: {new Date(app.submissionTimeStamp).toLocaleString()}
-                                        </Typography>
-                                    </Box>
-                                ))
-                            ))}
-                        </Paper>
-                    </Box>
-                </CardContent>
-                <CardActions>
-                    <Button size="medium" onClick={() => navigate('/applicationManagement')}>View All</Button>
-                </CardActions>
-            </Card>
-        </Box>
-    );
-}
-
-export default GenericPageCard;
+export default ApplicationManagementCard;
