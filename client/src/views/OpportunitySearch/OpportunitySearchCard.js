@@ -124,7 +124,7 @@ const OpportunitySearchCard = () => {
           </div>
         </CardContent>
         <CardActions>
-          <Button size="medium" onClick={() => { navigate("/search") }}>View all</Button>
+          <Button size="medium" onClick={() => { navigate("/search") }}>Browse all opportunities</Button>
         </CardActions>
       </Card>
     </Box>

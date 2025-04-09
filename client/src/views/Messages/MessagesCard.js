@@ -174,7 +174,7 @@ const MessagesCard = () => {
         </CardContent>
         <CardActions>
           <Button size="medium" onClick={() => navigate('/messages')}>
-            View All
+            View more in Message Center
           </Button>
         </CardActions>
       </Card>

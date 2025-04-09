@@ -421,7 +421,7 @@ const OpportunitySearch = ({ title }) => {
                   </SearchContainer>
 
                   {/* Search all positions link */}
-                  <SearchAllLink onClick={handleSearchAll}>Search for all positions</SearchAllLink>
+                  <SearchAllLink onClick={handleSearchAll}>Browse all opportunities</SearchAllLink>
                 </SearchContainerWrapper>
 
                 {/* Error message - only show for actual errors, not for "no results" */}

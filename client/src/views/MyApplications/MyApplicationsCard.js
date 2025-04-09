@@ -91,7 +91,7 @@ const MyApplicationsCard = ({ title }) => {
         </CardContent>
 
         <CardActions>
-          <Button size="medium" onClick={handleButtonClick}>View All</Button>
+          <Button size="medium" onClick={handleButtonClick}>Check my applications</Button>
         </CardActions>
       </Card>
     </Box>

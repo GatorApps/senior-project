@@ -383,7 +383,7 @@ const ApplicationManagementCard = () => {
         <CardActions>
           <Button
             size="medium"
-            onClick={() => navigate('/applicationManagement')}
+            onClick={() => navigate('/applicationmanagement')}
           >
             View All
           </Button>

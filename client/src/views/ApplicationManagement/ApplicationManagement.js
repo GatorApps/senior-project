@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
-import { axiosPrivate } from '../../apis/backend';
-import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
-import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
-import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
-import ApplicationViewer from '../../components/ApplicationViewer/ApplicationViewer';
+import { useEffect, useState } from "react"
+import { axiosPrivate } from "../../apis/backend"
+import HelmetComponent from "../../components/HelmetComponent/HelmetComponent"
+import Header from "../../components/Header/Header"
+import Footer from "../../components/Footer/Footer"
+import SkeletonGroup from "../../components/SkeletonGroup/SkeletonGroup"
+import ApplicationViewer from "../../components/ApplicationViewer/ApplicationViewer"
 import {
   Box,
   Button,
   Container,
   Paper,
   Typography,
-  Tabs,
-  Tab,
   MenuItem,
   Select,
   FormControl,
@@ -24,220 +22,220 @@ import {
   DialogTitle,
   DialogContent,
   Divider,
-  IconButton
-} from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+  IconButton,
+} from "@mui/material"
+import { Close as CloseIcon } from "@mui/icons-material"
 
 const ApplicationManagement = () => {
   // State management
   const [applications, setApplications] = useState({
     activeApplications: [],
     movingApplications: [],
-    archivedApplications: []
-  });
-  const [positions, setPositions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [positionsLoading, setPositionsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [selectedPosition, setSelectedPosition] = useState('');
-  const [selectedApplication, setSelectedApplication] = useState(null);
-  const [applicationStatus, setApplicationStatus] = useState('submitted');
-  const [statusUpdating, setStatusUpdating] = useState(false);
+    archivedApplications: [],
+  })
+  const [positions, setPositions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [positionsLoading, setPositionsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [selectedTab, setSelectedTab] = useState(0)
+  const [selectedPosition, setSelectedPosition] = useState("")
+  const [selectedApplication, setSelectedApplication] = useState(null)
+  const [applicationStatus, setApplicationStatus] = useState("submitted")
+  const [statusUpdating, setStatusUpdating] = useState(false)
   const [applicantInfo, setApplicantInfo] = useState({
-    firstName: '',
-    lastName: '',
-    email: ''
-  });
+    firstName: "",
+    lastName: "",
+    email: "",
+  })
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'info'
-  });
+    message: "",
+    severity: "info",
+  })
 
   // Helper function to show snackbar notifications
-  const showSnackbar = (message, severity = 'info') => {
+  const showSnackbar = (message, severity = "info") => {
     setSnackbar({
       open: true,
       message,
-      severity
-    });
-  };
+      severity,
+    })
+  }
 
   // Close snackbar
   const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
-  };
+    setSnackbar((prev) => ({ ...prev, open: false }))
+  }
 
   // Update application status from the popup
   const updateApplicationStatusFromPopup = async (newStatus) => {
-    if (!selectedApplication) return;
+    if (!selectedApplication) return
 
-    setStatusUpdating(true);
+    setStatusUpdating(true)
     try {
       await axiosPrivate.put(`/application/applicationStatus`, null, {
         params: {
           labId: selectedApplication.labId,
           applicationId: selectedApplication.applicationId,
-          status: newStatus
-        }
-      });
+          status: newStatus,
+        },
+      })
 
-      setApplicationStatus(newStatus);
-      showSnackbar(`Application status updated to ${newStatus === "submitted" ? "active" : newStatus}`, 'success');
+      setApplicationStatus(newStatus)
+      showSnackbar(`Application status updated to ${newStatus === "submitted" ? "active" : newStatus}`, "success")
 
       // Also update the application in the list
-      fetchApplications();
+      fetchApplications()
     } catch (error) {
-      console.error('Error updating status:', error);
-      const errorMessage = error.response?.data?.message || "Error updating application status";
-      setError(errorMessage);
-      showSnackbar(errorMessage, 'error');
+      console.error("Error updating status:", error)
+      const errorMessage = error.response?.data?.message || "Error updating application status"
+      setError(errorMessage)
+      showSnackbar(errorMessage, "error")
     } finally {
-      setStatusUpdating(false);
+      setStatusUpdating(false)
     }
-  };
+  }
 
   // Update application status from the list
   const updateApplicationStatus = async (app, newStatus) => {
     try {
-      setLoading(true);
+      setLoading(true)
       await axiosPrivate.put(`/application/applicationStatus`, null, {
         params: {
           labId: app.labId,
           applicationId: app.applicationId,
-          status: newStatus
-        }
-      });
+          status: newStatus,
+        },
+      })
 
-      showSnackbar(`Application status updated to ${newStatus}`, 'success');
-      fetchApplications();
+      showSnackbar(`Application status updated to ${newStatus}`, "success")
+      fetchApplications()
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error updating application status";
-      setError(errorMessage);
-      showSnackbar(errorMessage, 'error');
-      setLoading(false);
+      const errorMessage = error.response?.data?.message || "Error updating application status"
+      setError(errorMessage)
+      showSnackbar(errorMessage, "error")
+      setLoading(false)
     }
-  };
+  }
 
   // Fetch applications for selected position
   const fetchApplications = async () => {
     if (!selectedPosition) {
-      setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] });
-      return;
+      setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] })
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await axiosPrivate.get(`/application/applicationManagement?positionId=${selectedPosition}`);
+      const response = await axiosPrivate.get(`/application/applicationManagement?positionId=${selectedPosition}`)
 
       if (response.data && response.data.errCode === "0" && response.data.payload.applications) {
-        setApplications(response.data.payload.applications);
-        setError(null);
+        setApplications(response.data.payload.applications)
+        setError(null)
       } else {
-        setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] });
-        setError("No applications found for this position");
+        setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] })
+        setError("No applications found for this position")
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error fetching applications";
-      setError(errorMessage);
-      showSnackbar(errorMessage, 'error');
-      setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] });
+      const errorMessage = error.response?.data?.message || "Error fetching applications"
+      setError(errorMessage)
+      showSnackbar(errorMessage, "error")
+      setApplications({ activeApplications: [], movingApplications: [], archivedApplications: [] })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Fetch positions on component mount
   useEffect(() => {
     const fetchPositions = async () => {
-      setPositionsLoading(true);
+      setPositionsLoading(true)
       try {
-        const response = await axiosPrivate.get('/posting/postingsList');
+        const response = await axiosPrivate.get("/posting/postingsList")
 
         if (response.data && response.data.errCode === "0" && response.data.payload.positions) {
-          const positionsList = response.data.payload.positions;
-          setPositions(positionsList);
+          const positionsList = response.data.payload.positions
+          setPositions(positionsList)
 
           // Set the first position as selected if available
           if (positionsList.length > 0) {
-            setSelectedPosition(positionsList[0].positionId);
+            setSelectedPosition(positionsList[0].positionId)
           } else {
-            setError("No positions available");
+            setError("No positions available")
           }
         } else {
-          setError("No positions found");
-          setPositions([]);
+          setError("No positions found")
+          setPositions([])
         }
       } catch (error) {
-        const errorMessage = error.response?.data?.message || "Error fetching positions";
-        setError(errorMessage);
-        showSnackbar(errorMessage, 'error');
-        setPositions([]);
+        const errorMessage = error.response?.data?.message || "Error fetching positions"
+        setError(errorMessage)
+        showSnackbar(errorMessage, "error")
+        setPositions([])
       } finally {
-        setPositionsLoading(false);
+        setPositionsLoading(false)
       }
-    };
+    }
 
-    fetchPositions();
-  }, []);
+    fetchPositions()
+  }, [])
 
   // Fetch applications when a position is selected
   useEffect(() => {
     if (selectedPosition) {
-      fetchApplications();
+      fetchApplications()
     }
-  }, [selectedPosition]);
+  }, [selectedPosition])
 
   // Handle viewing an application
   const handleViewApplication = (application) => {
-    setSelectedApplication(application);
-    setApplicationStatus(application.status || 'submitted');
+    setSelectedApplication(application)
+    setApplicationStatus(application.status || "submitted")
 
     // Set applicant info
     setApplicantInfo({
-      firstName: application.firstName || '',
-      lastName: application.lastName || '',
-      email: application.email || ''
-    });
-  };
+      firstName: application.firstName || "",
+      lastName: application.lastName || "",
+      email: application.email || "",
+    })
+  }
 
   // Handle closing the application viewer
   const handleCloseViewer = () => {
-    setSelectedApplication(null);
-  };
+    setSelectedApplication(null)
+  }
 
   // Handle tab change
-  const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
-  };
+  const handleTabChange = (index) => {
+    setSelectedTab(index)
+  }
 
   // Get current applications based on selected tab
   const getCurrentApplications = () => {
     switch (selectedTab) {
       case 0:
-        return applications.activeApplications || [];
+        return applications.activeApplications || []
       case 1:
-        return applications.movingApplications || [];
+        return applications.movingApplications || []
       case 2:
-        return applications.archivedApplications || [];
+        return applications.archivedApplications || []
       default:
-        return [];
+        return []
     }
-  };
+  }
 
   // Format date for display
   const formatDate = (dateString) => {
     try {
-      return new Date(dateString).toLocaleString();
+      return new Date(dateString).toLocaleString()
     } catch (error) {
-      return "Invalid date";
+      return "Invalid date"
     }
-  };
+  }
 
   return (
     <HelmetComponent title={"Application Management"}>
-      <div className='ApplicationManagement'>
+      <div className="ApplicationManagement">
         <Header />
         <main>
           <Box>
@@ -247,33 +245,36 @@ const ApplicationManagement = () => {
                 <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_left">
                   <Typography variant="h1">Application Management</Typography>
                 </Box>
-                <Box className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right" sx={{ 'flex-grow': '1' }}>
+                <Box
+                  className="GenericPage__container_title_flexBox GenericPage__container_title_flexBox_right"
+                  sx={{ "flex-grow": "1" }}
+                >
                   <Box className="GenericPage__container_title_flexBox_right">
                     {/* Adjusted position, font size, and width */}
                     <FormControl
                       disabled={positionsLoading}
                       sx={{
-                        backgroundColor: 'white',
+                        backgroundColor: "white",
                         // Moved dropdown downward
-                        position: 'relative',
-                        top: '0px', // Adjusted from -5px to 0px
+                        position: "relative",
+                        top: "0px", // Adjusted from -5px to 0px
                         width: 320, // Increased fixed width from 250px to 320px
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderRadius: '4px'
-                        }
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderRadius: "4px",
+                        },
                       }}
                     >
                       <InputLabel
                         id="position-select-label"
                         sx={{
-                          fontSize: '1rem', // Increased font size from 0.875rem
-                          lineHeight: '1.5rem',
+                          fontSize: "1rem", // Increased font size from 0.875rem
+                          lineHeight: "1.5rem",
                           fontWeight: 500, // Added slightly bolder font
                           // Adjusted label position for new font size
-                          transform: 'translate(14px, 13px) scale(1)',
-                          '&.MuiInputLabel-shrink': {
-                            transform: 'translate(14px, -9px) scale(0.75)'
-                          }
+                          transform: "translate(14px, 13px) scale(1)",
+                          "&.MuiInputLabel-shrink": {
+                            transform: "translate(14px, -9px) scale(0.75)",
+                          },
                         }}
                       >
                         Position
@@ -284,28 +285,28 @@ const ApplicationManagement = () => {
                         value={selectedPosition}
                         onChange={(e) => setSelectedPosition(e.target.value)}
                         sx={{
-                          width: '100%', // Use full width of parent
-                          height: '46px', // Maintained height
-                          fontSize: '1rem', // Increased font size from 0.875rem
+                          width: "100%", // Use full width of parent
+                          height: "46px", // Maintained height
+                          fontSize: "1rem", // Increased font size from 0.875rem
                           fontWeight: 500, // Added slightly bolder font
-                          '& .MuiSelect-select': {
+                          "& .MuiSelect-select": {
                             // Adjusted padding for new font size
-                            paddingTop: '10px',
-                            paddingBottom: '10px',
+                            paddingTop: "10px",
+                            paddingBottom: "10px",
                             // Ensure text truncation
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          },
                         }}
                         label="Position"
                         MenuProps={{
                           PaperProps: {
                             style: {
                               maxHeight: 300,
-                              width: 320 // Match the width of the dropdown
-                            }
-                          }
+                              width: 320, // Match the width of the dropdown
+                            },
+                          },
                         }}
                       >
                         {positionsLoading ? (
@@ -318,13 +319,13 @@ const ApplicationManagement = () => {
                               key={pos.positionId}
                               value={pos.positionId}
                               sx={{
-                                fontSize: '1rem', // Increased font size
+                                fontSize: "1rem", // Increased font size
                                 fontWeight: 500, // Added slightly bolder font
                                 // Ensure text truncation in dropdown items
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                maxWidth: '100%'
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                maxWidth: "100%",
                               }}
                               title={pos.name} // Show full name on hover
                             >
@@ -342,51 +343,51 @@ const ApplicationManagement = () => {
             <Container maxWidth="lg">
               {/* Error Display */}
               {error && !loading && (
-                <Alert
-                  severity="error"
-                  sx={{ mb: 2 }}
-                  onClose={() => setError(null)}
-                >
+                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
                   {error}
                 </Alert>
               )}
 
               {/* Application List - Using the same Paper class as GenericPage */}
-              <Paper className='GenericPage__container_paper' variant='outlined' sx={{ padding: '24px' }}>
+              <Paper className="GenericPage__container_paper" variant="outlined" sx={{ padding: "24px" }}>
                 {/* Updated Tabs to match the image - made smaller */}
-                <Box sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  mb: 4
-                }}>
-                  <Box sx={{
-                    display: 'flex',
-                    width: 'fit-content',
-                    maxWidth: '100%',
-                    border: '1px solid #1e4b94',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
-                  }}>
-                    {['Active', 'Moving Forward', 'Archived'].map((label, index) => (
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    mb: 4,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      width: "fit-content",
+                      maxWidth: "100%",
+                      border: "1px solid #1e4b94",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {["Active", "Moving Forward", "Archived"].map((label, index) => (
                       <Box
                         key={index}
-                        onClick={() => setSelectedTab(index)}
+                        onClick={() => handleTabChange(index)}
                         sx={{
-                          padding: '6px 16px', // Reduced padding for smaller height
-                          minWidth: '100px', // Reduced minimum width
-                          textAlign: 'center',
-                          cursor: 'pointer',
-                          backgroundColor: selectedTab === index ? '#1e4b94' : 'transparent',
-                          color: selectedTab === index ? 'white' : '#1e4b94',
+                          padding: "6px 16px", // Reduced padding for smaller height
+                          minWidth: "100px", // Reduced minimum width
+                          textAlign: "center",
+                          cursor: "pointer",
+                          backgroundColor: selectedTab === index ? "#1e4b94" : "transparent",
+                          color: selectedTab === index ? "white" : "#1e4b94",
                           fontWeight: 500,
-                          fontSize: '0.875rem', // Reduced font size
-                          borderRight: index < 2 ? '1px solid #1e4b94' : 'none',
-                          borderColor: 'rgba(40, 87, 151, 0.5)',
-                          transition: 'background-color 0.3s, color 0.3s',
-                          '&:hover': {
-                            backgroundColor: selectedTab === index ? '#1e4b94' : '#f0f4fa',
-                          }
+                          fontSize: "0.875rem", // Reduced font size
+                          borderRight: index < 2 ? "1px solid #1e4b94" : "none",
+                          borderColor: "rgba(40, 87, 151, 0.5)",
+                          transition: "background-color 0.3s, color 0.3s",
+                          "&:hover": {
+                            backgroundColor: selectedTab === index ? "#1e4b94" : "#f0f4fa",
+                          },
                         }}
                       >
                         {label}
@@ -397,12 +398,12 @@ const ApplicationManagement = () => {
 
                 {/* Loading State */}
                 {loading ? (
-                  <SkeletonGroup boxPadding={'0'} />
+                  <SkeletonGroup boxPadding={"0"} />
                 ) : (
                   <>
                     {/* Empty State */}
                     {getCurrentApplications().length === 0 ? (
-                      <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <Box sx={{ textAlign: "center", py: 4 }}>
                         <Typography variant="body1" color="textSecondary">
                           No applications available in this category
                         </Typography>
@@ -416,54 +417,93 @@ const ApplicationManagement = () => {
                             mb: 2,
                             p: 2,
                             borderRadius: 1,
-                            border: '1px solid #eee',
-                            '&:hover': {
-                              backgroundColor: '#f9f9f9'
-                            }
+                            border: "1px solid #eee",
+                            "&:hover": {
+                              backgroundColor: "#f9f9f9",
+                            },
                           }}
                         >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-                            <Box>
-                              <Typography variant="h6">
-                                {app.firstName ? `${app.firstName} ${app.lastName}` : 'Unnamed Applicant'}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: { xs: "column", md: "row" }, // Stack on mobile and tablet, row on desktop
+                              justifyContent: "space-between",
+                              width: "100%",
+                              alignItems: { xs: "flex-start", md: "flex-start" },
+                              gap: { xs: 2, md: 1 },
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                flexGrow: 1,
+                                minWidth: 0,
+                                mr: { xs: 0, md: 2 }, // No margin on mobile/tablet, margin on desktop
+                                width: "100%", // Full width on all screens
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  maxWidth: "100%",
+                                }}
+                                title={app.firstName ? `${app.firstName} ${app.lastName}` : "Unnamed Applicant"} // Shows full text on hover
+                              >
+                                {app.firstName ? `${app.firstName} ${app.lastName}` : "Unnamed Applicant"}
                               </Typography>
-                              <Typography variant="body2">
-                                {app.email || 'No email provided'}
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  maxWidth: "100%",
+                                }}
+                                title={app.email || "No email provided"} // Shows full text on hover
+                              >
+                                {app.email || "No email provided"}
                               </Typography>
                               <Typography variant="body2" color="textSecondary">
                                 Submitted: {formatDate(app.submissionTimeStamp)}
                               </Typography>
                             </Box>
 
-                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleViewApplication(app)}
-                              >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                gap: 2,
+                                alignItems: "center",
+                                flexShrink: 0,
+                                width: "auto",
+                                justifyContent: "flex-start",
+                              }}
+                            >
+                              <Button variant="contained" color="primary" onClick={() => handleViewApplication(app)}>
                                 View
                               </Button>
 
                               {/* Fixed width for status dropdown */}
                               <FormControl sx={{ width: 170 }}>
                                 <Select
-                                  value={app.status || 'submitted'}
+                                  value={app.status || "submitted"}
                                   onChange={(e) => updateApplicationStatus(app, e.target.value)}
                                   size="small"
                                   sx={{
-                                    width: '100%',
-                                    '& .MuiSelect-select': {
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      whiteSpace: 'nowrap'
-                                    }
+                                    width: "100%",
+                                    "& .MuiSelect-select": {
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                    },
                                   }}
                                   MenuProps={{
                                     PaperProps: {
                                       style: {
-                                        width: 170
-                                      }
-                                    }
+                                        width: 170,
+                                      },
+                                    },
                                   }}
                                 >
                                   <MenuItem value="submitted">Active</MenuItem>
@@ -489,33 +529,56 @@ const ApplicationManagement = () => {
               fullWidth
               PaperProps={{
                 sx: {
-                  height: '80vh',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }
+                  height: "80vh",
+                  display: "flex",
+                  flexDirection: "column",
+                },
               }}
             >
-              <DialogTitle sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                pb: 2,
-                pr: 1
-              }}>
-                <Box>
-                  {applicantInfo.firstName && (
-                    <Typography variant="subtitle1">
-                      {`${applicantInfo.firstName} ${applicantInfo.lastName}`}
-                    </Typography>
-                  )}
-                  {applicantInfo.email && (
-                    <Typography variant="body2" color="text.secondary">
-                      {applicantInfo.email}
-                    </Typography>
-                  )}
+              <DialogTitle
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  pb: 2,
+                  pr: 1,
+                }}
+              >
+                <Box sx={{ flexGrow: 1, minWidth: 0, mr: 2 }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: "100%",
+                    }}
+                    title={
+                      applicantInfo.firstName
+                        ? `${applicantInfo.firstName} ${applicantInfo.lastName}`
+                        : "Applicant Details"
+                    }
+                  >
+                    {applicantInfo.firstName
+                      ? `${applicantInfo.firstName} ${applicantInfo.lastName}`
+                      : "Applicant Details"}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: "100%",
+                    }}
+                    title={applicantInfo.email || "No email provided"}
+                  >
+                    {applicantInfo.email || "No email provided"}
+                  </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <FormControl sx={{ width: 180 }}>
                     <Select
                       value={applicationStatus}
@@ -524,29 +587,32 @@ const ApplicationManagement = () => {
                       disabled={statusUpdating}
                       sx={{
                         height: 36,
-                        '& .MuiSelect-select': {
-                          display: 'flex',
-                          alignItems: 'center',
-                          paddingRight: statusUpdating ? '32px' : '32px' // Keep consistent padding
-                        }
+                        "& .MuiSelect-select": {
+                          display: "flex",
+                          alignItems: "center",
+                          paddingRight: statusUpdating ? "32px" : "32px", // Keep consistent padding
+                        },
                       }}
                       MenuProps={{
                         PaperProps: {
-                          style: { width: 180 }
-                        }
+                          style: { width: 180 },
+                        },
                       }}
                       // Render value with loading indicator inside
                       renderValue={(selected) => (
-                        <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-                          {selected === 'submitted' ? 'Active' :
-                            selected === 'moving forward' ? 'Moving Forward' : 'Archived'}
+                        <Box sx={{ display: "flex", alignItems: "center", position: "relative" }}>
+                          {selected === "submitted"
+                            ? "Active"
+                            : selected === "moving forward"
+                              ? "Moving Forward"
+                              : "Archived"}
                           {statusUpdating && (
                             <CircularProgress
                               size={16}
                               sx={{
-                                position: 'absolute',
+                                position: "absolute",
                                 right: -20,
-                                color: 'primary.main'
+                                color: "primary.main",
                               }}
                             />
                           )}
@@ -565,9 +631,9 @@ const ApplicationManagement = () => {
                     aria-label="close"
                     sx={{
                       ml: 1,
-                      '&:hover': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                      }
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
                     }}
                   >
                     <CloseIcon />
@@ -581,15 +647,12 @@ const ApplicationManagement = () => {
                 sx={{
                   flex: 1,
                   p: 0,
-                  overflow: 'hidden'
+                  overflow: "hidden",
                 }}
               >
                 {/* Render the ApplicationViewer component */}
                 {selectedApplication && (
-                  <ApplicationViewer
-                    application={selectedApplication}
-                    applicantInfo={applicantInfo}
-                  />
+                  <ApplicationViewer application={selectedApplication} applicantInfo={applicantInfo} />
                 )}
               </DialogContent>
             </Dialog>
@@ -599,13 +662,9 @@ const ApplicationManagement = () => {
               open={snackbar.open}
               autoHideDuration={6000}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <Alert
-                onClose={handleCloseSnackbar}
-                severity={snackbar.severity}
-                sx={{ width: '100%' }}
-              >
+              <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
                 {snackbar.message}
               </Alert>
             </Snackbar>
@@ -614,7 +673,7 @@ const ApplicationManagement = () => {
         <Footer />
       </div>
     </HelmetComponent>
-  );
-};
+  )
+}
 
-export default ApplicationManagement;
+export default ApplicationManagement
