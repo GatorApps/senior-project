@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { axiosPrivate } from '../../apis/backend';
-import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
 import {
   Box,
   Card,
@@ -15,7 +14,7 @@ import {
   Select,
   MenuItem,
   Alert,
-  CircularProgress
+  Skeleton
 } from '@mui/material';
 
 const ApplicationManagementCard = () => {
@@ -145,6 +144,34 @@ const ApplicationManagementCard = () => {
     } catch (error) {
       return "Invalid date";
     }
+  };
+
+  // Application skeleton loading component
+  const ApplicationSkeleton = ({ count = 3 }) => {
+    return Array(count).fill(0).map((_, index, array) => (
+      <Box
+        key={`skeleton-${index}`}
+        sx={{
+          p: 1,
+          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none'
+        }}
+      >
+        {/* Name skeleton */}
+        <Skeleton
+          variant="text"
+          width="60%"
+          height={24}
+          sx={{ mb: 0.5 }}
+        />
+
+        {/* Date skeleton */}
+        <Skeleton
+          variant="text"
+          width="40%"
+          height={20}
+        />
+      </Box>
+    ));
   };
 
   return (
@@ -298,14 +325,12 @@ const ApplicationManagementCard = () => {
                 minHeight: '200px',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: loading ? 'center' : 'flex-start'
+                justifyContent: 'flex-start'
               }}
             >
-              {/* Loading State */}
+              {/* Loading State with Skeleton */}
               {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
-                </Box>
+                <ApplicationSkeleton count={3} />
               ) : (
                 <>
                   {/* Empty State */}
@@ -321,14 +346,13 @@ const ApplicationManagementCard = () => {
                       No applications available in this category
                     </Typography>
                   ) : (
-                    /* Application List - Limited to 3 items - Removed margin between items */
+                    /* Application List - Limited to 3 items */
                     getCurrentApplications().slice(0, 3).map((app, index, array) => (
                       <Box
                         key={app.applicationId || `${app.opid}-${app.email}`}
                         sx={{
                           p: 1.5,
-                          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none',
-                          mb: 0 // Removed margin between items
+                          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none'
                         }}
                       >
                         <Typography
@@ -357,7 +381,6 @@ const ApplicationManagementCard = () => {
           </Box>
         </CardContent>
         <CardActions>
-          {/* Restored original button styling */}
           <Button
             size="medium"
             onClick={() => navigate('/applicationManagement')}
@@ -370,4 +393,4 @@ const ApplicationManagementCard = () => {
   );
 };
 
-export default ApplicationManagementCard;
+export default ApplicationManagementCard
