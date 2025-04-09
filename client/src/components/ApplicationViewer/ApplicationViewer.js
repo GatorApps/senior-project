@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -15,11 +15,46 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
+// Flag to track if PDF.js worker configuration failed
+let pdfWorkerConfigFailed = false;
+
 // Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.mjs',
-  import.meta.url
-).toString();
+try {
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.mjs',
+    import.meta.url
+  ).toString();
+} catch (error) {
+  console.error('Error configuring PDF.js worker:', error);
+  // Mark that worker config failed - we'll use iframe instead
+  pdfWorkerConfigFailed = true;
+}
+
+// Error boundary component to catch react-pdf rendering errors
+class PDFErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('PDF Error Boundary caught an error:', error, errorInfo);
+    if (this.props.onError) {
+      this.props.onError(error);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || null;
+    }
+    return this.props.children;
+  }
+}
 
 const ApplicationViewer = ({ application, applicantInfo }) => {
   const [tabValue, setTabValue] = useState(0);
@@ -31,7 +66,8 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   const [supplementalResponses, setSupplementalResponses] = useState('');
   const [resumeId, setResumeId] = useState(null);
   const [transcriptId, setTranscriptId] = useState(null);
-  const [useIframe, setUseIframe] = useState(false);
+  const [useIframe, setUseIframe] = useState(pdfWorkerConfigFailed); // Initialize based on worker config status
+  const pdfTimeoutRef = useRef(null);
 
   // Fetch application details when application prop changes
   useEffect(() => {
@@ -70,8 +106,17 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     setLoading(true);
     setError(null);
     setPdfUrl(null);
-    setUseIframe(false);
+    // Only reset useIframe if worker config didn't fail
+    if (!pdfWorkerConfigFailed) {
+      setUseIframe(false);
+    }
     setNumPages(null);
+
+    // Clear any existing timeout
+    if (pdfTimeoutRef.current) {
+      clearTimeout(pdfTimeoutRef.current);
+      pdfTimeoutRef.current = null;
+    }
 
     try {
       const response = await axiosPrivate.get(`/file/${fileId}`, {
@@ -89,6 +134,15 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
+
+      // Only set timeout if we're not already using iframe
+      if (!pdfWorkerConfigFailed) {
+        // Set a timeout to fall back to iframe if react-pdf takes too long
+        pdfTimeoutRef.current = setTimeout(() => {
+          console.warn('PDF rendering timeout - falling back to iframe');
+          setUseIframe(true);
+        }, 5000); // 5 seconds timeout
+      }
     } catch (error) {
       console.error('Error fetching PDF:', error);
       setError(error.response?.data?.message || error.message || 'Failed to load PDF. Please try again.');
@@ -110,8 +164,15 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     }
 
     return () => {
+      // Clean up
       if (oldUrl) {
         URL.revokeObjectURL(oldUrl);
+      }
+
+      // Clear any timeout
+      if (pdfTimeoutRef.current) {
+        clearTimeout(pdfTimeoutRef.current);
+        pdfTimeoutRef.current = null;
       }
     };
   }, [tabValue, resumeId, transcriptId]);
@@ -121,6 +182,12 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
+    // Clear the timeout since PDF loaded successfully
+    if (pdfTimeoutRef.current) {
+      clearTimeout(pdfTimeoutRef.current);
+      pdfTimeoutRef.current = null;
+    }
+
     setNumPages(numPages);
   };
 
@@ -128,6 +195,12 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   const onDocumentLoadError = (error) => {
     console.error('Error loading PDF document with react-pdf:', error);
     // Fall back to iframe
+    setUseIframe(true);
+  };
+
+  // Handle any error in the PDF error boundary
+  const handlePdfError = (error) => {
+    console.error('PDF Error Boundary caught an error:', error);
     setUseIframe(true);
   };
 
@@ -347,7 +420,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       );
     }
 
-    // Use iframe if react-pdf failed or if we're forcing iframe
+    // Use iframe if react-pdf failed, if worker config failed, or if we're forcing iframe
     if (useIframe) {
       return (
         <Box sx={{ height: '100%', width: '100%' }}>
@@ -362,55 +435,102 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       );
     }
 
-    // Try to render with react-pdf
-    return (
-      <Box
-        sx={{
-          p: 2,
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
-          backgroundColor: '#ffffff',
-          overflowY: 'auto',
-          height: '100%'
-        }}
-      >
-        <Document
-          file={pdfUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={
-            <Box sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              minHeight: 300
-            }}>
-              <CircularProgress size={40} />
+    // Try to render with react-pdf, wrapped in error handling
+    try {
+      return (
+        <PDFErrorBoundary
+          onError={handlePdfError}
+          fallback={
+            <Box sx={{ height: '100%', width: '100%' }}>
+              <iframe
+                src={pdfUrl}
+                title={tabValue === 0 ? "Resume" : "Transcript"}
+                width="100%"
+                height="100%"
+                style={{ border: 'none' }}
+              />
             </Box>
           }
         >
-          {numPages && Array.from(new Array(numPages), (el, index) => (
-            <Box key={`page_${index + 1}`} sx={{
-              mb: 3,
-              display: 'flex',
-              justifyContent: 'center'
-            }}>
-              <Page
-                pageNumber={index + 1}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
-                width={Math.min(600, window.innerWidth - 250)} // Responsive width
-                onRenderError={() => {
-                  console.error(`Error rendering page ${index + 1}`);
-                  if (index === 0) setUseIframe(true);
-                }}
-              />
-            </Box>
-          ))}
-        </Document>
-      </Box>
-    );
+          <Box
+            sx={{
+              p: 2,
+              border: '1px solid #e0e0e0',
+              borderRadius: '4px',
+              backgroundColor: '#ffffff',
+              overflowY: 'auto',
+              height: '100%'
+            }}
+          >
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              loading={
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                  minHeight: 300
+                }}>
+                  <CircularProgress size={40} />
+                </Box>
+              }
+              error={
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%'
+                }}>
+                  <CircularProgress size={40} />
+                </Box>
+              }
+            >
+              {numPages && Array.from(new Array(numPages), (el, index) => (
+                <Box key={`page_${index + 1}`} sx={{
+                  mb: 3,
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}>
+                  <Page
+                    pageNumber={index + 1}
+                    renderTextLayer={true}
+                    renderAnnotationLayer={true}
+                    width={Math.min(600, window.innerWidth - 250)} // Responsive width
+                    onRenderError={(error) => {
+                      console.error(`Error rendering page ${index + 1}:`, error);
+                      if (index === 0) setUseIframe(true);
+                    }}
+                    error={
+                      <Box sx={{ textAlign: 'center', color: 'text.secondary', py: 2 }}>
+                        Error loading page {index + 1}
+                      </Box>
+                    }
+                  />
+                </Box>
+              ))}
+            </Document>
+          </Box>
+        </PDFErrorBoundary>
+      );
+    } catch (error) {
+      console.error('Unexpected error rendering PDF with react-pdf:', error);
+      // If any unexpected error occurs during rendering, fall back to iframe
+      setUseIframe(true);
+      return (
+        <Box sx={{ height: '100%', width: '100%' }}>
+          <iframe
+            src={pdfUrl}
+            title={tabValue === 0 ? "Resume" : "Transcript"}
+            width="100%"
+            height="100%"
+            style={{ border: 'none' }}
+          />
+        </Box>
+      );
+    }
   }
 };
 
