@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { axiosPrivate } from '../../apis/backend';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -8,10 +9,7 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
-import { useNavigate } from 'react-router-dom';
-
 import Container from '@mui/material/Container';
-
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -68,7 +66,7 @@ const OpportunitySearchCard = () => {
           <div maxWidth="lg">
             <Box
               className="GenericPage__container_title_box"
-              sx={{ marginTop: '32px' }}
+              sx={{ marginTop: '36px' }}
               component="div"
               display="flex"
               flexDirection="column"
@@ -125,9 +123,9 @@ const OpportunitySearchCard = () => {
             </Box>
           </div>
         </CardContent>
-        {/* <CardActions>
-                    <Button size="medium" onClick={handleButtonClick}>Take me to search page</Button>
-                </CardActions> */}
+        <CardActions>
+          <Button size="medium" onClick={() => { navigate("/search") }}>View all</Button>
+        </CardActions>
       </Card>
     </Box>
   );

@@ -43,31 +43,34 @@ public class PositionService {
 
     public Map<String, Object> getSearchResults(String searchParams, int page, int size) throws Exception {
         try {
-            // search the Atlas Search Index
-            Bson searchStage = Aggregates.search(
-                    SearchOperator.compound()
-                            .should(List.of(
-                                    SearchOperator.text(SearchPath.fieldPath("name"), searchParams)
-                                            .score(SearchScore.boost(5)),
-                                    SearchOperator.autocomplete(SearchPath.fieldPath("name"), searchParams)
-                                            .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
-                                                    .maxEdits(2)
-                                                    .prefixLength(1)
-                                                    .maxExpansions(256)),
-                                    SearchOperator.autocomplete(SearchPath.fieldPath("rawDescription"), searchParams)
-                                            .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
-                                                    .maxEdits(2)
-                                                    .prefixLength(2)
-                                                    .maxExpansions(256))
-                            )),
+            List<Bson> pipeline = new ArrayList<>();
 
-                    SearchOptions.searchOptions()
-                            .index("positionSearchIndex")
-                            .option("scoreDetails", true)
-            );
+            // Only include search stage if searchParams is not empty
+            if (searchParams != null && !searchParams.trim().isEmpty()) {
+                Bson searchStage = Aggregates.search(
+                        SearchOperator.compound()
+                                .should(List.of(
+                                        SearchOperator.text(SearchPath.fieldPath("name"), searchParams)
+                                                .score(SearchScore.boost(5)),
+                                        SearchOperator.autocomplete(SearchPath.fieldPath("name"), searchParams)
+                                                .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                        .maxEdits(2)
+                                                        .prefixLength(1)
+                                                        .maxExpansions(256)),
+                                        SearchOperator.autocomplete(SearchPath.fieldPath("rawDescription"), searchParams)
+                                                .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                        .maxEdits(2)
+                                                        .prefixLength(2)
+                                                        .maxExpansions(256))
+                                )),
+                        SearchOptions.searchOptions()
+                                .index("positionSearchIndex")
+                                .option("scoreDetails", true)
+                );
+                pipeline.add(searchStage);
+            }
 
-            List<Bson> pipeline = Arrays.asList(
-                    searchStage,
+            pipeline.addAll(List.of(
                     Aggregates.match(Filters.eq("status", "open")),
                     Aggregates.project(Projections.fields(
                             Projections.computed("labIdObjectId", new Document().append("$toObjectId", "$labId")),
@@ -75,33 +78,28 @@ public class PositionService {
                             Projections.computed("positionName", "$name"),
                             Projections.computed("positionDescription", "$description"),
                             Projections.include("postedTimeStamp", "lastUpdatedTimeStamp"),
-                            Projections.computed("score", new Document("$meta", "searchScore"))
+                            // Add score only if search was used
+                            searchParams != null && !searchParams.trim().isEmpty()
+                                    ? Projections.computed("score", new Document("$meta", "searchScore"))
+                                    : Projections.exclude()
                     )),
-                    Aggregates.sort(Sorts.orderBy(
-                            Sorts.descending("score"),
-                            Sorts.descending("postedTimeStamp"))),
-                    Aggregates.skip(page*size),
+                    // If search was used, sort by score; otherwise by postedTimeStamp
+                    Aggregates.sort(searchParams != null && !searchParams.trim().isEmpty()
+                            ? Sorts.orderBy(Sorts.descending("score"), Sorts.descending("postedTimeStamp"))
+                            : Sorts.descending("postedTimeStamp")),
+                    Aggregates.skip(page * size),
                     Aggregates.limit(size),
-                    Aggregates.lookup(
-                            "labs",      // Collection to join
-                            "labIdObjectId",  // Local field
-                            "_id",            // Foreign field
-                            "lab"             // Alias for the joined field
-                    ),
+                    Aggregates.lookup("labs", "labIdObjectId", "_id", "lab"),
                     Aggregates.unwind("$lab", new UnwindOptions().preserveNullAndEmptyArrays(true)),
                     Aggregates.project(Projections.fields(
-                            Projections.include("positionId",
-                                    "positionName",
-                                    "positionDescription",
-                                    "postedTimeStamp"),
+                            Projections.include("positionId", "positionName", "positionDescription", "postedTimeStamp"),
                             Projections.computed("labName", "$lab.name"),
                             Projections.excludeId()
                     ))
-            );
+            ));
 
             AggregateIterable<Document> results = garesearchMongoTemplate.getCollection("positions").aggregate(pipeline);
 
-            // convert to List
             List<Map> resultList = new ArrayList<>();
             results.forEach(resultList::add);
 
@@ -109,16 +107,39 @@ public class PositionService {
                 throw new ResourceNotFoundException("ERR_SEARCH_NO_RESULTS_FOUND", "No positions found. Try adjusting your search terms");
             }
 
-            List<Bson> countPipeline = Arrays.asList(
-                    searchStage,
-                    Aggregates.match(Filters.eq("status", "open")),
-                    Aggregates.count("totalCount") // Count matching documents
-            );
+            // Count total
+            List<Bson> countPipeline = new ArrayList<>();
+            if (searchParams != null && !searchParams.trim().isEmpty()) {
+                countPipeline.add(
+                        Aggregates.search(
+                                SearchOperator.compound()
+                                        .should(List.of(
+                                                SearchOperator.text(SearchPath.fieldPath("name"), searchParams)
+                                                        .score(SearchScore.boost(5)),
+                                                SearchOperator.autocomplete(SearchPath.fieldPath("name"), searchParams)
+                                                        .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                                .maxEdits(2)
+                                                                .prefixLength(1)
+                                                                .maxExpansions(256)),
+                                                SearchOperator.autocomplete(SearchPath.fieldPath("rawDescription"), searchParams)
+                                                        .fuzzy(FuzzySearchOptions.fuzzySearchOptions()
+                                                                .maxEdits(2)
+                                                                .prefixLength(2)
+                                                                .maxExpansions(256))
+                                        )),
+                                SearchOptions.searchOptions().index("positionSearchIndex")
+                        )
+                );
+            }
+            countPipeline.add(Aggregates.match(Filters.eq("status", "open")));
+            countPipeline.add(Aggregates.count("totalCount"));
+
             AggregateIterable<Document> totalResults = garesearchMongoTemplate.getCollection("positions").aggregate(countPipeline);
             long totalCount = 0;
             for (Document doc : totalResults) {
                 totalCount = doc.getInteger("totalCount");
             }
+
             long totalPages = totalCount / size + (totalCount % size == 0 ? 0 : 1);
 
             Map<String, Object> response = new HashMap<>();
@@ -134,7 +155,6 @@ public class PositionService {
             throw new Exception("Unable to process your request at this time", e);
         }
     }
-
 
     public List<Map> getSearchIndexerResults(String searchParams) throws Exception {
         try {

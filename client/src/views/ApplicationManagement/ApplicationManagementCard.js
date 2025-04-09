@@ -318,7 +318,7 @@ const ApplicationManagementCard = () => {
                         py: 2
                       }}
                     >
-                      No available applications of this status
+                      No applications available in this category
                     </Typography>
                   ) : (
                     /* Application List - Limited to 3 items - Removed margin between items */

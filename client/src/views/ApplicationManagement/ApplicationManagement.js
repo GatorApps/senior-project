@@ -404,7 +404,7 @@ const ApplicationManagement = () => {
                     {getCurrentApplications().length === 0 ? (
                       <Box sx={{ textAlign: 'center', py: 4 }}>
                         <Typography variant="body1" color="textSecondary">
-                          No applications available in this category.
+                          No applications available in this category
                         </Typography>
                       </Box>
                     ) : (

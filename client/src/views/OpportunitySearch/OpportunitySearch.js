@@ -22,6 +22,7 @@ import {
   Divider,
   Tooltip,
   IconButton,
+  Link as MuiLink,
 } from "@mui/material"
 
 // Icons
@@ -61,11 +62,26 @@ const TruncatedTitle = styled(Typography)(({ theme }) => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
-  width: "100%",
+  maxWidth: "calc(100% - 20px)", // Ensure there's space for the buttons
   display: "block",
-  maxWidth: "100%",
   color: theme.palette.primary.main,
   fontWeight: 500,
+}))
+
+// Title container to properly handle overflow
+const TitleContainer = styled(Box)(({ theme }) => ({
+  flexGrow: 1,
+  flexShrink: 1,
+  minWidth: 0, // This is crucial for text-overflow to work in a flex container
+  overflow: "hidden", // Ensure the container doesn't expand with long content
+  marginRight: theme.spacing(2), // Add space between title and buttons
+}))
+
+// Action buttons container with fixed width
+const ActionButtonsContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexShrink: 0, // Prevent the buttons from shrinking
+  marginLeft: "auto",
 }))
 
 // Styled container for search results - removed maxHeight and overflow
@@ -88,7 +104,8 @@ const PaginationContainer = styled(Box)(({ theme }) => ({
 // Styled search container wrapper for centering
 const SearchContainerWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
-  justifyContent: "center",
+  flexDirection: "column",
+  alignItems: "center",
   width: "100%",
   marginTop: "50px",
 }))
@@ -112,6 +129,19 @@ const ActionButton = styled(IconButton)(({ theme }) => ({
   "&:hover": {
     backgroundColor: theme.palette.action.hover,
     transform: "scale(1.1)",
+  },
+}))
+
+// Styled link for "Search all positions"
+const SearchAllLink = styled(MuiLink)(({ theme }) => ({
+  fontSize: "1rem",
+  color: theme.palette.text.secondary,
+  marginTop: "18px",
+  cursor: "pointer",
+  textDecorationColor: "rgba(0, 0, 0, 0.3)",
+  "&:hover": {
+    textDecoration: "underline",
+    textDecorationColor: "rgba(0, 0, 0, 0.5)",
   },
 }))
 
@@ -140,27 +170,23 @@ const OpportunitySearch = ({ title }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const searchParams = new URLSearchParams(location.search)
-  const searchQuery = searchParams.get("q") || ""
+  const searchQuery = searchParams.get("q")
 
-  // Initialize search from URL query parameter
+  // Initialize search from URL query parameter or load all opportunities
   useEffect(() => {
-    if (searchQuery) {
+    // If searchQuery is explicitly defined (even if empty string), use it
+    if (searchQuery !== null) {
       setSearchText(searchQuery)
       setActiveSearchTerm(searchQuery)
       searchPositions(searchQuery, 0, size)
+    } else {
+      // If no query parameter, load all opportunities by default
+      searchPositions("", 0, size)
     }
   }, [searchQuery])
 
-  // Search positions function
+  // Search positions function - now allows empty search to get all opportunities
   const searchPositions = (text, currPage, currSize) => {
-    if (!text || text.trim() === "") {
-      setPositions([])
-      setTotalPages(0)
-      setTotalCount(0)
-      setHasSearched(false)
-      return
-    }
-
     // Hide dropdown when search is initiated
     setShowDropdown(false)
     setLoading(true)
@@ -170,7 +196,12 @@ const OpportunitySearch = ({ title }) => {
 
     // Update URL with search query immediately
     const newSearchParams = new URLSearchParams(location.search)
-    newSearchParams.set("q", text)
+    if (text.trim() === "") {
+      // For empty searches, either remove the q parameter or set it to empty
+      newSearchParams.set("q", "")
+    } else {
+      newSearchParams.set("q", text)
+    }
     navigate(`${location.pathname}?${newSearchParams.toString()}`, { replace: true })
 
     axiosPrivate
@@ -214,14 +245,17 @@ const OpportunitySearch = ({ title }) => {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
-  // Handle search button click
+  // Handle search button click - now allows empty searches
   const handleSearchButton = () => {
-    if (searchText.trim() === "") {
-      showSnackbar("Please enter a search term", "warning")
-      return
-    }
     setPage(0)
     searchPositions(searchText, 0, size)
+  }
+
+  // Handle search all positions
+  const handleSearchAll = () => {
+    setSearchText("")
+    setPage(0)
+    searchPositions("", 0, size)
   }
 
   // Debounced API call for search autocomplete
@@ -268,9 +302,7 @@ const OpportunitySearch = ({ title }) => {
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault()
-      if (searchText.trim() !== "") {
-        handleSearchButton()
-      }
+      handleSearchButton()
     }
   }
 
@@ -380,13 +412,16 @@ const OpportunitySearch = ({ title }) => {
                       disabled={loading}
                       sx={{
                         minWidth: { xs: "100%", sm: "100px" },
-                        height: "40px", // Restore to original height
+                        height: "40px", // Match the height from the attachment
                         fontSize: "0.9rem",
                       }}
                     >
                       {loading ? <CircularProgress size={22} color="inherit" /> : "Search"}
                     </Button>
                   </SearchContainer>
+
+                  {/* Search all positions link */}
+                  <SearchAllLink onClick={handleSearchAll}>Search for all positions</SearchAllLink>
                 </SearchContainerWrapper>
 
                 {/* Error message - only show for actual errors, not for "no results" */}
@@ -417,25 +452,24 @@ const OpportunitySearch = ({ title }) => {
                                 {position.labName || "Unknown Lab"}
                               </Typography>
 
-                              {/* Position title with action buttons */}
-                              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                                <Link
-                                  to={`/posting?postingId=${position.positionId}`}
-                                  target="_blank"
-                                  style={{
-                                    textDecoration: "none",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    width: "100%",
-                                  }}
-                                >
-                                  <TruncatedTitle variant="h6">
-                                    {position.positionName || "Untitled Position"}
-                                  </TruncatedTitle>
-                                </Link>
+                              {/* Position title with action buttons - Improved layout */}
+                              <Box sx={{ display: "flex", alignItems: "center", mb: 1, width: "100%" }}>
+                                <TitleContainer>
+                                  <Link
+                                    to={`/posting?postingId=${position.positionId}`}
+                                    target="_blank"
+                                    style={{
+                                      textDecoration: "none",
+                                    }}
+                                  >
+                                    <TruncatedTitle variant="h6">
+                                      {position.positionName || "Untitled Position"}
+                                    </TruncatedTitle>
+                                  </Link>
+                                </TitleContainer>
 
                                 {/* Action buttons */}
-                                <Box sx={{ display: "flex", ml: "auto" }}>
+                                <ActionButtonsContainer>
                                   <Tooltip title="Apply" arrow>
                                     <ActionButton
                                       component={Link}
@@ -462,7 +496,7 @@ const OpportunitySearch = ({ title }) => {
                                       <OpenInNewIcon fontSize="small" />
                                     </ActionButton>
                                   </Tooltip>
-                                </Box>
+                                </ActionButtonsContainer>
                               </Box>
 
                               {/* Position description preview */}
@@ -508,7 +542,7 @@ const OpportunitySearch = ({ title }) => {
                       }}
                     >
                       <Typography variant="h6" color="text.secondary" gutterBottom>
-                        Enter a search term to find opportunities
+                        Enter a search term or click "Search for all positions"
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Search by keywords, lab name, or position title
