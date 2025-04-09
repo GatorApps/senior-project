@@ -67,7 +67,13 @@ const MessagesCard = () => {
           </Typography>
           <Box marginY="16px">
             {loading ? (
-              <SkeletonGroup boxPadding={'0'} />
+              <>
+                <SkeletonGroup boxPadding={'0'} />
+                <Divider sx={{ my: 1.44 }} />
+                <SkeletonGroup boxPadding={'0'} />
+                <Divider sx={{ my: 1.44 }} />
+                <SkeletonGroup boxPadding={'0'} />
+              </>
             ) : error ? (
               <Typography variant="body2" color="error" sx={{ fontSize: '0.938rem' }}>
                 {error}

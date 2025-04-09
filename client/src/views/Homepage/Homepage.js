@@ -6,7 +6,7 @@ import { useSelector } from "react-redux"
 import OpportunitySearchPageCard from "../OpportunitySearch/OpportunitySearchCard"
 import MyApplicationsCard from "../../views/MyApplications/MyApplicationsCard"
 import MyPostingsPageCard from "../../views/MyPostingsPage/MyPostingsPageCard"
-import ApplicationManagementPageCard from "../../views/ApplicationManagementPage/ApplicationManagementPageCard"
+import ApplicationManagementCard from "../../views/ApplicationManagement/ApplicationManagementCard"
 import MessagesPageCard from "../Messages/MessagesCard"
 import Tabs from "@mui/material/Tabs"
 import Tab from "@mui/material/Tab"
@@ -125,7 +125,7 @@ const Homepage = () => {
 
   const facultyCards = [
     <MyPostingsPageCard key="myPostings" />,
-    <ApplicationManagementPageCard key="applicationManagement" />,
+    <ApplicationManagementCard key="applicationManagement" />,
     <MessagesPageCard key="messagesFaculty" />,
   ]
 
