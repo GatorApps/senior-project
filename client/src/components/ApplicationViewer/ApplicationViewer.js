@@ -15,7 +15,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
-// IMPORTANT: Fix for PDF.js worker
+// IMPORTANT: Use the existing worker version that we know works
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js`;
 
 const ApplicationViewer = ({ application, applicantInfo }) => {
@@ -28,6 +28,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   const [supplementalResponses, setSupplementalResponses] = useState('');
   const [resumeId, setResumeId] = useState(null);
   const [transcriptId, setTranscriptId] = useState(null);
+  const [useIframe, setUseIframe] = useState(false);
 
   // Fetch application details when application prop changes
   useEffect(() => {
@@ -66,6 +67,8 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     setLoading(true);
     setError(null);
     setPdfUrl(null);
+    setUseIframe(false);
+    setNumPages(null);
 
     try {
       const response = await axiosPrivate.get(`/file/${fileId}`, {
@@ -120,8 +123,9 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
 
   // Handle PDF loading error
   const onDocumentLoadError = (error) => {
-    console.error('Error loading PDF document:', error);
-    setError('Failed to load the PDF document. Try downloading it instead.');
+    console.error('Error loading PDF document with react-pdf:', error);
+    // Fall back to iframe
+    setUseIframe(true);
   };
 
   // Generate filename for download
@@ -252,7 +256,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
         <Box sx={{
           flex: 1,
           overflowY: 'auto',
-          p: (tabValue === 0 || tabValue === 1) && pdfUrl ? 0 : 3
+          p: (tabValue === 0 || tabValue === 1) && pdfUrl ? (useIframe ? 0 : 2) : 3
         }}>
           {appLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -324,16 +328,64 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       );
     }
 
-    // Use iframe for PDF viewing - most reliable cross-browser solution
+    // Use iframe if react-pdf failed or if we're forcing iframe
+    if (useIframe) {
+      return (
+        <Box sx={{ height: '100%', width: '100%' }}>
+          <iframe
+            src={pdfUrl}
+            title={tabValue === 0 ? "Resume" : "Transcript"}
+            width="100%"
+            height="100%"
+            style={{ border: 'none' }}
+          />
+        </Box>
+      );
+    }
+
+    // Try to render with react-pdf
     return (
-      <Box sx={{ height: '100%', width: '100%' }}>
-        <iframe
-          src={pdfUrl}
-          title={tabValue === 0 ? "Resume" : "Transcript"}
-          width="100%"
-          height="100%"
-          style={{ border: 'none' }}
-        />
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        overflow: 'auto'
+      }}>
+        <Document
+          file={pdfUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={onDocumentLoadError}
+          loading={
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+              <CircularProgress />
+              <Typography sx={{ ml: 2 }}>Loading document...</Typography>
+            </Box>
+          }
+        >
+          {numPages && Array.from(new Array(numPages), (el, index) => (
+            <Box key={`page_${index + 1}`} sx={{ mb: 2, boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+              <Page
+                pageNumber={index + 1}
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+                width={Math.min(600, window.innerWidth - 250)} // Responsive width
+                onRenderError={() => {
+                  console.error(`Error rendering page ${index + 1}`);
+                  if (index === 0) setUseIframe(true);
+                }}
+              />
+            </Box>
+          ))}
+        </Document>
+
+        {numPages > 0 && (
+          <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+            <Typography>
+              {numPages} page{numPages > 1 ? 's' : ''}
+            </Typography>
+          </Box>
+        )}
       </Box>
     );
   }
