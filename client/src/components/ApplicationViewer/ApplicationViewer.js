@@ -15,8 +15,11 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
-// IMPORTANT: Use the existing worker version that we know works
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js`;
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url
+).toString();
 
 const ApplicationViewer = ({ application, applicantInfo }) => {
   const [tabValue, setTabValue] = useState(0);
@@ -96,19 +99,19 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
 
   // Fetch PDF when tab changes
   useEffect(() => {
+    let oldUrl = pdfUrl;
+
     if (tabValue === 0 && resumeId) {
       fetchPdf(resumeId);
     } else if (tabValue === 1 && transcriptId) {
       fetchPdf(transcriptId);
     } else if (tabValue < 2) {
-      // Clear PDF if we're on a PDF tab but don't have the file ID
       setPdfUrl(null);
     }
 
-    // Cleanup function to revoke object URL
     return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
+      if (oldUrl) {
+        URL.revokeObjectURL(oldUrl);
       }
     };
   }, [tabValue, resumeId, transcriptId]);
@@ -256,11 +259,16 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
         <Box sx={{
           flex: 1,
           overflowY: 'auto',
-          p: (tabValue === 0 || tabValue === 1) && pdfUrl ? (useIframe ? 0 : 2) : 3
+          p: (tabValue === 0 || tabValue === 1) && pdfUrl ? (useIframe ? 0 : 3) : 3
         }}>
           {appLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <CircularProgress />
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%'
+            }}>
+              <CircularProgress size={40} />
             </Box>
           ) : error ? (
             <Alert severity="error" sx={{ m: 2 }}>
@@ -294,9 +302,13 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   function renderPdfContent() {
     if (loading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-          <Typography sx={{ ml: 2 }}>Loading document...</Typography>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%'
+        }}>
+          <CircularProgress size={40} />
         </Box>
       );
     }
@@ -304,7 +316,9 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     if (error && !pdfUrl) {
       return (
         <Box>
-          <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
         </Box>
       );
     }
@@ -322,8 +336,13 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       }
 
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%'
+        }}>
+          <CircularProgress size={40} />
         </Box>
       );
     }
@@ -345,26 +364,38 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
 
     // Try to render with react-pdf
     return (
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%',
-        overflow: 'auto'
-      }}>
+      <Box
+        sx={{
+          p: 2,
+          border: '1px solid #e0e0e0',
+          borderRadius: '4px',
+          backgroundColor: '#ffffff',
+          overflowY: 'auto',
+          height: '100%'
+        }}
+      >
         <Document
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
           onLoadError={onDocumentLoadError}
           loading={
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-              <CircularProgress />
-              <Typography sx={{ ml: 2 }}>Loading document...</Typography>
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              minHeight: 300
+            }}>
+              <CircularProgress size={40} />
             </Box>
           }
         >
           {numPages && Array.from(new Array(numPages), (el, index) => (
-            <Box key={`page_${index + 1}`} sx={{ mb: 2, boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+            <Box key={`page_${index + 1}`} sx={{
+              mb: 3,
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
               <Page
                 pageNumber={index + 1}
                 renderTextLayer={true}
@@ -378,14 +409,6 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
             </Box>
           ))}
         </Document>
-
-        {numPages > 0 && (
-          <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
-            <Typography>
-              {numPages} page{numPages > 1 ? 's' : ''}
-            </Typography>
-          </Box>
-        )}
       </Box>
     );
   }
