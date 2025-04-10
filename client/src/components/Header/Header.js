@@ -299,13 +299,14 @@ const Header = ({ SignInMenuItems, loading, signedIn, displayAccountDropdown }) 
                   component="nav"
                   aria-labelledby="nested-list-subheader"
                   subheader={
-                    <ListSubheader component="div" id="nested-list-subheader" sx={{ 'background-color': 'transparent', padding: '4px 0px 12px 24px' }}>
+                    section.heading &&
+                    <ListSubheader component="div" id="nested-list-subheader" sx={{ 'background-color': 'transparent', padding: '16px 0px 12px 24px' }}>
                       <Typography variant="h3" sx={{ color: 'rgb(191, 68, 24)', 'font-size': '0.938rem', 'font-weight': '700', 'letter-spacing': '0.047rem', 'line-height': '1.25rem' }}>
                         {section.heading}
                       </Typography>
                     </ListSubheader>
                   }
-                  sx={{ 'padding-bottom': '30px' }}
+                  sx={{ 'padding-bottom': '16px' }}
                 >
                   {section.items.map((item, itemIndex) => {
                     // Item with route
