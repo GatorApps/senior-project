@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import Box from "@mui/material/Box"
 import HelmetComponent from "../../components/HelmetComponent/HelmetComponent"
 import Header from "../../components/Header/Header"
+import Footer from "../../components/Footer/Footer"
 import { useSelector } from "react-redux"
 import OpportunitySearchPageCard from "../OpportunitySearch/OpportunitySearchCard"
 import MyApplicationsCard from "../../views/MyApplications/MyApplicationsCard"
@@ -241,6 +242,7 @@ const Homepage = () => {
             ))}
           </Box>
         </main>
+        <Footer />
       </div>
     </HelmetComponent>
   )
