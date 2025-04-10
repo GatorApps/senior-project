@@ -6,7 +6,7 @@ import Footer from "../../components/Footer/Footer"
 import { useSelector } from "react-redux"
 import OpportunitySearchPageCard from "../OpportunitySearch/OpportunitySearchCard"
 import MyApplicationsCard from "../../views/MyApplications/MyApplicationsCard"
-import MyPostingsPageCard from "../../views/MyPostingsPage/MyPostingsPageCard"
+import PostingManagementCard from "../../views/PostingManagement/PostingManagementCard"
 import ApplicationManagementCard from "../../views/ApplicationManagement/ApplicationManagementCard"
 import MessagesPageCard from "../Messages/MessagesCard"
 import Tabs from "@mui/material/Tabs"
@@ -125,7 +125,7 @@ const Homepage = () => {
   ]
 
   const facultyCards = [
-    <MyPostingsPageCard key="myPostings" />,
+    <PostingManagementCard key="myPostings" />,
     <ApplicationManagementCard key="applicationManagement" />,
     <MessagesPageCard key="messagesFaculty" />,
   ]

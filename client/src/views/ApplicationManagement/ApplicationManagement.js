@@ -23,8 +23,10 @@ import {
   DialogContent,
   Divider,
   IconButton,
+  Link,
 } from "@mui/material"
-import { Close as CloseIcon } from "@mui/icons-material"
+import { Close as CloseIcon, OpenInNew as OpenInNewIcon } from "@mui/icons-material"
+import { useNavigate } from "react-router-dom"
 
 const ApplicationManagement = () => {
   // State management
@@ -52,6 +54,8 @@ const ApplicationManagement = () => {
     message: "",
     severity: "info",
   })
+
+  const navigate = useNavigate()
 
   // Helper function to show snackbar notifications
   const showSnackbar = (message, severity = "info") => {
@@ -162,16 +166,19 @@ const ApplicationManagement = () => {
             setSelectedPosition(positionsList[0].positionId)
           } else {
             setError("No positions available")
+            setSelectedPosition("")
           }
         } else {
           setError("No positions found")
           setPositions([])
+          setSelectedPosition("")
         }
       } catch (error) {
         const errorMessage = error.response?.data?.message || "Error fetching positions"
         setError(errorMessage)
         showSnackbar(errorMessage, "error")
         setPositions([])
+        setSelectedPosition("")
       } finally {
         setPositionsLoading(false)
       }
@@ -242,6 +249,11 @@ const ApplicationManagement = () => {
     alignItems: "center",
     justifyContent: "center",
     minHeight: "200px",
+  }
+
+  // Navigate to create position page
+  const handleCreatePosition = () => {
+    navigate("/posting/create")
   }
 
   return (
@@ -361,171 +373,208 @@ const ApplicationManagement = () => {
 
               {/* Application List - Using the same Paper class as GenericPage */}
               <Paper className="GenericPage__container_paper" variant="outlined" sx={{ padding: "24px" }}>
-                {/* Updated Tabs to match the image - made smaller */}
-                <Box
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    mb: 4,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      width: "fit-content",
-                      maxWidth: "100%",
-                      border: "1px solid #1e4b94",
-                      borderRadius: "4px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {["Active", "Moving Forward", "Archived"].map((label, index) => (
-                      <Box
-                        key={index}
-                        onClick={() => handleTabChange(index)}
+                {positions.length === 0 && !positionsLoading ? (
+                  // No positions available state
+                  <Box sx={emptyStateContainerStyle}>
+                    <Typography variant="h6" color="textSecondary" sx={{ mb: 2 }}>
+                      You have not posted any positions yet
+                    </Typography>
+                    <Typography variant="h7" color="textSecondary">
+                      Start by{" "}
+                      <Link
+                        href="/posting/create"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleCreatePosition()
+                        }}
                         sx={{
-                          padding: "6px 16px", // Reduced padding for smaller height
-                          minWidth: "100px", // Reduced minimum width
-                          textAlign: "center",
-                          cursor: "pointer",
-                          backgroundColor: selectedTab === index ? "#1e4b94" : "transparent",
-                          color: selectedTab === index ? "white" : "#1e4b94",
-                          fontWeight: 500,
-                          fontSize: "0.875rem", // Reduced font size
-                          borderRight: index < 2 ? "1px solid #1e4b94" : "none",
-                          borderColor: "rgba(40, 87, 151, 0.5)",
-                          transition: "background-color 0.3s, color 0.3s",
+                          color: "primary.main",
+                          textDecoration: "none",
                           "&:hover": {
-                            backgroundColor: selectedTab === index ? "#1e4b94" : "#f0f4fa",
+                            textDecoration: "underline",
                           },
+                          display: "inline-flex",
+                          alignItems: "center",
                         }}
                       >
-                        {label}
-                      </Box>
-                    ))}
+                        posting a position
+                        <OpenInNewIcon sx={{ ml: 0.5, fontSize: "1rem" }} />
+                      </Link>
+                    </Typography>
                   </Box>
-                </Box>
-
-                {/* Loading State */}
-                {loading ? (
-                  <SkeletonGroup boxPadding={"0"} />
                 ) : (
                   <>
-                    {/* Empty State */}
-                    {getCurrentApplications().length === 0 ? (
-                      <Box sx={emptyStateContainerStyle}>
-                        <Typography variant="h6" color="textSecondary" sx={{ mb: 2 }}>
-                          No applications available in this category
-                        </Typography>
-                      </Box>
-                    ) : (
-                      /* Application List */
-                      getCurrentApplications().map((app) => (
-                        <Box
-                          key={app.applicationId || `${app.opid}-${app.email}`}
-                          sx={{
-                            mb: 2,
-                            p: 2,
-                            borderRadius: 1,
-                            border: "1px solid #eee",
-                            "&:hover": {
-                              backgroundColor: "#f9f9f9",
-                            },
-                          }}
-                        >
+                    {/* Updated Tabs to match the image - made smaller */}
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        mb: 4,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          width: "fit-content",
+                          maxWidth: "100%",
+                          border: "1px solid #1e4b94",
+                          borderRadius: "4px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {["Active", "Moving Forward", "Archived"].map((label, index) => (
                           <Box
+                            key={index}
+                            onClick={() => handleTabChange(index)}
                             sx={{
-                              display: "flex",
-                              flexDirection: { xs: "column", md: "row" }, // Stack on mobile and tablet, row on desktop
-                              justifyContent: "space-between",
-                              width: "100%",
-                              alignItems: { xs: "flex-start", md: "flex-start" },
-                              gap: { xs: 2, md: 1 },
+                              padding: "6px 16px", // Reduced padding for smaller height
+                              minWidth: "100px", // Reduced minimum width
+                              textAlign: "center",
+                              cursor: "pointer",
+                              backgroundColor: selectedTab === index ? "#1e4b94" : "transparent",
+                              color: selectedTab === index ? "white" : "#1e4b94",
+                              fontWeight: 500,
+                              fontSize: "0.875rem", // Reduced font size
+                              borderRight: index < 2 ? "1px solid #1e4b94" : "none",
+                              borderColor: "rgba(40, 87, 151, 0.5)",
+                              transition: "background-color 0.3s, color 0.3s",
+                              "&:hover": {
+                                backgroundColor: selectedTab === index ? "#1e4b94" : "#f0f4fa",
+                              },
                             }}
                           >
+                            {label}
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+
+                    {/* Loading State */}
+                    {loading ? (
+                      <SkeletonGroup boxPadding={"0"} />
+                    ) : (
+                      <>
+                        {/* Empty State */}
+                        {getCurrentApplications().length === 0 ? (
+                          <Box sx={emptyStateContainerStyle}>
+                            <Typography variant="h6" color="textSecondary" sx={{ mb: 2 }}>
+                              No applications available in this category
+                            </Typography>
+                          </Box>
+                        ) : (
+                          /* Application List */
+                          getCurrentApplications().map((app) => (
                             <Box
+                              key={app.applicationId || `${app.opid}-${app.email}`}
                               sx={{
-                                flexGrow: 1,
-                                minWidth: 0,
-                                mr: { xs: 0, md: 2 }, // No margin on mobile/tablet, margin on desktop
-                                width: "100%", // Full width on all screens
+                                mb: 2,
+                                p: 2,
+                                borderRadius: 1,
+                                border: "1px solid #eee",
+                                "&:hover": {
+                                  backgroundColor: "#f9f9f9",
+                                },
                               }}
                             >
-                              <Typography
-                                variant="h6"
+                              <Box
                                 sx={{
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  maxWidth: "100%",
+                                  display: "flex",
+                                  flexDirection: { xs: "column", md: "row" }, // Stack on mobile and tablet, row on desktop
+                                  justifyContent: "space-between",
+                                  width: "100%",
+                                  alignItems: { xs: "flex-start", md: "flex-start" },
+                                  gap: { xs: 2, md: 1 },
                                 }}
-                                title={app.firstName ? `${app.firstName} ${app.lastName}` : "Unnamed Applicant"} // Shows full text on hover
                               >
-                                {app.firstName ? `${app.firstName} ${app.lastName}` : "Unnamed Applicant"}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  maxWidth: "100%",
-                                }}
-                                title={app.email || "No email provided"} // Shows full text on hover
-                              >
-                                {app.email || "No email provided"}
-                              </Typography>
-                              <Typography variant="body2" color="textSecondary">
-                                Submitted: {formatDate(app.submissionTimeStamp)}
-                              </Typography>
-                            </Box>
-
-                            <Box
-                              sx={{
-                                display: "flex",
-                                gap: 2,
-                                alignItems: "center",
-                                flexShrink: 0,
-                                width: "auto",
-                                justifyContent: "flex-start",
-                              }}
-                            >
-                              <Button variant="contained" color="primary" onClick={() => handleViewApplication(app)}>
-                                View
-                              </Button>
-
-                              {/* Fixed width for status dropdown */}
-                              <FormControl sx={{ width: 170 }}>
-                                <Select
-                                  value={app.status || "submitted"}
-                                  onChange={(e) => updateApplicationStatus(app, e.target.value)}
-                                  size="small"
+                                <Box
                                   sx={{
-                                    width: "100%",
-                                    "& .MuiSelect-select": {
+                                    flexGrow: 1,
+                                    minWidth: 0,
+                                    mr: { xs: 0, md: 2 }, // No margin on mobile/tablet, margin on desktop
+                                    width: "100%", // Full width on all screens
+                                  }}
+                                >
+                                  <Typography
+                                    variant="h6"
+                                    sx={{
                                       overflow: "hidden",
                                       textOverflow: "ellipsis",
                                       whiteSpace: "nowrap",
-                                    },
-                                  }}
-                                  MenuProps={{
-                                    PaperProps: {
-                                      style: {
-                                        width: 170,
-                                      },
-                                    },
+                                      maxWidth: "100%",
+                                    }}
+                                    title={app.firstName ? `${app.firstName} ${app.lastName}` : "Unnamed Applicant"} // Shows full text on hover
+                                  >
+                                    {app.firstName ? `${app.firstName} ${app.lastName}` : "Unnamed Applicant"}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      maxWidth: "100%",
+                                    }}
+                                    title={app.email || "No email provided"} // Shows full text on hover
+                                  >
+                                    {app.email || "No email provided"}
+                                  </Typography>
+                                  <Typography variant="body2" color="textSecondary">
+                                    Submitted: {formatDate(app.submissionTimeStamp)}
+                                  </Typography>
+                                </Box>
+
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 2,
+                                    alignItems: "center",
+                                    flexShrink: 0,
+                                    width: "auto",
+                                    justifyContent: "flex-start",
                                   }}
                                 >
-                                  <MenuItem value="submitted">Active</MenuItem>
-                                  <MenuItem value="moving forward">Moving Forward</MenuItem>
-                                  <MenuItem value="archived">Archived</MenuItem>
-                                </Select>
-                              </FormControl>
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => handleViewApplication(app)}
+                                  >
+                                    View
+                                  </Button>
+
+                                  {/* Fixed width for status dropdown */}
+                                  <FormControl sx={{ width: 170 }}>
+                                    <Select
+                                      value={app.status || "submitted"}
+                                      onChange={(e) => updateApplicationStatus(app, e.target.value)}
+                                      size="small"
+                                      sx={{
+                                        width: "100%",
+                                        "& .MuiSelect-select": {
+                                          overflow: "hidden",
+                                          textOverflow: "ellipsis",
+                                          whiteSpace: "nowrap",
+                                        },
+                                      }}
+                                      MenuProps={{
+                                        PaperProps: {
+                                          style: {
+                                            width: 170,
+                                          },
+                                        },
+                                      }}
+                                    >
+                                      <MenuItem value="submitted">Active</MenuItem>
+                                      <MenuItem value="moving forward">Moving Forward</MenuItem>
+                                      <MenuItem value="archived">Archived</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                </Box>
+                              </Box>
                             </Box>
-                          </Box>
-                        </Box>
-                      ))
+                          ))
+                        )}
+                      </>
                     )}
                   </>
                 )}

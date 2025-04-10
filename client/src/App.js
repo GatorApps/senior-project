@@ -10,9 +10,9 @@ import OpportunitySearchPage from './views/OpportunitySearch/OpportunitySearch';
 import MyApplicationsPage from './views/MyApplications/MyApplications';
 import LabDetailsPage from './views/LabDetailsPage/LabDetailsPage';
 import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage';
-import MyPostingsPage from './views/MyPostingsPage/MyPostingsPage';
+import PostingManagement from './views/PostingManagement/PostingManagement';
 import ApplicationManagement from './views/ApplicationManagement/ApplicationManagement';
-import PostingEditorPage from './views/PostingEditorPage/PostingEditorPage';
+import PostingEditor from './views/PostingEditor/PostingEditor';
 import MessagesPage from './views/Messages/Messages';
 
 function App() {
@@ -44,11 +44,11 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
-          <Route path="/postingeditor" element={<PostingEditorPage />} />
+          <Route path="/postingeditor" element={<PostingEditor />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
-          <Route path="/postingmanagement" element={<MyPostingsPage />} />
+          <Route path="/postingmanagement" element={<PostingManagement />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
