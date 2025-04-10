@@ -129,7 +129,6 @@ const MyApplicationsCard = () => {
       ))
   }
 
-  // Common empty state container style
   const emptyStateContainerStyle = {
     textAlign: "center",
     py: 3,

@@ -26,7 +26,7 @@ import {
   Link,
 } from "@mui/material"
 import { Close as CloseIcon, OpenInNew as OpenInNewIcon } from "@mui/icons-material"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 
 const ApplicationManagement = () => {
   // State management
@@ -56,6 +56,7 @@ const ApplicationManagement = () => {
   })
 
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Helper function to show snackbar notifications
   const showSnackbar = (message, severity = "info") => {
@@ -69,6 +70,12 @@ const ApplicationManagement = () => {
   // Close snackbar
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }))
+  }
+
+  // Helper function to remove query parameters from URL
+  const removeQueryParams = () => {
+    const newUrl = window.location.pathname
+    window.history.replaceState({}, document.title, newUrl)
   }
 
   // Update application status from the popup
@@ -161,12 +168,40 @@ const ApplicationManagement = () => {
           const positionsList = response.data.payload.positions
           setPositions(positionsList)
 
-          // Set the first position as selected if available
-          if (positionsList.length > 0) {
-            setSelectedPosition(positionsList[0].positionId)
+          // Get positionId from URL query parameter
+          const params = new URLSearchParams(location.search)
+          const queryPositionId = params.get("positionId")
+
+          // Check if the positionId from query exists in the positions list
+          if (queryPositionId) {
+            const positionExists = positionsList.some(pos => pos.positionId === queryPositionId)
+
+            if (positionExists) {
+              // Set the position from query parameter
+              setSelectedPosition(queryPositionId)
+            } else {
+              // Position ID doesn't exist in user's positions
+              setError("The requested position was not found or you don't have access to it")
+              showSnackbar("The requested position was not found or you don't have access to it", "error")
+
+              // Set the first position as selected if available
+              if (positionsList.length > 0) {
+                setSelectedPosition(positionsList[0].positionId)
+              } else {
+                setSelectedPosition("")
+              }
+            }
+
+            // Remove the query parameter from URL
+            removeQueryParams()
           } else {
-            setError("No positions available")
-            setSelectedPosition("")
+            // No query parameter, set the first position as selected if available
+            if (positionsList.length > 0) {
+              setSelectedPosition(positionsList[0].positionId)
+            } else {
+              setError("No positions available")
+              setSelectedPosition("")
+            }
           }
         } else {
           setError("No positions found")
@@ -179,13 +214,18 @@ const ApplicationManagement = () => {
         showSnackbar(errorMessage, "error")
         setPositions([])
         setSelectedPosition("")
+
+        // Remove the query parameter from URL if there was an error
+        if (location.search.includes("positionId")) {
+          removeQueryParams()
+        }
       } finally {
         setPositionsLoading(false)
       }
     }
 
     fetchPositions()
-  }, [])
+  }, [location.search]) // Added location.search as a dependency
 
   // Fetch applications when a position is selected
   useEffect(() => {
