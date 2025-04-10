@@ -209,7 +209,7 @@ const ApplicationManagementCard = () => {
               <InputLabel
                 id="position-select-label"
                 sx={{
-                  fontSize: '0.875rem',
+                  fontSize: '1rem',
                   fontWeight: 500
                 }}
               >
@@ -293,7 +293,7 @@ const ApplicationManagementCard = () => {
                       backgroundColor: selectedTab === index ? '#1e4b94' : 'transparent',
                       color: selectedTab === index ? 'white' : '#1e4b94',
                       fontWeight: 500,
-                      fontSize: '0.75rem',
+                      fontSize: '0.85rem',
                       borderRight: index < 2 ? '1px solid #1e4b94' : 'none',
                       borderColor: 'rgba(40, 87, 151, 0.5)',
                       transition: 'background-color 0.3s, color 0.3s',
@@ -367,7 +367,7 @@ const ApplicationManagementCard = () => {
                           variant="subtitle1"
                           sx={{
                             fontWeight: 500,
-                            fontSize: '0.875rem',
+                            fontSize: '1rem',
                             mb: 0.5,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',

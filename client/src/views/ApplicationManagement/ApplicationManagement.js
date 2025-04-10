@@ -233,6 +233,17 @@ const ApplicationManagement = () => {
     }
   }
 
+  // Common empty state container style
+  const emptyStateContainerStyle = {
+    textAlign: "center",
+    py: 6,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "200px",
+  }
+
   return (
     <HelmetComponent title={"Application Management"}>
       <div className="ApplicationManagement">
@@ -267,9 +278,9 @@ const ApplicationManagement = () => {
                       <InputLabel
                         id="position-select-label"
                         sx={{
-                          fontSize: "1rem", // Increased font size from 0.875rem
+                          fontSize: "1rem",
                           lineHeight: "1.5rem",
-                          fontWeight: 500, // Added slightly bolder font
+                          fontWeight: 500,
                           // Adjusted label position for new font size
                           transform: "translate(14px, 13px) scale(1)",
                           "&.MuiInputLabel-shrink": {
@@ -403,8 +414,8 @@ const ApplicationManagement = () => {
                   <>
                     {/* Empty State */}
                     {getCurrentApplications().length === 0 ? (
-                      <Box sx={{ textAlign: "center", py: 4 }}>
-                        <Typography variant="body1" color="textSecondary">
+                      <Box sx={emptyStateContainerStyle}>
+                        <Typography variant="h6" color="textSecondary" sx={{ mb: 2 }}>
                           No applications available in this category
                         </Typography>
                       </Box>

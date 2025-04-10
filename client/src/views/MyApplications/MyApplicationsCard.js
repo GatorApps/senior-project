@@ -242,7 +242,7 @@ const MyApplicationsCard = () => {
                     backgroundColor: tabValue === index ? "#1e4b94" : "transparent",
                     color: tabValue === index ? "white" : "#1e4b94",
                     fontWeight: 500,
-                    fontSize: "0.85rem", // Increased font size from 0.75rem
+                    fontSize: "0.85rem",
                     borderRight: index < 2 ? "1px solid #1e4b94" : "none",
                     borderColor: "rgba(40, 87, 151, 0.5)",
                     transition: "background-color 0.3s, color 0.3s",
@@ -291,7 +291,7 @@ const MyApplicationsCard = () => {
                           variant="subtitle1"
                           sx={{
                             fontWeight: 500,
-                            fontSize: "1rem", // Increased font size from 0.875rem
+                            fontSize: "1rem",
                             mb: 0.5,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
