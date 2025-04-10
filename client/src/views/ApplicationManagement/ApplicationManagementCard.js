@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { axiosPrivate } from '../../apis/backend';
-import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
 import {
   Box,
   Card,
@@ -15,7 +14,8 @@ import {
   Select,
   MenuItem,
   Alert,
-  CircularProgress
+  Skeleton,
+  Tooltip
 } from '@mui/material';
 
 const ApplicationManagementCard = () => {
@@ -147,6 +147,34 @@ const ApplicationManagementCard = () => {
     }
   };
 
+  // Application skeleton loading component
+  const ApplicationSkeleton = ({ count = 3 }) => {
+    return Array(count).fill(0).map((_, index, array) => (
+      <Box
+        key={`skeleton-${index}`}
+        sx={{
+          p: 1,
+          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none'
+        }}
+      >
+        {/* Name skeleton */}
+        <Skeleton
+          variant="text"
+          width="60%"
+          height={24}
+          sx={{ mb: 0.5 }}
+        />
+
+        {/* Date skeleton */}
+        <Skeleton
+          variant="text"
+          width="40%"
+          height={20}
+        />
+      </Box>
+    ));
+  };
+
   return (
     <Box sx={{ width: '100%' }}>
       <Card variant="outlined">
@@ -181,7 +209,7 @@ const ApplicationManagementCard = () => {
               <InputLabel
                 id="position-select-label"
                 sx={{
-                  fontSize: '0.875rem',
+                  fontSize: '1rem',
                   fontWeight: 500
                 }}
               >
@@ -265,7 +293,7 @@ const ApplicationManagementCard = () => {
                       backgroundColor: selectedTab === index ? '#1e4b94' : 'transparent',
                       color: selectedTab === index ? 'white' : '#1e4b94',
                       fontWeight: 500,
-                      fontSize: '0.75rem',
+                      fontSize: '0.85rem',
                       borderRight: index < 2 ? '1px solid #1e4b94' : 'none',
                       borderColor: 'rgba(40, 87, 151, 0.5)',
                       transition: 'background-color 0.3s, color 0.3s',
@@ -298,14 +326,12 @@ const ApplicationManagementCard = () => {
                 minHeight: '200px',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: loading ? 'center' : 'flex-start'
+                justifyContent: 'flex-start'
               }}
             >
-              {/* Loading State */}
+              {/* Loading State with Skeleton */}
               {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
-                </Box>
+                <ApplicationSkeleton count={3} />
               ) : (
                 <>
                   {/* Empty State */}
@@ -318,33 +344,49 @@ const ApplicationManagementCard = () => {
                         py: 2
                       }}
                     >
-                      No available applications of this status
+                      No applications available in this category
                     </Typography>
                   ) : (
-                    /* Application List - Limited to 3 items - Removed margin between items */
+                    /* Application List - Limited to 3 items */
                     getCurrentApplications().slice(0, 3).map((app, index, array) => (
                       <Box
                         key={app.applicationId || `${app.opid}-${app.email}`}
                         sx={{
                           p: 1.5,
-                          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none',
-                          mb: 0 // Removed margin between items
+                          borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none'
                         }}
                       >
+                        {/* Added text truncation and tooltip for long names */}
+                        {/* <Tooltip
+                          title={app.firstName ? `${app.firstName} ${app.lastName}` : 'Unnamed Applicant'}
+                          placement="top"
+                          arrow
+                          enterDelay={500}
+                        > */}
                         <Typography
                           variant="subtitle1"
                           sx={{
                             fontWeight: 500,
-                            fontSize: '0.875rem',
-                            mb: 0.5
+                            fontSize: '1rem',
+                            mb: 0.5,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '100%'
                           }}
                         >
                           {app.firstName ? `${app.firstName} ${app.lastName}` : 'Unnamed Applicant'}
                         </Typography>
+                        {/* </Tooltip> */}
                         <Typography
                           variant="body2"
                           color="textSecondary"
-                          sx={{ fontSize: '0.75rem' }}
+                          sx={{
+                            fontSize: '0.75rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
                         >
                           Submitted: {formatDate(app.submissionTimeStamp)}
                         </Typography>
@@ -357,12 +399,11 @@ const ApplicationManagementCard = () => {
           </Box>
         </CardContent>
         <CardActions>
-          {/* Restored original button styling */}
           <Button
             size="medium"
-            onClick={() => navigate('/applicationManagement')}
+            onClick={() => navigate('/applicationmanagement')}
           >
-            View All
+            Manage All Applications
           </Button>
         </CardActions>
       </Card>
@@ -370,4 +411,4 @@ const ApplicationManagementCard = () => {
   );
 };
 
-export default ApplicationManagementCard;
+export default ApplicationManagementCard

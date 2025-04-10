@@ -158,6 +158,13 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     }
   };
 
+  // Handle tab changes
+  const handleTabChange = (event, newValue) => {
+    // Clear error when switching tabs
+    setError(null);
+    setTabValue(newValue);
+  };
+
   // Fetch PDF when tab changes
   useEffect(() => {
     if (tabValue === 0 && resumeId) {
@@ -185,10 +192,6 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       }
     };
   }, []);
-
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     // Clear the timeout since PDF loaded successfully
@@ -352,7 +355,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
             }}>
               <CircularProgress size={40} />
             </Box>
-          ) : error ? (
+          ) : error && tabValue !== 2 ? ( // Only show error if not on Supplemental Responses tab
             <Alert severity="error" sx={{ m: 2 }}>
               {error}
             </Alert>
@@ -543,4 +546,4 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   }
 };
 
-export default ApplicationViewer;
+export default ApplicationViewer

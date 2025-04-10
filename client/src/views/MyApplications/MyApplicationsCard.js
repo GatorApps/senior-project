@@ -1,101 +1,348 @@
-import React, { useEffect, useState } from 'react';
-import { axiosPrivate } from '../../apis/backend';
-import { useSelector } from 'react-redux';
-import HelmetComponent from '../../components/HelmetComponent/HelmetComponent';
-import Header from '../../components/Header/Header';
-import SkeletonGroup from '../../components/SkeletonGroup/SkeletonGroup';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Button from '@mui/material/Button';
-import Link from '@mui/material/Link';
-import { Divider } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react"
+import { axiosPrivate } from "../../apis/backend"
+import { useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import { Box, Card, CardActions, CardContent, Button, Typography, Alert, Skeleton, Link } from "@mui/material"
+import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 
-const MyApplicationsCard = ({ title }) => {
-  const userInfo = useSelector((state) => state.auth.userInfo);
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
-  const [tabValue, setTabValue] = useState(0);
-
-  const navigate = useNavigate();
+const MyApplicationsCard = () => {
+  // State management
+  const userInfo = useSelector((state) => state.auth.userInfo)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [data, setData] = useState({
+    activeApplications: [],
+    movingApplications: [],
+    archivedApplications: [],
+  })
+  const [tabValue, setTabValue] = useState(0)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosPrivate.get('/application/studentList');
-        setData(response.data.payload.applications);
+        setLoading(true)
+        const response = await axiosPrivate.get("/application/studentList")
+
+        if (response.data && response.data.payload && response.data.payload.applications) {
+          // Ensure we have all categories
+          setData({
+            activeApplications: response.data.payload.applications.activeApplications || [],
+            movingApplications: response.data.payload.applications.movingApplications || [],
+            archivedApplications: response.data.payload.applications.archivedApplications || [],
+          })
+          setError(null)
+        } else {
+          setData({
+            activeApplications: [],
+            movingApplications: [],
+            archivedApplications: [],
+          })
+          setError("No applications found")
+        }
       } catch (error) {
-        console.error(error);
+        console.error(error)
+        const errorMessage = error.response?.data?.message || "Error fetching applications"
+        setError(errorMessage)
+        setData({
+          activeApplications: [],
+          movingApplications: [],
+          archivedApplications: [],
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+  // Get current applications based on selected tab
+  const getCurrentApplications = () => {
+    switch (tabValue) {
+      case 0:
+        return data.activeApplications || []
+      case 1:
+        return data.movingApplications || []
+      case 2:
+        return data.archivedApplications || []
+      default:
+        return []
+    }
+  }
 
-  const handleButtonClick = () => {
-    navigate('/myapplications');
-  };
+  // Format date for display
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleString()
+    } catch (error) {
+      return "Invalid date"
+    }
+  }
+
+  // Get status color based on status
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "submitted":
+        return "#1e4b94"
+      case "moving forward":
+        return "#2e7d32"
+      case "archived":
+        return "#616161"
+      default:
+        return "#616161"
+    }
+  }
+
+  // Get status label based on status
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "submitted":
+        return "Active"
+      case "moving forward":
+        return "Moving Forward"
+      case "archived":
+        return "Archived"
+      default:
+        return "Unknown"
+    }
+  }
+
+  // Application skeleton loading component
+  const ApplicationSkeleton = ({ count = 3 }) => {
+    return Array(count)
+      .fill(0)
+      .map((_, index, array) => (
+        <Box
+          key={`skeleton-${index}`}
+          sx={{
+            p: 1.5,
+            borderBottom: index < array.length - 1 ? "1px solid #ddd" : "none",
+          }}
+        >
+          {/* Position name skeleton */}
+          <Skeleton variant="text" width="60%" height={24} sx={{ mb: 0.5 }} />
+
+          {/* Date skeleton */}
+          <Skeleton variant="text" width="40%" height={20} />
+        </Box>
+      ))
+  }
+
+  // Render empty state message based on current tab
+  const renderEmptyState = () => {
+    if (tabValue === 0) {
+      // Special message for Active tab
+      return (
+        <Box sx={{ textAlign: "center", py: 2 }}>
+          <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
+            No applications available in this category
+          </Typography>
+          <Typography variant="body1" color="textSecondary">
+            Start by{" "}
+            <Link
+              href="/search"
+              onClick={(e) => {
+                e.preventDefault()
+                navigate("/search")
+              }}
+              sx={{
+                color: "primary.main",
+                textDecoration: "none",
+                "&:hover": {
+                  textDecoration: "underline",
+                },
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              searching for opportunities
+              <OpenInNewIcon sx={{ ml: 0.5, fontSize: "0.875rem" }} />
+            </Link>
+          </Typography>
+        </Box>
+      )
+    } else {
+      // Default message for other tabs
+      return (
+        <Typography
+          variant="body1"
+          color="textSecondary"
+          sx={{
+            textAlign: "center",
+            py: 2,
+          }}
+        >
+          No applications available in this category
+        </Typography>
+      )
+    }
+  }
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Card variant='outlined'>
-        <CardContent sx={{ height: '250px', display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
-          <Typography gutterBottom variant="h2" component="div" sx={{ lineHeight: 1.2, fontSize: '1.3125rem', fontWeight: 400 }}>My Applications</Typography>
-          <Paper elevation={0} sx={{ marginTop: '16px' }}>
+    <Box sx={{ width: "100%" }}>
+      <Card variant="outlined">
+        <CardContent
+          sx={{
+            minHeight: "250px",
+            display: "flex",
+            flexDirection: "column",
+            padding: "16px",
+          }}
+        >
+          <Typography
+            gutterBottom
+            variant="h2"
+            component="div"
+            sx={{
+              lineHeight: 1.2,
+              fontSize: "1.3125rem",
+              fontWeight: 500,
+              mb: 2,
+            }}
+          >
+            My Applications
+          </Typography>
+
+          {/* Error Display */}
+          {error && !loading && (
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          )}
+
+          {/* Custom Tabs */}
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              mt: 0.5,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                width: "fit-content",
+                maxWidth: "100%",
+                border: "1px solid #1e4b94",
+                borderRadius: "4px",
+                overflow: "hidden",
+              }}
+            >
+              {["Active", "Moving Forward", "Archived"].map((label, index) => (
+                <Box
+                  key={index}
+                  onClick={() => setTabValue(index)}
+                  sx={{
+                    padding: "4px 12px",
+                    minWidth: "80px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    backgroundColor: tabValue === index ? "#1e4b94" : "transparent",
+                    color: tabValue === index ? "white" : "#1e4b94",
+                    fontWeight: 500,
+                    fontSize: "0.85rem",
+                    borderRight: index < 2 ? "1px solid #1e4b94" : "none",
+                    borderColor: "rgba(40, 87, 151, 0.5)",
+                    transition: "background-color 0.3s, color 0.3s",
+                    "&:hover": {
+                      backgroundColor: tabValue === index ? "#1e4b94" : "#f0f4fa",
+                    },
+                  }}
+                >
+                  {label}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Application List */}
+          <Box
+            sx={{
+              padding: "12px",
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+            }}
+          >
+            {/* Loading State with Skeleton */}
             {loading ? (
-              <SkeletonGroup boxPadding={'0'} />
+              <ApplicationSkeleton count={3} />
             ) : (
               <>
-                <Tabs value={tabValue} onChange={handleTabChange} aria-label="application tabs" sx={{ marginBottom: '16px' }}>
-                  <Tab label="Active" />
-                  <Tab label="Archived" />
-                </Tabs>
-                {(tabValue === 0 ? data?.activeApplications : data?.archivedApplications)
-                  ?.slice(0, 2)
-                  ?.map((app, index) => (
-                    <Link href={`/posting?postingId=${app.positionId}`} target="_blank" style={{ textDecoration: 'none', color: "black" }}>
-                      <Box key={app.applicationId} sx={{
-                        px: 1.5,
-                        py: 1,
-                        cursor: 'pointer',
-                        borderRadius: 1,
-                        mb: 0.5,
-                        '&:hover': {
-                          bgcolor: 'action.hover',
-                        }
-                      }}>
-                        <Typography variant="h7">{app.positionName}</Typography>
-                        <Typography sx={{ marginX: '8px', fontWeight: '100', fontSize: '12px', color: app.status === "submitted" ? "green" : "gray" }}>
-                          {app.status}
+                {/* Empty State */}
+                {getCurrentApplications().length === 0
+                  ? renderEmptyState()
+                  : /* Application List - Limited to 3 items */
+                  getCurrentApplications()
+                    .slice(0, 3)
+                    .map((app, index, array) => (
+                      <Box
+                        key={app.applicationId || `${app.positionId}-${index}`}
+                        sx={{
+                          p: 1.5,
+                          borderBottom: index < array.length - 1 ? "1px solid #ddd" : "none",
+                        }}
+                      >
+                        {/* Position Name */}
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: "1rem",
+                            mb: 0.5,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            maxWidth: "100%",
+                          }}
+                          title={app.positionName || "Unnamed Position"}
+                        >
+                          {app.positionName || "Unnamed Position"}
                         </Typography>
+
+                        {/* Submission Date and Status */}
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            sx={{
+                              fontSize: "0.75rem",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Submitted: {formatDate(app.submissionTimeStamp)}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "0.75rem",
+                              color: getStatusColor(app.status || "submitted"),
+                              fontWeight: 500,
+                              ml: 1,
+                            }}
+                          >
+                            {getStatusLabel(app.status || "submitted")}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Divider sx={{ my: 0.5 }} />
-                    </Link>
-                  ))}
+                    ))}
               </>
             )}
-          </Paper>
+          </Box>
         </CardContent>
 
         <CardActions>
-          <Button size="medium" onClick={handleButtonClick}>View All</Button>
+          <Button size="medium" onClick={() => navigate("/myapplications")}>
+            Track my applications
+          </Button>
         </CardActions>
       </Card>
     </Box>
-  );
-};
+  )
+}
 
-export default MyApplicationsCard;
+export default MyApplicationsCard

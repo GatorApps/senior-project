@@ -97,7 +97,8 @@ public class renderClientController {
                                     "heading", "Student",
                                     "items", List.of(
                                             Map.of("label", "Dashboard", "route", "/?t=student"),
-                                            Map.of("label", "Search for Opportunities", "route", "/search")
+                                            Map.of("label", "Search for Opportunities", "route", "/search"),
+                                            Map.of("label", "My Applications", "route", "/myapplications")
                                     )
                             )
                     );
@@ -114,6 +115,16 @@ public class renderClientController {
                                                     Map.of("label", "Create New Posting", "route", "/postingEditor")
                                             )),
                                             Map.of("label", "Application Management", "route", "/applicationManagement")
+                                    )
+                            )
+                    );
+                }
+                // All authed users
+                if (userRoles.contains(100001)) {
+                    leftMenuItems.add(
+                            Map.of(
+                                    "items", List.of(
+                                            Map.of("label", "Messages", "route", "/messages")
                                     )
                             )
                     );
