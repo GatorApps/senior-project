@@ -122,13 +122,14 @@ const SearchContainer = styled(Box)(({ theme }) => ({
   },
 }))
 
-// Styled action button
+// Styled action button - updated to match PostingManagement.js styling
 const ActionButton = styled(IconButton)(({ theme }) => ({
-  margin: theme.spacing(0, 1),
+  border: "1px solid rgba(25, 118, 210, 0.5)",
+  margin: theme.spacing(0, 0.5), // Reduced margin to bring buttons closer
   transition: "all 0.2s ease",
   "&:hover": {
-    backgroundColor: theme.palette.action.hover,
-    transform: "scale(1.1)",
+    backgroundColor: "rgba(25, 118, 210, 0.04)",
+    border: "1px solid #1976d2",
   },
 }))
 
@@ -476,7 +477,7 @@ const OpportunitySearch = ({ title }) => {
                                       size="small"
                                       color="primary"
                                       aria-label="Apply"
-                                      sx={{ mr: 2 }} // Increased spacing between buttons
+                                      sx={{ mr: 0.5 }} // Reduced spacing between buttons
                                     >
                                       <ApplyIcon fontSize="small" />
                                     </ActionButton>

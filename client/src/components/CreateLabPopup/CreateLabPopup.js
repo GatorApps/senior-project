@@ -1,205 +1,292 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
-import { axiosPrivate } from '../../apis/backend';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { FormControl, MenuItem, Select, Typography } from '@mui/material';
-import InputLabel from '@mui/material/InputLabel';
-import Box from '@mui/material/Box';
-
-// Response format
-const response = {
-    "errCode": "0",
-    "payload": {
-        "lab": {
-            "id": "67dde81544c53033691a78f9",
-            "users": [
-                {
-                    "opid": "fd1d4d15-10f3-4285-879f-4ccb1944d6f3",
-                    "role": "Admin"
-                }
-            ],
-            "name": "Eric's Test Lab 892",
-            "department": null,
-            "website": "https://testlab.gatorapps.org",
-            "email": "testEmail@gmail.com",
-            "description": "<p><strong>Description</strong><br>This is a test lab creation for students interested in mechanical, robots, hardware, ai. We work with testing"
-        }
-    }
-}
+import { useState } from "react"
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  FormControl,
+  MenuItem,
+  Select,
+  Typography,
+  InputLabel,
+  Box,
+  Alert,
+  CircularProgress,
+  FormLabel,
+} from "@mui/material"
+import { axiosPrivate } from "../../apis/backend"
+import ReactQuill from "react-quill"
+import "react-quill/dist/quill.snow.css"
 
 const CreateLabPopup = ({ open, onClose, labs }) => {
-    const [name, setName] = useState('');
-    const [website, setWebsite] = useState('');
-    const [description, setDescription] = useState('');
-    const [email, setEmail] = useState('');
-    const [department, setDepartment] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [name, setName] = useState("")
+  const [website, setWebsite] = useState("")
+  const [description, setDescription] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [labId, setLabId] = useState("New Lab")
+  const [formErrors, setFormErrors] = useState({})
 
-    const [labId, setLabId] = useState('New Lab');
+  const fetchExistingLab = async (labId) => {
+    try {
+      setLoading(true)
+      const response = await axiosPrivate.get(`/lab/profileEditor?labId=${labId}`)
+      if (response.data.errCode === "0") {
+        const lab = response.data.payload.lab
+        setName(lab.name || "")
+        setWebsite(lab.website || "")
+        setDescription(lab.description || "")
+      } else {
+        setError(response.data.message || "Error fetching lab profile")
+      }
+    } catch (err) {
+      setError(err.message || "Error fetching lab profile")
+    } finally {
+      setLoading(false)
+    }
+  }
 
-    const fetchExistingLab = async (labId) => {
-        try {
-            const response = await axiosPrivate.get(`/lab/profileEditor?labId=${labId}`);
-            if (response.data.errCode === "0") {
-                const lab = response.data.payload.lab;
-                setName(lab.name || '');
-                setWebsite(lab.website || '');
-                setDescription(lab.description || '');
-                setEmail(lab.email || '');
-                setDepartment(lab.department || '');
-            } else {
-                setError(response.data.message || 'Error fetching lab profile');
-            }
-        } catch (err) {
-            setError(err.message || 'Error fetching lab profile');
-        }
-    };
+  const handleLabChange = (e) => {
+    setLabId(e.target.value)
+    setFormErrors({})
 
-    const handleLabChange = (e) => {
-        setLabId(e.target.value);
-        if (e.target.value !== 'New Lab') {
-            fetchExistingLab(e.target.value);
-        } else {
-            setName('');
-            setWebsite('');
-            setDescription('');
-            setEmail('');
-            setDepartment('');
-        }
-    };
+    if (e.target.value !== "New Lab") {
+      fetchExistingLab(e.target.value)
+    } else {
+      // Reset form fields when creating a new lab
+      setName("")
+      setWebsite("")
+      setDescription("")
+    }
+  }
 
-    const handleSubmit = async () => {
-        setLoading(true);
-        setError(null);
+  const validateForm = () => {
+    const errors = {}
 
-        const labData = {
-            name,
-            website,
-            description,
-            email,
-            department,
-        };
+    if (!name.trim()) errors.name = "Lab name is required"
+    if (!website.trim()) errors.website = "Website URL is required"
+    if (!description.trim() || description === "<p><br></p>") errors.description = "Description is required"
 
-        // If editing an existing lab, include the labId in the body
-        if (labId !== 'New Lab') {
-            labData.id = labId;
-        }
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
-        try {
-            let response;
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      setError("Please fill in all required fields")
+      return
+    }
 
-            if (labId === 'New Lab') {
-                // Create a new lab with a POST request
-                response = await axiosPrivate.post('/lab/profileEditor', labData);
-            } else {
-                // Update an existing lab with a PUT request
-                response = await axiosPrivate.put('/lab/profileEditor', labData);
-            }
+    setLoading(true)
+    setError(null)
 
-            if (response.data.errCode === "0") {
-                onClose(); // Close modal after successful submission
-            } else {
-                setError(response.data.message || 'Error processing lab profile');
-            }
-        } catch (err) {
-            setError(err.message || 'Error processing lab profile');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const labData = {
+      name,
+      website,
+      description,
+    }
 
-    return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-            <DialogTitle>Create/Edit Lab Profile</DialogTitle>
-            <DialogContent>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <FormControl fullWidth sx={{ marginTop: 4, marginBottom: 8, backgroundColor: 'white' }}>
-                    <InputLabel id="lab-select-label">Select Lab</InputLabel>
-                    <Select
-                        label="Select Lab"
-                        value={labId || ''}  // Set the value to '' by default to show "New Lab"
-                        onChange={(e) => handleLabChange(e)}
-                        labelId="lab-select-label"
-                    >
-                        <MenuItem value='New Lab'>New Lab</MenuItem> {/* Default value */}
-                        {labs.length > 0 &&
-                            labs.map((lab) => (
-                                <MenuItem key={lab.labId} value={lab.labId}>{lab.labName}</MenuItem>
-                            ))
-                        }
-                    </Select>
-                </FormControl>
-                <TextField
-                    fullWidth
-                    margin="dense"
-                    label="Lab Name"
-                    variant="outlined"
-                    value={name || ''}
-                    onChange={(e) => setName(e.target.value)}
-                    sx={{ marginBottom: 3 }}  // Adds a comfortable margin below the text field
-                />
+    // If editing an existing lab, include the labId in the body
+    if (labId !== "New Lab") {
+      labData.id = labId
+    }
 
-                <TextField
-                    fullWidth
-                    margin="dense"
-                    label="Lab Website"
-                    variant="outlined"
-                    value={website || ''}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    sx={{ marginBottom: 3 }}  // Adds a comfortable margin below the text field
-                />
+    try {
+      let response
 
-                <TextField
-                    fullWidth
-                    margin="dense"
-                    label="Email"
-                    variant="outlined"
-                    value={email || ''}
-                    onChange={(e) => setEmail(e.target.value)}
-                    sx={{ marginBottom: 4 }}  // Adds more margin to separate from the next section
-                />
+      if (labId === "New Lab") {
+        // Create a new lab with a POST request
+        response = await axiosPrivate.post("/lab/profileEditor", labData)
+      } else {
+        // Update an existing lab with a PUT request
+        response = await axiosPrivate.put("/lab/profileEditor", labData)
+      }
 
-                <TextField
-                    fullWidth
-                    margin="dense"
-                    label="Department"
-                    variant="outlined"
-                    value={department || ''}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    sx={{ marginBottom: 4 }}  // Adds more margin to separate from the next section
-                />
+      if (response.data.errCode === "0") {
+        onClose() // Close modal after successful submission
+      } else {
+        setError(response.data.message || "Error processing lab profile")
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Error processing lab profile")
+    } finally {
+      setLoading(false)
+    }
+  }
 
-                <Typography variant='h6' marginLeft={1} marginBottom={1} marginTop={2}>
-                    Description
-                </Typography>
+  const handleClose = () => {
+    // Reset form state when closing
+    setFormErrors({})
+    setError(null)
+    onClose()
+  }
 
-                <Box sx={{
-                    '.ql-editor': {
-                        overflow: 'hidden',
-                        resize: 'vertical',
-                        minHeight: '40px'
-                    }
-                }}>
-                    <ReactQuill
-                        theme="snow"
-                        value={description || ''}
-                        onChange={setDescription}
-                        style={{ marginBottom: '24px' }}  // Adds margin below ReactQuill for space
-                    />
-                </Box>
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 1,
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          fontSize: "1.25rem",
+          fontWeight: 500,
+          paddingBottom: 1,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        {labId === "New Lab" ? "Create New Lab" : "Edit Lab Profile"}
+      </DialogTitle>
 
-            </DialogContent>
-            <DialogActions sx={{ margin: 2, padding: 2 }}>
-                <Button onClick={onClose} color="error" variant='outlined' disabled={loading}>Cancel</Button>
-                <Button onClick={handleSubmit} color="primary" variant="contained" disabled={loading}>
-                    {loading ? 'Saving...' : 'Save'}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    );
-};
+      <DialogContent sx={{ paddingTop: 3 }}>
+        {error && (
+          <Alert severity="error" sx={{ marginBottom: 2 }}>
+            {error}
+          </Alert>
+        )}
 
-export default CreateLabPopup;
+        {loading && (
+          <Box sx={{ display: "flex", justifyContent: "center", padding: 2 }}>
+            <CircularProgress size={30} />
+          </Box>
+        )}
+
+        <FormControl fullWidth sx={{ marginBottom: 3 }}>
+          <InputLabel id="lab-select-label" size="small">
+            Select Lab
+          </InputLabel>
+          <Select
+            label="Select Lab"
+            value={labId || ""}
+            onChange={handleLabChange}
+            labelId="lab-select-label"
+            size="small"
+          >
+            <MenuItem value="New Lab">New Lab</MenuItem>
+            {labs.length > 0 &&
+              labs.map((lab) => (
+                <MenuItem key={lab.labId} value={lab.labId}>
+                  {lab.labName}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+
+        <FormLabel
+          component="legend"
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 500,
+            marginBottom: 0.5,
+            color: "text.primary",
+          }}
+        >
+          Lab Name <span style={{ color: "red" }}>*</span>
+        </FormLabel>
+        <TextField
+          fullWidth
+          value={name || ""}
+          onChange={(e) => {
+            setName(e.target.value)
+            setFormErrors({ ...formErrors, name: null })
+          }}
+          error={Boolean(formErrors.name)}
+          helperText={formErrors.name}
+          placeholder="Enter lab name"
+          size="small"
+          sx={{ marginBottom: 2 }}
+        />
+
+        <FormLabel
+          component="legend"
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 500,
+            marginBottom: 0.5,
+            color: "text.primary",
+          }}
+        >
+          Lab Website <span style={{ color: "red" }}>*</span>
+        </FormLabel>
+        <TextField
+          fullWidth
+          value={website || ""}
+          onChange={(e) => {
+            setWebsite(e.target.value)
+            setFormErrors({ ...formErrors, website: null })
+          }}
+          error={Boolean(formErrors.website)}
+          helperText={formErrors.website}
+          placeholder="https://example.com"
+          size="small"
+          sx={{ marginBottom: 2 }}
+        />
+
+        <FormLabel
+          component="legend"
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 500,
+            marginBottom: 0.5,
+            color: "text.primary",
+          }}
+        >
+          Description <span style={{ color: "red" }}>*</span>
+        </FormLabel>
+        <Box
+          sx={{
+            ".ql-editor": {
+              minHeight: "120px",
+              maxHeight: "250px",
+              overflow: "auto",
+            },
+            border: formErrors.description ? "1px solid #d32f2f" : "none",
+            marginBottom: 1,
+          }}
+        >
+          <ReactQuill
+            theme="snow"
+            value={description || ""}
+            onChange={(value) => {
+              setDescription(value)
+              setFormErrors({ ...formErrors, description: null })
+            }}
+            placeholder="Enter lab description"
+          />
+          {formErrors.description && (
+            <Typography color="error" variant="caption" sx={{ marginTop: 0.5, display: "block" }}>
+              {formErrors.description}
+            </Typography>
+          )}
+        </Box>
+      </DialogContent>
+
+      <DialogActions
+        sx={{
+          padding: 2,
+          borderTop: "1px solid",
+          borderColor: "divider",
+          justifyContent: "space-between",
+        }}
+      >
+        <Button onClick={handleClose} color="error" variant="outlined" disabled={loading} size="small">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary" variant="contained" disabled={loading} size="small">
+          {loading ? <CircularProgress size={20} color="inherit" /> : "Save"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export default CreateLabPopup
