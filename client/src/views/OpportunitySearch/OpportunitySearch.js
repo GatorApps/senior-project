@@ -172,17 +172,15 @@ const OpportunitySearch = ({ title }) => {
   const searchParams = new URLSearchParams(location.search)
   const searchQuery = searchParams.get("q")
 
-  // Initialize search from URL query parameter or load all opportunities
+  // Initialize search from URL query parameter but don't automatically search for all
   useEffect(() => {
-    // If searchQuery is explicitly defined (even if empty string), use it
+    // Only search if searchQuery is explicitly defined (including empty string)
     if (searchQuery !== null) {
       setSearchText(searchQuery)
       setActiveSearchTerm(searchQuery)
       searchPositions(searchQuery, 0, size)
-    } else {
-      // If no query parameter, load all opportunities by default
-      searchPositions("", 0, size)
     }
+    // If searchQuery is null, don't do anything - just show the initial page
   }, [searchQuery])
 
   // Search positions function - now allows empty search to get all opportunities
@@ -542,7 +540,7 @@ const OpportunitySearch = ({ title }) => {
                       }}
                     >
                       <Typography variant="h6" color="text.secondary" gutterBottom>
-                        Enter a search term or click "Search for all positions"
+                        Enter a search term or browse all opportunities
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Search by keywords, lab name, or position title

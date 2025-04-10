@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import HelmetComponent from "../../components/HelmetComponent/HelmetComponent"
@@ -20,12 +18,11 @@ import {
   DialogContent,
   Divider,
   IconButton,
-  FormControl,
-  Select,
+  Link,
 } from "@mui/material"
-import { Close as CloseIcon } from "@mui/icons-material"
+import { Close as CloseIcon, OpenInNew as OpenInNewIcon } from "@mui/icons-material"
 import { axiosPrivate } from "../../apis/backend"
-import MenuItem from "@mui/material/MenuItem"
+import { useNavigate } from "react-router-dom"
 
 const MyApplications = () => {
   // State management
@@ -44,6 +41,8 @@ const MyApplications = () => {
     message: "",
     severity: "info",
   })
+
+  const navigate = useNavigate()
 
   // Helper function to show snackbar notifications
   const showSnackbar = (message, severity = "info") => {
@@ -139,6 +138,50 @@ const MyApplications = () => {
     }
   }
 
+  // Get status label and color based on status
+  const getStatusInfo = (status) => {
+    switch (status) {
+      case "submitted":
+        return { label: "Active", color: "#1e4b94", bgColor: "#e6f0ff" }
+      case "moving forward":
+        return { label: "Moving Forward", color: "#2e7d32", bgColor: "#e8f5e9" }
+      case "archived":
+        return { label: "Archived", color: "#616161", bgColor: "#f5f5f5" }
+      default:
+        return { label: "Unknown", color: "#616161", bgColor: "#f5f5f5" }
+    }
+  }
+
+  // Common status chip styles
+  const getStatusChipStyles = (statusInfo, isInDialog = false) => ({
+    backgroundColor: statusInfo.bgColor,
+    color: statusInfo.color,
+    fontWeight: 500,
+    width: isInDialog ? "120px" : "140px", // Reduced width but still fits "Moving Forward"
+    height: isInDialog ? "32px" : "36px", // Match height with View button
+    fontSize: isInDialog ? "0.875rem" : "0.9375rem", // Increased font size to match View button
+    border: `1px solid ${statusInfo.color}20`,
+    borderRadius: "4px", // Match button border radius
+    "& .MuiChip-label": {
+      padding: "0 8px",
+      display: "flex",
+      justifyContent: "center",
+      width: "100%",
+      lineHeight: isInDialog ? "32px" : "36px", // Match height for vertical centering
+    },
+  })
+
+  // Common empty state container style
+  const emptyStateContainerStyle = {
+    textAlign: "center",
+    py: 6,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "200px",
+  }
+
   return (
     <HelmetComponent title="My Applications">
       <div className="GenericPage">
@@ -214,12 +257,35 @@ const MyApplications = () => {
                   <SkeletonGroup boxPadding={"0"} />
                 ) : (
                   <>
-                    {/* Empty State */}
                     {getCurrentApplications().length === 0 ? (
-                      <Box sx={{ textAlign: "center", py: 4 }}>
-                        <Typography variant="body1" color="textSecondary">
+                      <Box sx={emptyStateContainerStyle}>
+                        <Typography variant="h6" color="textSecondary" sx={{ mb: 2 }}>
                           No applications available in this category
                         </Typography>
+                        {selectedTab === 0 && (
+                          <Typography variant="h7" color="textSecondary">
+                            Start by{" "}
+                            <Link
+                              href="/search"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                navigate("/search")
+                              }}
+                              sx={{
+                                color: "primary.main",
+                                textDecoration: "none",
+                                "&:hover": {
+                                  textDecoration: "underline",
+                                },
+                                display: "inline-flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              searching for opportunities
+                              <OpenInNewIcon sx={{ ml: 0.5, fontSize: "1rem" }} />
+                            </Link>
+                          </Typography>
+                        )}
                       </Box>
                     ) : (
                       /* Application List - Exactly matching ApplicationManagement styling */
@@ -254,6 +320,7 @@ const MyApplications = () => {
                                 width: "100%", // Full width on all screens
                               }}
                             >
+                              {/* Clickable Position Name */}
                               <Typography
                                 variant="h6"
                                 sx={{
@@ -261,11 +328,47 @@ const MyApplications = () => {
                                   textOverflow: "ellipsis",
                                   whiteSpace: "nowrap",
                                   maxWidth: "100%",
+                                  display: "block",
                                 }}
                                 title={app.positionName || "Unnamed Position"} // Shows full text on hover
                               >
-                                {app.positionName || "Unnamed Position"}
+                                <Box
+                                  component="span"
+                                  sx={{
+                                    "&:hover": {
+                                      "& a": {
+                                        textDecoration: "underline",
+                                        color: "primary.main",
+                                      },
+                                      "& svg": {
+                                        visibility: "visible",
+                                      },
+                                    },
+                                  }}
+                                >
+                                  <Link
+                                    href={`/posting?postingId=${app.positionId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                      color: "inherit",
+                                      textDecoration: "none",
+                                    }}
+                                  >
+                                    {app.positionName || "Unnamed Position"}
+                                  </Link>
+                                  <OpenInNewIcon
+                                    sx={{
+                                      fontSize: "0.875rem",
+                                      ml: 0.5,
+                                      verticalAlign: "middle",
+                                      visibility: "hidden",
+                                    }}
+                                  />
+                                </Box>
                               </Typography>
+
+                              {/* Clickable Lab Name */}
                               <Typography
                                 variant="body2"
                                 sx={{
@@ -273,11 +376,46 @@ const MyApplications = () => {
                                   textOverflow: "ellipsis",
                                   whiteSpace: "nowrap",
                                   maxWidth: "100%",
+                                  display: "block",
                                 }}
                                 title={app.labName || "No lab name provided"} // Shows full text on hover
                               >
-                                {app.labName || "No lab name provided"}
+                                <Box
+                                  component="span"
+                                  sx={{
+                                    "&:hover": {
+                                      "& a": {
+                                        textDecoration: "underline",
+                                        color: "primary.main",
+                                      },
+                                      "& svg": {
+                                        visibility: "visible",
+                                      },
+                                    },
+                                  }}
+                                >
+                                  <Link
+                                    href={`/lab?labId=${app.labId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    sx={{
+                                      color: "inherit",
+                                      textDecoration: "none",
+                                    }}
+                                  >
+                                    {app.labName || "No lab name provided"}
+                                  </Link>
+                                  <OpenInNewIcon
+                                    sx={{
+                                      fontSize: "0.75rem",
+                                      ml: 0.5,
+                                      verticalAlign: "middle",
+                                      visibility: "hidden",
+                                    }}
+                                  />
+                                </Box>
                               </Typography>
+
                               <Typography variant="body2" color="textSecondary">
                                 Submitted: {formatDate(app.submissionTimeStamp)}
                               </Typography>
@@ -298,26 +436,24 @@ const MyApplications = () => {
                                 View
                               </Button>
 
-                              {/* Fixed width for status display */}
-                              <FormControl sx={{ width: 170 }}>
-                                <Select
-                                  value={app.status || "submitted"}
-                                  disabled={true}
-                                  size="small"
-                                  sx={{
-                                    width: "100%",
-                                    "& .MuiSelect-select": {
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
-                                    },
-                                  }}
-                                >
-                                  <MenuItem value="submitted">Active</MenuItem>
-                                  <MenuItem value="moving forward">Moving Forward</MenuItem>
-                                  <MenuItem value="archived">Archived</MenuItem>
-                                </Select>
-                              </FormControl>
+                              {/* Styled Status Label */}
+                              {(() => {
+                                const statusInfo = getStatusInfo(app.status || "submitted")
+                                return (
+                                  <Box
+                                    sx={{
+                                      ...getStatusChipStyles(statusInfo),
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      textAlign: "center",
+                                      fontSize: "0.9375rem", // Match View button font size
+                                    }}
+                                  >
+                                    {statusInfo.label}
+                                  </Box>
+                                )
+                              })()}
                             </Box>
                           </Box>
                         </Box>
@@ -352,6 +488,7 @@ const MyApplications = () => {
                 }}
               >
                 <Box sx={{ flexGrow: 1, minWidth: 0, mr: 2 }}>
+                  {/* Clickable Position Name in Dialog */}
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -359,11 +496,47 @@ const MyApplications = () => {
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
                       maxWidth: "100%",
+                      display: "block",
                     }}
                     title={selectedApplication?.positionName || "Position Details"}
                   >
-                    {selectedApplication?.positionName || "Position Details"}
+                    <Box
+                      component="span"
+                      sx={{
+                        "&:hover": {
+                          "& a": {
+                            textDecoration: "underline",
+                            color: "primary.main",
+                          },
+                          "& svg": {
+                            visibility: "visible",
+                          },
+                        },
+                      }}
+                    >
+                      <Link
+                        href={selectedApplication ? `/posting?postingId=${selectedApplication.positionId}` : "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
+                      >
+                        {selectedApplication?.positionName || "Position Details"}
+                      </Link>
+                      <OpenInNewIcon
+                        sx={{
+                          fontSize: "0.875rem",
+                          ml: 0.5,
+                          verticalAlign: "middle",
+                          visibility: "hidden",
+                        }}
+                      />
+                    </Box>
                   </Typography>
+
+                  {/* Clickable Lab Name in Dialog */}
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -372,20 +545,73 @@ const MyApplications = () => {
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
                       maxWidth: "100%",
+                      display: "block",
                     }}
                     title={selectedApplication?.labName || "Lab Details"}
                   >
-                    {selectedApplication?.labName || "Lab Details"}
+                    <Box
+                      component="span"
+                      sx={{
+                        "&:hover": {
+                          "& a": {
+                            textDecoration: "underline",
+                            color: "primary.main",
+                          },
+                          "& svg": {
+                            visibility: "visible",
+                          },
+                        },
+                      }}
+                    >
+                      <Link
+                        href={selectedApplication ? `/lab?labId=${selectedApplication.labId}` : "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          color: "inherit",
+                          textDecoration: "none",
+                        }}
+                      >
+                        {selectedApplication?.labName || "Lab Details"}
+                      </Link>
+                      <OpenInNewIcon
+                        sx={{
+                          fontSize: "0.75rem",
+                          ml: 0.5,
+                          verticalAlign: "middle",
+                          visibility: "hidden",
+                        }}
+                      />
+                    </Box>
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  {/* Status chip in dialog header */}
+                  {selectedApplication &&
+                    (() => {
+                      const statusInfo = getStatusInfo(selectedApplication.status || "submitted")
+                      return (
+                        <Box
+                          sx={{
+                            ...getStatusChipStyles(statusInfo, true),
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            fontSize: "0.875rem", // Increased font size while keeping cell size
+                          }}
+                        >
+                          {statusInfo.label}
+                        </Box>
+                      )
+                    })()}
+
                   <IconButton
                     onClick={handleCloseViewer}
                     size="small"
                     aria-label="close"
                     sx={{
-                      ml: 1,
                       "&:hover": {
                         backgroundColor: "rgba(0, 0, 0, 0.04)",
                       },

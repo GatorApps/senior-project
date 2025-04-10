@@ -112,7 +112,7 @@ const OpportunitySearchCard = () => {
                       }}
                       onKeyDown={(event) => {
                         if (event.key === 'Enter') {
-                          navigate(`/search?q=${searchText}`);
+                          navigate(searchText.length > 0 ? `/search?q=${searchText}` : '/search');
                         }
                       }}
                     />
@@ -124,7 +124,7 @@ const OpportunitySearchCard = () => {
           </div>
         </CardContent>
         <CardActions>
-          <Button size="medium" onClick={() => { navigate("/search") }}>Browse all opportunities</Button>
+          <Button size="medium" onClick={() => { navigate("/search?q=") }}>Browse all opportunities</Button>
         </CardActions>
       </Card>
     </Box>

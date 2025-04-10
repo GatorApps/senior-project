@@ -14,7 +14,8 @@ import {
   Select,
   MenuItem,
   Alert,
-  Skeleton
+  Skeleton,
+  Tooltip
 } from '@mui/material';
 
 const ApplicationManagementCard = () => {
@@ -355,20 +356,37 @@ const ApplicationManagementCard = () => {
                           borderBottom: index < array.length - 1 ? '1px solid #ddd' : 'none'
                         }}
                       >
+                        {/* Added text truncation and tooltip for long names */}
+                        {/* <Tooltip
+                          title={app.firstName ? `${app.firstName} ${app.lastName}` : 'Unnamed Applicant'}
+                          placement="top"
+                          arrow
+                          enterDelay={500}
+                        > */}
                         <Typography
                           variant="subtitle1"
                           sx={{
                             fontWeight: 500,
                             fontSize: '0.875rem',
-                            mb: 0.5
+                            mb: 0.5,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '100%'
                           }}
                         >
                           {app.firstName ? `${app.firstName} ${app.lastName}` : 'Unnamed Applicant'}
                         </Typography>
+                        {/* </Tooltip> */}
                         <Typography
                           variant="body2"
                           color="textSecondary"
-                          sx={{ fontSize: '0.75rem' }}
+                          sx={{
+                            fontSize: '0.75rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
                         >
                           Submitted: {formatDate(app.submissionTimeStamp)}
                         </Typography>
@@ -385,7 +403,7 @@ const ApplicationManagementCard = () => {
             size="medium"
             onClick={() => navigate('/applicationmanagement')}
           >
-            View All
+            Manage All Applications
           </Button>
         </CardActions>
       </Card>

@@ -211,13 +211,17 @@ public class ApplicationService {
         return applicationRepository.existsByOpidAndPositionId(opid, positionId);
     }
 
-    public ApplicationWithUserInfo getApplication(String opid, String labId, String applicationId) throws Exception {
-        labService.checkPermission(opid, labId);
-
+    public ApplicationWithUserInfo getApplication(String opid, String applicationId) throws Exception {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Application Not Found"));
 
+        Position position = positionService.getPosting(application.getPositionId());
         String applicantOpid = application.getOpid();
+
+        // Check permission
+        if (!opid.equals(applicantOpid)) {
+            labService.checkPermission(opid, position.getLabId());
+        }
 
         // Fetch user info
         Query query = new Query(Criteria.where("opid").is(applicantOpid));
