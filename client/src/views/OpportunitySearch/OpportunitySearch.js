@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect, useCallback } from "react"
 import { useSelector } from "react-redux"
 import { Link, useLocation, useNavigate } from "react-router-dom"
@@ -23,6 +25,8 @@ import {
   Tooltip,
   IconButton,
   Link as MuiLink,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material"
 
 // Icons
@@ -57,13 +61,13 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }))
 
-// Custom styled Typography for truncated titles
+// Custom styled Typography for truncated titles - fixed to ensure ellipsis shows
 const TruncatedTitle = styled(Typography)(({ theme }) => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
-  maxWidth: "calc(100% - 20px)", // Ensure there's space for the buttons
-  display: "block",
+  width: "100%", // Set a fixed width to ensure truncation works
+  display: "block", // Changed to block to ensure width constraint works
   color: theme.palette.primary.main,
   fontWeight: 500,
 }))
@@ -75,6 +79,12 @@ const TitleContainer = styled(Box)(({ theme }) => ({
   minWidth: 0, // This is crucial for text-overflow to work in a flex container
   overflow: "hidden", // Ensure the container doesn't expand with long content
   marginRight: theme.spacing(2), // Add space between title and buttons
+  display: "flex",
+  flexDirection: "column", // Stack title and timestamp vertically
+  maxWidth: "calc(100% - 100px)", // Ensure there's space for buttons on desktop
+  [theme.breakpoints.down("sm")]: {
+    maxWidth: "100%", // On mobile, take full width since buttons are hidden
+  },
 }))
 
 // Action buttons container with fixed width
@@ -82,6 +92,10 @@ const ActionButtonsContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexShrink: 0, // Prevent the buttons from shrinking
   marginLeft: "auto",
+  alignSelf: "flex-start", // Align to the top of the container
+  [theme.breakpoints.down("sm")]: {
+    display: "none", // Hide on mobile
+  },
 }))
 
 // Styled container for search results - removed maxHeight and overflow
@@ -122,10 +136,11 @@ const SearchContainer = styled(Box)(({ theme }) => ({
   },
 }))
 
-// Styled action button - updated to match PostingManagement.js styling
+// Styled action button - updated to match PostingManagement.js styling and made larger
 const ActionButton = styled(IconButton)(({ theme }) => ({
   border: "1px solid rgba(25, 118, 210, 0.5)",
   margin: theme.spacing(0, 0.5), // Reduced margin to bring buttons closer
+  padding: theme.spacing(1.2), // Increased padding to make buttons larger
   transition: "all 0.2s ease",
   "&:hover": {
     backgroundColor: "rgba(25, 118, 210, 0.04)",
@@ -146,9 +161,17 @@ const SearchAllLink = styled(MuiLink)(({ theme }) => ({
   },
 }))
 
+// Title link wrapper to ensure proper truncation
+const TitleLinkWrapper = styled(Box)(({ theme }) => ({
+  width: "100%", // Take full width of parent
+  overflow: "hidden", // Ensure overflow is hidden
+}))
+
 const OpportunitySearch = ({ title }) => {
   // Redux state
   const userInfo = useSelector((state) => state.auth.userInfo)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   // Component state
   const [loading, setLoading] = useState(false)
@@ -324,6 +347,20 @@ const OpportunitySearch = ({ title }) => {
     return text
   }
 
+  // Format date for display
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleString()
+    } catch (error) {
+      return "N/A"
+    }
+  }
+
+  // Check if title is likely to be truncated
+  const isTitleLikelyTruncated = (title) => {
+    return title && title.length > 40 // Adjust this threshold based on your layout
+  }
+
   return (
     <HelmetComponent title="Search for Opportunities">
       <div className="GenericPage">
@@ -451,35 +488,48 @@ const OpportunitySearch = ({ title }) => {
                                 {position.labName || "Unknown Lab"}
                               </Typography>
 
-                              {/* Position title with action buttons - Improved layout */}
-                              <Box sx={{ display: "flex", alignItems: "center", mb: 1, width: "100%" }}>
+                              {/* Position title with action buttons - Improved layout with separate columns */}
+                              <Box sx={{ display: "flex", alignItems: "flex-start", mb: 1, width: "100%" }}>
                                 <TitleContainer>
-                                  <Link
-                                    to={`/posting?postingId=${position.positionId}`}
-                                    target="_blank"
-                                    style={{
-                                      textDecoration: "none",
-                                    }}
+                                  <Tooltip
+                                    title={position.positionName || "Untitled Position"}
+                                    arrow
+                                    disableHoverListener={!isTitleLikelyTruncated(position.positionName)}
                                   >
-                                    <TruncatedTitle variant="h6">
-                                      {position.positionName || "Untitled Position"}
-                                    </TruncatedTitle>
-                                  </Link>
+                                    <TitleLinkWrapper>
+                                      <Link
+                                        to={`/posting?postingId=${position.positionId}`}
+                                        target="_blank"
+                                        style={{
+                                          textDecoration: "none",
+                                        }}
+                                      >
+                                        <TruncatedTitle variant="h6">
+                                          {position.positionName || "Untitled Position"}
+                                        </TruncatedTitle>
+                                      </Link>
+                                    </TitleLinkWrapper>
+                                  </Tooltip>
+
+                                  {/* Posted timestamp - moved under the title */}
+                                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>
+                                    Posted: {formatDate(position.postedTimeStamp)}
+                                  </Typography>
                                 </TitleContainer>
 
-                                {/* Action buttons */}
+                                {/* Action buttons in their own column - hidden on mobile */}
                                 <ActionButtonsContainer>
                                   <Tooltip title="Apply" arrow>
                                     <ActionButton
                                       component={Link}
                                       to={`/posting?postingId=${position.positionId}&apply=1`}
                                       target="_blank"
-                                      size="small"
+                                      size="medium"
                                       color="primary"
                                       aria-label="Apply"
-                                      sx={{ mr: 0.5 }} // Reduced spacing between buttons
+                                      sx={{ mr: 0.5 }}
                                     >
-                                      <ApplyIcon fontSize="small" />
+                                      <ApplyIcon />
                                     </ActionButton>
                                   </Tooltip>
 
@@ -488,11 +538,11 @@ const OpportunitySearch = ({ title }) => {
                                       component={Link}
                                       to={`/posting?postingId=${position.positionId}`}
                                       target="_blank"
-                                      size="small"
+                                      size="medium"
                                       color="primary"
                                       aria-label="View details"
                                     >
-                                      <OpenInNewIcon fontSize="small" />
+                                      <OpenInNewIcon />
                                     </ActionButton>
                                   </Tooltip>
                                 </ActionButtonsContainer>
