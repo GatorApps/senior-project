@@ -129,12 +129,22 @@ const MyApplicationsCard = () => {
       ))
   }
 
+  const emptyStateContainerStyle = {
+    textAlign: "center",
+    py: 3,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "150px",
+  }
+
   // Render empty state message based on current tab
   const renderEmptyState = () => {
     if (tabValue === 0) {
       // Special message for Active tab
       return (
-        <Box sx={{ textAlign: "center", py: 2 }}>
+        <Box sx={emptyStateContainerStyle}>
           <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
             No applications available in this category
           </Typography>
@@ -165,16 +175,18 @@ const MyApplicationsCard = () => {
     } else {
       // Default message for other tabs
       return (
-        <Typography
-          variant="body1"
-          color="textSecondary"
-          sx={{
-            textAlign: "center",
-            py: 2,
-          }}
-        >
-          No applications available in this category
-        </Typography>
+        <Box sx={emptyStateContainerStyle}>
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            sx={{
+              textAlign: "center",
+              py: 2,
+            }}
+          >
+            No applications available in this category
+          </Typography>
+        </Box>
       )
     }
   }
@@ -284,6 +296,9 @@ const MyApplicationsCard = () => {
                         sx={{
                           p: 1.5,
                           borderBottom: index < array.length - 1 ? "1px solid #ddd" : "none",
+                          "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                          },
                         }}
                       >
                         {/* Position Name */}

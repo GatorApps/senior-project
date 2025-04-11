@@ -103,6 +103,7 @@ public class ApplicationService {
                     Aggregation.unwind("position", true),
                     Aggregation.project()
                             .andExpression("toObjectId(position.labId)").as("labIdObjectId")
+                            .and("position.labId").as("labId")
                             .and("position.name").as("positionName")
                             .andInclude("status",
                                     "submissionTimeStamp",
@@ -121,7 +122,8 @@ public class ApplicationService {
                             .andInclude("positionName",
                                     "status",
                                     "submissionTimeStamp",
-                                    "positionId")
+                                    "positionId",
+                                    "labId")
                             .andExclude("_id")
             );
 

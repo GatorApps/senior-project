@@ -165,10 +165,28 @@ const MessagesCard = () => {
                 ))}
               </List>
             ) : (
-              <Typography variant="body2" sx={{ fontSize: '0.938rem' }}>
-                Yay, empty inbox. Enjoy your day!<br /><br />
-                You have not received any messages yet. When you receive messages, they will appear here.
-              </Typography>
+              <Box>
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{
+                    textAlign: "center",
+                    py: 2,
+                  }}
+                >
+                  Yay, empty inbox. Enjoy your day!
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{
+                    textAlign: "left",
+                    py: 2,
+                  }}
+                >
+                  You have not received any messages yet. When you receive messages, they will appear here.
+                </Typography>
+              </Box>
             )}
           </Box>
         </CardContent>
@@ -182,4 +200,4 @@ const MessagesCard = () => {
   );
 }
 
-export default MessagesCard;
+export default MessagesCard
