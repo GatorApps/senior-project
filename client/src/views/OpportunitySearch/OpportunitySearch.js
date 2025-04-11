@@ -1,5 +1,3 @@
-"use client"
-
 import React, { useState, useEffect, useCallback } from "react"
 import { useSelector } from "react-redux"
 import { Link, useLocation, useNavigate } from "react-router-dom"
@@ -66,8 +64,8 @@ const TruncatedTitle = styled(Typography)(({ theme }) => ({
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
-  width: "100%", // Set a fixed width to ensure truncation works
-  display: "block", // Changed to block to ensure width constraint works
+  width: "100%", // Take full width to ensure truncation works
+  display: "block", // Block to ensure width constraint works
   color: theme.palette.primary.main,
   fontWeight: 500,
 }))
@@ -165,6 +163,16 @@ const SearchAllLink = styled(MuiLink)(({ theme }) => ({
 const TitleLinkWrapper = styled(Box)(({ theme }) => ({
   width: "100%", // Take full width of parent
   overflow: "hidden", // Ensure overflow is hidden
+}))
+
+// Custom styled Link component to limit clickable area
+const StyledLink = styled(Link)(({ theme }) => ({
+  textDecoration: "none",
+  display: "inline-block", // Use inline-block to limit clickable area
+  maxWidth: "100%", // Ensure it doesn't exceed container width
+  "&:hover": {
+    textDecoration: "none",
+  },
 }))
 
 const OpportunitySearch = ({ title }) => {
@@ -489,7 +497,7 @@ const OpportunitySearch = ({ title }) => {
                               </Typography>
 
                               {/* Position title with action buttons - Improved layout with separate columns */}
-                              <Box sx={{ display: "flex", alignItems: "flex-start", mb: 1, width: "100%" }}>
+                              <Box sx={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
                                 <TitleContainer>
                                   <Tooltip
                                     title={position.positionName || "Untitled Position"}
@@ -497,22 +505,17 @@ const OpportunitySearch = ({ title }) => {
                                     disableHoverListener={!isTitleLikelyTruncated(position.positionName)}
                                   >
                                     <TitleLinkWrapper>
-                                      <Link
-                                        to={`/posting?postingId=${position.positionId}`}
-                                        target="_blank"
-                                        style={{
-                                          textDecoration: "none",
-                                        }}
-                                      >
+                                      {/* Use a styled Link component with proper truncation */}
+                                      <StyledLink to={`/posting?postingId=${position.positionId}`} target="_blank">
                                         <TruncatedTitle variant="h6">
                                           {position.positionName || "Untitled Position"}
                                         </TruncatedTitle>
-                                      </Link>
+                                      </StyledLink>
                                     </TitleLinkWrapper>
                                   </Tooltip>
 
                                   {/* Posted timestamp - moved under the title */}
-                                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 1 }}>
+                                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                                     Posted: {formatDate(position.postedTimeStamp)}
                                   </Typography>
                                 </TitleContainer>
