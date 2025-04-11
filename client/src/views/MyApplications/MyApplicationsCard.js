@@ -296,6 +296,9 @@ const MyApplicationsCard = () => {
                         sx={{
                           p: 1.5,
                           borderBottom: index < array.length - 1 ? "1px solid #ddd" : "none",
+                          "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.04)",
+                          },
                         }}
                       >
                         {/* Position Name */}

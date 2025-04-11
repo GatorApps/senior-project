@@ -378,16 +378,18 @@ const ApplicationManagementCard = () => {
                   <>
                     {/* Empty State */}
                     {getCurrentApplications().length === 0 ? (
-                      <Typography
-                        variant="body1"
-                        color="textSecondary"
-                        sx={{
-                          textAlign: "center",
-                          py: 2,
-                        }}
-                      >
-                        No applications available in this category
-                      </Typography>
+                      <Box sx={emptyStateContainerStyle}>
+                        <Typography
+                          variant="body1"
+                          color="textSecondary"
+                          sx={{
+                            textAlign: "center",
+                            py: 2,
+                          }}
+                        >
+                          No applications available in this category
+                        </Typography>
+                      </Box>
                     ) : (
                       /* Application List - Limited to 3 items */
                       getCurrentApplications()
@@ -398,6 +400,9 @@ const ApplicationManagementCard = () => {
                             sx={{
                               p: 1.5,
                               borderBottom: index < array.length - 1 ? "1px solid #ddd" : "none",
+                              "&:hover": {
+                                backgroundColor: "rgba(0, 0, 0, 0.04)",
+                              },
                             }}
                           >
                             <Typography
