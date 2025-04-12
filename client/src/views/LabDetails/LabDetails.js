@@ -211,51 +211,49 @@ const LabDetails = ({ title }) => {
 
                 {!loading && labDetails && (
                   <Box>
-                    {/* Lab Website */}
-                    <Typography variant="h6" color="primary" sx={{ fontWeight: "bold", mb: 1 }}>
-                      Website
-                    </Typography>
+                    {/* Lab Description */}
+                    {labDetails.lab.labDescription && (
+                      <React.Fragment>
+                        <Typography variant="h6" color="rgb(191, 68, 24)" sx={{ fontSize: "18px", fontWeight: "bold", mb: 2 }}>
+                          Description
+                        </Typography>
 
-                    {labDetails.lab.website && (
-                      <Typography
-                        variant="body1"
-                        sx={{ color: "primary.main", mb: 3, display: "flex", alignItems: "center" }}
-                      >
-                        <Link
-                          href={labDetails.lab.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{ display: "flex", alignItems: "center" }}
-                        >
-                          {labDetails.lab.website}
-                          <OpenInNewIcon sx={{ ml: 0.5, fontSize: "0.9rem" }} />
-                        </Link>
-                      </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "text.secondary", mb: 3 }}
+                          dangerouslySetInnerHTML={{ __html: labDetails.lab.labDescription }}
+                        />
+                        <Divider sx={{ mt: 4.5, mb: 3.5 }} />
+                      </React.Fragment>
                     )}
 
-                    {/* Lab Description */}
-                    <Divider sx={{ mt: 5, mb: 3.5 }} />
+                    {/* Lab Website */}
+                    {labDetails.lab.website && (
+                      <React.Fragment>
+                        <Typography variant="h6" color="rgb(191, 68, 24)" sx={{ fontSize: "18px", fontWeight: "bold", mb: 1.5 }}>
+                          Website
+                        </Typography>
 
-                    <Typography variant="h6" color="primary" sx={{ fontWeight: "bold", mb: 1.5 }}>
-                      Description
-                    </Typography>
-
-                    {labDetails.lab.labDescription ? (
-                      <Typography
-                        variant="body1"
-                        sx={{ color: "text.secondary", mb: 3 }}
-                        dangerouslySetInnerHTML={{ __html: labDetails.lab.labDescription }}
-                      />
-                    ) : (
-                      <Typography variant="body1" sx={{ color: "text.secondary", mb: 3 }}>
-                        No description available
-                      </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "primary.main", mb: 3, display: "flex", alignItems: "center" }}
+                        >
+                          <Link
+                            href={labDetails.lab.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ display: "flex", alignItems: "center" }}
+                          >
+                            {labDetails.lab.website}
+                            <OpenInNewIcon sx={{ ml: 0.5, fontSize: "0.9rem" }} />
+                          </Link>
+                        </Typography>
+                        <Divider sx={{ mt: 4.5, mb: 3.5 }} />
+                      </React.Fragment>
                     )}
 
                     {/* Open Positions Section */}
-                    <Divider sx={{ mt: 4.5, mb: 3.5 }} />
-
-                    <Typography variant="h6" color="primary" sx={{ fontWeight: "bold" }}>
+                    <Typography variant="h6" color="rgb(191, 68, 24)" sx={{ fontSize: "18px", fontWeight: "bold" }}>
                       Open Opportunities
                     </Typography>
 
@@ -276,7 +274,7 @@ const LabDetails = ({ title }) => {
                                       <TitleLinkWrapper>
                                         {/* Use StyledLink component from OpportunitySearch.js */}
                                         <StyledLink to={`/posting?postingId=${position.positionId}`} target="_blank">
-                                          <TruncatedTitle variant="h6">
+                                          <TruncatedTitle variant="h6" sx={{ fontSize: "1.1rem" }}>
                                             {position.positionName || "Untitled Position"}
                                           </TruncatedTitle>
                                         </StyledLink>
@@ -299,7 +297,7 @@ const LabDetails = ({ title }) => {
                                         size="medium"
                                         color="primary"
                                         aria-label="Apply"
-                                        sx={{ mr: 0.5 }}
+                                        sx={{ mr: 0.5, width: "40px", height: "40px" }}
                                       >
                                         <ApplyIcon />
                                       </ActionButton>
@@ -313,6 +311,7 @@ const LabDetails = ({ title }) => {
                                         size="medium"
                                         color="primary"
                                         aria-label="View details"
+                                        sx={{ width: "40px", height: "40px" }}
                                       >
                                         <OpenInNewIcon />
                                       </ActionButton>
@@ -333,7 +332,8 @@ const LabDetails = ({ title }) => {
                                     mt: 1,
                                   }}
                                 >
-                                  {truncateHtml(position.positionDescription)}
+                                  {/* {truncateHtml(position.positionDescription)} */}
+                                  {position.positionRawDescription}
                                 </Typography>
                               </Box>
                             </ResultItem>
@@ -342,8 +342,8 @@ const LabDetails = ({ title }) => {
                         ))}
                       </List>
                     ) : (
-                      <Typography variant="body1" sx={{ color: "text.secondary", fontStyle: "italic" }}>
-                        No open positions available at this time.
+                      <Typography variant="body1" sx={{ color: "text.secondary", mt: 1.5 }}>
+                        No open positions available at this time
                       </Typography>
                     )}
                   </Box>
