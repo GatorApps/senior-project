@@ -1,6 +1,7 @@
 package org.gatorapps.garesearch.service;
 
 import jakarta.validation.ConstraintViolationException;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.gatorapps.garesearch.exception.ResourceNotFoundException;
 import org.gatorapps.garesearch.model.garesearch.Lab;
@@ -28,7 +29,7 @@ public class LabService {
     @Qualifier("garesearchMongoTemplate")
     private MongoTemplate garesearchMongoTemplate;
 
-    public Map getPublicProfile (String labId) throws Exception {
+    public Map getPublicProfile(String labId) throws Exception {
         try {
             Aggregation aggregation = Aggregation.newAggregation(
                     Aggregation.match(
@@ -38,57 +39,60 @@ public class LabService {
                             .andExpression("{ $toString: '$_id' }").as("labId")
                             .and("name").as("labName")
                             .and("description").as("labDescription")
-                            .andInclude("department",
-                                    "website",
-                                    "email"),
-                    // join with 'positions' collection
-                    Aggregation.lookup(
-                            "positions",      // Collection to join
-                            "labId",              // Local field
-                            "labId",             // Foreign field
-                            "positions"             // Alias for the joined field
-                   ),
-
-//
-                    Aggregation.unwind("positions", true),
-                    Aggregation.match(Criteria.where("positions.status").is("open")),
-
-                    Aggregation.project()
-                            .and("labId").as("labId")
-                            .and("labName").as("labName")
-                            .and("labDescription").as("labDescription")
-                            .and("department").as("department")
-                            .and("website").as("website")
-                            .and("email").as("email")
-                            .and("positions.name").as("positions.positionName")
-                            .and("positions.description").as("positions.positionDescription")
-                            .andExpression("positions.postedTimeStamp").as("positions.postedTimeStamp")
-                            .andExpression("positions.lastUpdatedTimeStamp").as("positions.lastUpdatedTimeStamp")
-                            .andExpression("{ $toString: '$positions._id' }").as("positions.positionId")
+                            .andInclude("website")
                             .andExclude("_id"),
-
-                    Aggregation.group("labId", "labName", "labDescription", "department", "website", "email")
-                            .push("positions").as("positions")
+                    Aggregation.lookup(
+                            "positions",
+                            "labId",
+                            "labId",
+                            "positions"
+                    ),
+                    context -> new Document("$addFields", new Document()
+                            .append("positions", new Document("$filter", new Document()
+                                    .append("input", "$positions")
+                                    .append("as", "position")
+                                    .append("cond", new Document("$eq", List.of("$$position.status", "open")))
+                            ))
+                    ),
+                    context -> new Document("$addFields", new Document()
+                            .append("positions", new Document("$sortArray", new Document()
+                                    .append("input", "$positions")
+                                    .append("sortBy", new Document("lastUpdatedTimeStamp", -1))
+                            ))
+                    ),
+                    context -> new Document("$project", new Document()
+                            .append("labId", 1)
+                            .append("labName", 1)
+                            .append("labDescription", 1)
+                            .append("website", 1)
+                            .append("positions", new Document("$map", new Document()
+                                    .append("input", "$positions")
+                                    .append("as", "pos")
+                                    .append("in", new Document()
+                                            .append("positionId", new Document("$toString", "$$pos._id"))
+                                            .append("positionName", "$$pos.name")
+                                            .append("positionRawDescription", "$$pos.rawDescription")
+                                            .append("postedTimeStamp", "$$pos.postedTimeStamp")
+                                            .append("lastUpdatedTimeStamp", "$$pos.lastUpdatedTimeStamp")
+                                    )
+                            ))
+                    )
             );
 
-            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(
-                    aggregation, "labs", Map.class);
+            AggregationResults<Map> results = garesearchMongoTemplate.aggregate(aggregation, "labs", Map.class);
 
-            if (results.getMappedResults().isEmpty()){
+            if (results.getMappedResults().isEmpty()) {
                 throw new ResourceNotFoundException("ERR_RESOURCE_NOT_FOUND", "Unable to process your request at this time");
             }
 
+            return results.getMappedResults().get(0);
 
-            Map lab = (Map) results.getMappedResults().get(0).get("_id");
-            lab.put("positions", results.getMappedResults().get(0).get("positions"));
-            return lab;
         } catch (Exception e) {
-            if (e instanceof ResourceNotFoundException){
+            if (e instanceof ResourceNotFoundException) {
                 throw e;
             }
             throw new Exception("Unable to process your request at this time", e);
         }
-
     }
 
     public List<Map> getLabNames(String opid) throws Exception {

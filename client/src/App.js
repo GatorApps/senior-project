@@ -8,8 +8,8 @@ import { Routes, Route } from 'react-router-dom';
 import GenericPage from './components/GenericPage/GenericPage';
 import OpportunitySearchPage from './views/OpportunitySearch/OpportunitySearch';
 import MyApplicationsPage from './views/MyApplications/MyApplications';
-import LabDetailsPage from './views/LabDetailsPage/LabDetailsPage';
-import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage';
+import LabDetails from './views/LabDetails/LabDetails';
+import PositionDetailsPage from './views/PositionDetails/PositionDetails';
 import PostingManagement from './views/PostingManagement/PostingManagement';
 import ApplicationManagement from './views/ApplicationManagement/ApplicationManagement';
 import PostingEditor from './views/PostingEditor/PostingEditor';
@@ -36,7 +36,7 @@ function App() {
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
-          <Route path="/lab" element={<LabDetailsPage />} />
+          <Route path="/lab" element={<LabDetails />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>

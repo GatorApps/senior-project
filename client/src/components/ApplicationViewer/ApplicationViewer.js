@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -56,7 +56,7 @@ class PDFErrorBoundary extends React.Component {
   }
 }
 
-const ApplicationViewer = ({ application, applicantInfo }) => {
+const ApplicationViewer = ({ application, applicantInfo, previewMode = false, previewData = {} }) => {
   const [tabValue, setTabValue] = useState(0);
   const [numPages, setNumPages] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -69,15 +69,53 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   const [useIframe, setUseIframe] = useState(pdfWorkerConfigFailed); // Initialize based on worker config status
   const pdfTimeoutRef = useRef(null);
   const previousPdfUrlRef = useRef(null);
+  const fetchedRef = useRef(false);
 
-  // Fetch application details when application prop changes
+  // Stabilize application object reference to prevent infinite loops
+  const applicationRef = useRef(application);
+  const previewModeRef = useRef(previewMode);
+  const previewDataRef = useRef(previewData);
+
+  // Update refs when props change
   useEffect(() => {
+    applicationRef.current = application;
+    previewModeRef.current = previewMode;
+    previewDataRef.current = previewData;
+  }, [application, previewMode, previewData]);
+
+  // Fetch application details when application prop changes or use preview data
+  useEffect(() => {
+    // Skip if no application or if we've already fetched for this application
     if (!application) return;
 
+    // Reset the fetched flag when application changes
+    if (applicationRef.current !== application) {
+      fetchedRef.current = false;
+    }
+
+    // Skip if we've already fetched for this application
+    if (fetchedRef.current) return;
+
+    // Mark as fetched to prevent multiple requests
+    fetchedRef.current = true;
+
+    if (previewMode && previewData) {
+      // In preview mode, use the data passed directly
+      setResumeId(previewData.resumeId || null);
+      setTranscriptId(previewData.transcriptId || null);
+      setSupplementalResponses(previewData.supplementalResponses || 'No supplemental responses provided.');
+      return;
+    }
+
+    // Normal mode - fetch from API
     setAppLoading(true);
     setError(null);
 
-    axiosPrivate.get(`/application/application?labId=${application.labId}&applicationId=${application.applicationId}`)
+    // Store the application ID to prevent closure issues
+    const applicationId = application.applicationId;
+
+    // Updated API call - removed labId parameter
+    axiosPrivate.get(`/application/application?applicationId=${applicationId}`)
       .then((response) => {
         if (response.data && response.data.errCode === '0' && response.data.payload.application) {
           const app = response.data.payload.application;
@@ -95,10 +133,10 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       .finally(() => {
         setAppLoading(false);
       });
-  }, [application]);
+  }, [application?.applicationId, previewMode]); // Updated dependency array - removed labId
 
-  // Fetch PDF file
-  const fetchPdf = async (fileId) => {
+  // Memoize fetchPdf to prevent recreating on each render
+  const fetchPdf = useCallback(async (fileId) => {
     if (!fileId) {
       setError('No file ID provided');
       return;
@@ -156,7 +194,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Handle tab changes
   const handleTabChange = (event, newValue) => {
@@ -182,7 +220,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
         pdfTimeoutRef.current = null;
       }
     };
-  }, [tabValue, resumeId, transcriptId]);
+  }, [tabValue, resumeId, transcriptId, fetchPdf]);
 
   // Clean up on unmount
   useEffect(() => {
@@ -233,7 +271,60 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
     e.stopPropagation(); // Prevent tab change when clicking download
   };
 
+  // Check if supplemental responses are available
+  // Fixed logic to correctly identify when supplemental responses exist
+  const hasSupplementalResponses = supplementalResponses &&
+    supplementalResponses !== 'No supplemental responses provided.';
+
+  // For debugging - log the value to console
+  useEffect(() => {
+    console.log('Supplemental responses:', supplementalResponses);
+    console.log('Has supplemental responses:', hasSupplementalResponses);
+  }, [supplementalResponses, hasSupplementalResponses]);
+
   if (!application) return null;
+
+  // Create a custom tab component for the supplemental responses tab
+  const SupplementalResponsesTab = () => {
+    const isDisabled = !hasSupplementalResponses;
+
+    return (
+      <div>
+        {isDisabled ? (
+          <Tooltip
+            title="This application does not contain supplemental responses"
+            placement="right"
+            arrow
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  maxWidth: '215px',
+                  fontSize: '13px',
+                  bgcolor: 'rgba(97, 97, 97, 0.92)',
+                  '& .MuiTooltip-arrow': {
+                    color: 'rgba(97, 97, 97, 0.92)'
+                  }
+                }
+              }
+            }}
+          >
+            <div style={{ width: '100%' }}>
+              <Tab
+                label="Supplemental Responses"
+                disabled={true}
+                sx={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
+              />
+            </div>
+          </Tooltip>
+        ) : (
+          <Tab
+            label="Supplemental Responses"
+            disabled={false}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <Box sx={{
@@ -328,7 +419,39 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
             }
             disabled={!transcriptId}
           />
-          <Tab label="Supplemental Responses" />
+          {/* Conditional rendering for the supplemental responses tab */}
+          {!hasSupplementalResponses ? (
+            <Tooltip
+              title="This position does not have supplemental questions"
+              placement="right"
+              arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    maxWidth: '215px',
+                    fontSize: '13px',
+                    bgcolor: 'rgba(97, 97, 97, 0.92)',
+                    '& .MuiTooltip-arrow': {
+                      color: 'rgba(97, 97, 97, 0.92)'
+                    }
+                  }
+                }
+              }}
+            >
+              {/* Use a div as a wrapper that can receive hover events even when the tab is disabled */}
+              <div>
+                <Tab
+                  label="Supplemental Responses"
+                  disabled={true}
+                />
+              </div>
+            </Tooltip>
+          ) : (
+            <Tab
+              label="Supplemental Responses"
+              disabled={false}
+            />
+          )}
         </Tabs>
       </Box>
 
