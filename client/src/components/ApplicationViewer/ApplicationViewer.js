@@ -271,7 +271,60 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
     e.stopPropagation(); // Prevent tab change when clicking download
   };
 
+  // Check if supplemental responses are available
+  // Fixed logic to correctly identify when supplemental responses exist
+  const hasSupplementalResponses = supplementalResponses &&
+    supplementalResponses !== 'No supplemental responses provided.';
+
+  // For debugging - log the value to console
+  useEffect(() => {
+    console.log('Supplemental responses:', supplementalResponses);
+    console.log('Has supplemental responses:', hasSupplementalResponses);
+  }, [supplementalResponses, hasSupplementalResponses]);
+
   if (!application) return null;
+
+  // Create a custom tab component for the supplemental responses tab
+  const SupplementalResponsesTab = () => {
+    const isDisabled = !hasSupplementalResponses;
+
+    return (
+      <div>
+        {isDisabled ? (
+          <Tooltip
+            title="This application does not contain supplemental responses"
+            placement="right"
+            arrow
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  maxWidth: '215px',
+                  fontSize: '13px',
+                  bgcolor: 'rgba(97, 97, 97, 0.92)',
+                  '& .MuiTooltip-arrow': {
+                    color: 'rgba(97, 97, 97, 0.92)'
+                  }
+                }
+              }
+            }}
+          >
+            <div style={{ width: '100%' }}>
+              <Tab
+                label="Supplemental Responses"
+                disabled={true}
+                sx={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
+              />
+            </div>
+          </Tooltip>
+        ) : (
+          <Tab
+            label="Supplemental Responses"
+            disabled={false}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <Box sx={{
@@ -366,7 +419,39 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
             }
             disabled={!transcriptId}
           />
-          <Tab label="Supplemental Responses" />
+          {/* Conditional rendering for the supplemental responses tab */}
+          {!hasSupplementalResponses ? (
+            <Tooltip
+              title="This position does not have supplemental questions"
+              placement="right"
+              arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    maxWidth: '215px',
+                    fontSize: '13px',
+                    bgcolor: 'rgba(97, 97, 97, 0.92)',
+                    '& .MuiTooltip-arrow': {
+                      color: 'rgba(97, 97, 97, 0.92)'
+                    }
+                  }
+                }
+              }}
+            >
+              {/* Use a div as a wrapper that can receive hover events even when the tab is disabled */}
+              <div>
+                <Tab
+                  label="Supplemental Responses"
+                  disabled={true}
+                />
+              </div>
+            </Tooltip>
+          ) : (
+            <Tab
+              label="Supplemental Responses"
+              disabled={false}
+            />
+          )}
         </Tabs>
       </Box>
 

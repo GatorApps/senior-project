@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Box,
@@ -205,14 +203,16 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
         setError("Please upload your transcript")
         return
       }
-    } else if (activeStep === 1 && hasSupplementalQuestions) {
-      // Only validate answers if there are supplemental questions
-      const cleanAnswers = answers || ""
-      const isEmptyHtml = cleanAnswers === "<p><br></p>" || cleanAnswers === ""
+    } else if (activeStep === 1) {
+      // Check if there are supplemental questions that need to be answered
+      if (hasSupplementalQuestions) {
+        const cleanAnswers = answers || ""
+        const isEmptyHtml = cleanAnswers === "<p><br></p>" || cleanAnswers === ""
 
-      if (isEmptyHtml) {
-        setError("Please answer the supplemental questions before proceeding.")
-        return
+        if (isEmptyHtml) {
+          setError("Please answer the supplemental questions before proceeding")
+          return
+        }
       }
     }
 
@@ -637,7 +637,7 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                             transcriptId: transcriptMetadata?.fileId,
                             supplementalResponses: hasSupplementalQuestions
                               ? answers
-                              : "This position does not have supplemental questions",
+                              : null,
                           }}
                         />
                       </Box>
