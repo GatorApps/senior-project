@@ -56,7 +56,7 @@ class PDFErrorBoundary extends React.Component {
   }
 }
 
-const ApplicationViewer = ({ application, applicantInfo }) => {
+const ApplicationViewer = ({ application, applicantInfo, previewMode = false, previewData = {} }) => {
   const [tabValue, setTabValue] = useState(0);
   const [numPages, setNumPages] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -70,10 +70,19 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
   const pdfTimeoutRef = useRef(null);
   const previousPdfUrlRef = useRef(null);
 
-  // Fetch application details when application prop changes
+  // Fetch application details when application prop changes or use preview data
   useEffect(() => {
     if (!application) return;
 
+    if (previewMode && previewData) {
+      // In preview mode, use the data passed directly
+      setResumeId(previewData.resumeId || null);
+      setTranscriptId(previewData.transcriptId || null);
+      setSupplementalResponses(previewData.supplementalResponses || 'No supplemental responses provided.');
+      return;
+    }
+
+    // Normal mode - fetch from API
     setAppLoading(true);
     setError(null);
 
@@ -95,7 +104,7 @@ const ApplicationViewer = ({ application, applicantInfo }) => {
       .finally(() => {
         setAppLoading(false);
       });
-  }, [application]);
+  }, [application, previewMode, previewData]);
 
   // Fetch PDF file
   const fetchPdf = async (fileId) => {

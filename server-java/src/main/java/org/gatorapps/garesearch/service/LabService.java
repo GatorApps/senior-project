@@ -47,17 +47,26 @@ public class LabService {
                             "labId",
                             "positions"
                     ),
+                    context -> new Document("$addFields", new Document()
+                            .append("positions", new Document("$filter", new Document()
+                                    .append("input", "$positions")
+                                    .append("as", "position")
+                                    .append("cond", new Document("$eq", List.of("$$position.status", "open")))
+                            ))
+                    ),
+                    context -> new Document("$addFields", new Document()
+                            .append("positions", new Document("$sortArray", new Document()
+                                    .append("input", "$positions")
+                                    .append("sortBy", new Document("lastUpdatedTimeStamp", -1))
+                            ))
+                    ),
                     context -> new Document("$project", new Document()
                             .append("labId", 1)
                             .append("labName", 1)
                             .append("labDescription", 1)
                             .append("website", 1)
                             .append("positions", new Document("$map", new Document()
-                                    .append("input", new Document("$filter", new Document()
-                                            .append("input", "$positions")
-                                            .append("as", "position")
-                                            .append("cond", new Document("$eq", List.of("$$position.status", "open")))
-                                    ))
+                                    .append("input", "$positions")
                                     .append("as", "pos")
                                     .append("in", new Document()
                                             .append("positionId", new Document("$toString", "$$pos._id"))

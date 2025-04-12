@@ -9,7 +9,7 @@ import GenericPage from './components/GenericPage/GenericPage';
 import OpportunitySearchPage from './views/OpportunitySearch/OpportunitySearch';
 import MyApplicationsPage from './views/MyApplications/MyApplications';
 import LabDetails from './views/LabDetails/LabDetails';
-import PositionDetailsPage from './views/PositionDetailsPage/PositionDetailsPage';
+import PositionDetailsPage from './views/PositionDetails/PositionDetails';
 import PostingManagement from './views/PostingManagement/PostingManagement';
 import ApplicationManagement from './views/ApplicationManagement/ApplicationManagement';
 import PostingEditor from './views/PostingEditor/PostingEditor';

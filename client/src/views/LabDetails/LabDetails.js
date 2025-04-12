@@ -195,7 +195,13 @@ const LabDetails = ({ title }) => {
                 variant="outlined"
                 sx={{ maxWidth: 1000, mx: "auto", p: 4, bgcolor: "background.paper" }}
               >
-                {loading && <SkeletonGroup />}
+                {loading &&
+                  <React.Fragment>
+                    <SkeletonGroup />
+                    <SkeletonGroup />
+                    <SkeletonGroup />
+                  </React.Fragment>
+                }
 
                 {!loading && error && (
                   <Alert severity="error" sx={{ mb: 3 }}>
