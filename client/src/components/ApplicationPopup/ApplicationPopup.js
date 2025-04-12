@@ -26,7 +26,6 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import DownloadIcon from "@mui/icons-material/Download"
 import CelebrationIcon from "@mui/icons-material/Celebration"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import WarningIcon from "@mui/icons-material/Warning"
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
 import { axiosPrivate } from "../../apis/backend"
@@ -240,13 +239,21 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
 
     try {
       await axiosPrivate.post(`/application?positionId=${postingId}`, body)
-      setSuccess(true)
-      startConfetti()
-      // No longer automatically closing the modal
+
+      // First set loading to false
+      setLoading(false)
+
+      // Add a small delay before showing success state for smoother transition
+      setTimeout(() => {
+        setSuccess(true)
+        // Delay confetti slightly to let the grow animation complete
+        setTimeout(() => {
+          startConfetti()
+        }, 400)
+      }, 100)
     } catch (error) {
       console.error("Submission error:", error)
       setError(error.response?.data?.message || "Failed to submit application. Please try again.")
-    } finally {
       setLoading(false)
     }
   }
@@ -415,161 +422,7 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
           }}
         >
           <div style={getContentStyle(success)}>
-            {success ? (
-              // Smaller confirmation window
-              <Paper
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  overflow: "hidden",
-                  borderRadius: 2,
-                  boxShadow: 24,
-                }}
-              >
-                {/* Confetti overlay with opacity transition and pointer-events: none */}
-                {showConfetti && (
-                  <Box
-                    sx={{
-                      position: "fixed",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 9999,
-                      opacity: confettiOpacity,
-                      transition: "opacity 1s ease-out",
-                      pointerEvents: "none", // This allows clicks to pass through to elements underneath
-                    }}
-                  >
-                    <Confetti
-                      width={windowSize.width}
-                      height={windowSize.height}
-                      recycle={false}
-                      numberOfPieces={500}
-                      gravity={0.2}
-                      initialVelocityY={10}
-                      tweenDuration={5000}
-                    />
-                  </Box>
-                )}
-
-                {/* Green header with checkmark */}
-                <Box
-                  sx={{
-                    bgcolor: "#4CAF50",
-                    color: "white",
-                    p: 4,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      borderRadius: "50%",
-                      p: 1,
-                      mt: 2,
-                      mb: 1.5,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: 80,
-                      height: 80,
-                    }}
-                  >
-                    <CheckCircleIcon sx={{ fontSize: 80, color: "white" }} />
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    Submitted
-                  </Typography>
-                </Box>
-
-                {/* Content area */}
-                <Box sx={{ p: 4, bgcolor: "white" }}>
-                  <Typography variant="h6" color="primary" sx={{ mb: 2, fontWeight: "bold" }}>
-                    Way to go, your application is in!
-                  </Typography>
-
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    You have successfully submitted your application. The lab will review your application and contact
-                    you if they're interested.
-                  </Typography>
-
-                  <Typography variant="body1" sx={{ mb: 2 }}>
-                    Should you have any questions regarding the position or your application, please reach out to the
-                    lab directly. For technical support regarding the RESEARCH.UF platform, please contact
-                    support@gatorapps.org.
-                  </Typography>
-
-                  <Typography variant="body1" sx={{ mb: 3 }}>
-                    What's next? You can track the status of your application and view all your submitted applications
-                    in the My Applications module.
-                  </Typography>
-                </Box>
-
-                {/* Buttons at the bottom */}
-                <Box
-                  sx={{
-                    p: 3,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    borderTop: "1px solid #e0e0e0",
-                    bgcolor: "#f5f5f5",
-                    position: "relative", // Ensure buttons are above confetti
-                    zIndex: 1, // Not necessary with pointerEvents: none on confetti, but added for extra safety
-                  }}
-                >
-                  <Button
-                    variant="outlined"
-                    onClick={handleCloseRequest}
-                    size="small"
-                    sx={{
-                      minWidth: "100px",
-                      height: "36px",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Close
-                  </Button>
-
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <Button
-                      variant="outlined"
-                      onClick={handleCelebrate}
-                      disabled={isCelebrateDisabled}
-                      size="small"
-                      startIcon={
-                        isCelebrateDisabled ? <CircularProgress size={16} color="inherit" /> : <CelebrationIcon />
-                      }
-                      sx={{
-                        minWidth: "120px",
-                        height: "36px",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      Celebrate
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleTrackApplications}
-                      size="small"
-                      sx={{
-                        minWidth: "160px",
-                        height: "36px",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      Track My Applications
-                    </Button>
-                  </Box>
-                </Box>
-              </Paper>
-            ) : (
-              // Regular application form window
+            <Grow in={!success} timeout={300} style={{ transformOrigin: "center" }} mountOnEnter unmountOnExit>
               <Box
                 sx={{
                   bgcolor: "background.paper",
@@ -581,8 +434,29 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                   maxHeight: "80vh",
                   display: "flex",
                   flexDirection: "column",
+                  position: "relative", // Add this for proper loading indicator positioning
                 }}
               >
+                {loading && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: "rgba(255, 255, 255, 0.7)",
+                      zIndex: 10,
+                      borderRadius: 2, // Match the parent container's border radius
+                    }}
+                  >
+                    <CircularProgress />
+                  </Box>
+                )}
+
                 <Typography id="application-modal-title" variant="h5" component="h2" sx={{ mb: 3 }}>
                   Submit Application
                 </Typography>
@@ -599,25 +473,6 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                   <Alert severity="error" sx={{ mb: 3 }}>
                     {error}
                   </Alert>
-                )}
-
-                {loading && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(255, 255, 255, 0.7)",
-                      zIndex: 1,
-                    }}
-                  >
-                    <CircularProgress />
-                  </Box>
                 )}
 
                 <Box sx={{ flex: 1, overflowY: "auto", mb: 2 }}>
@@ -822,7 +677,161 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                   </Box>
                 </Box>
               </Box>
-            )}
+            </Grow>
+
+            <Grow in={success} timeout={500} style={{ transformOrigin: "center" }} mountOnEnter unmountOnExit>
+              <Paper
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                  borderRadius: 2,
+                  boxShadow: 24,
+                }}
+              >
+                {/* Confetti overlay with opacity transition and pointer-events: none */}
+                {showConfetti && (
+                  <Box
+                    sx={{
+                      position: "fixed",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      zIndex: 9999,
+                      opacity: confettiOpacity,
+                      transition: "opacity 1s ease-out",
+                      pointerEvents: "none", // This allows clicks to pass through to elements underneath
+                    }}
+                  >
+                    <Confetti
+                      width={windowSize.width}
+                      height={windowSize.height}
+                      recycle={false}
+                      numberOfPieces={500}
+                      gravity={0.2}
+                      initialVelocityY={10}
+                      tweenDuration={5000}
+                    />
+                  </Box>
+                )}
+
+                {/* Green header with checkmark */}
+                <Box
+                  sx={{
+                    bgcolor: "#4CAF50",
+                    color: "white",
+                    p: 4,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      borderRadius: "50%",
+                      p: 1,
+                      mt: 2,
+                      mb: 1.5,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: 80,
+                      height: 80,
+                    }}
+                  >
+                    <CheckCircleIcon sx={{ fontSize: 80, color: "white" }} />
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    Submitted
+                  </Typography>
+                </Box>
+
+                {/* Content area */}
+                <Box sx={{ p: 4, bgcolor: "white" }}>
+                  <Typography variant="h6" color="primary" sx={{ mb: 2, fontWeight: "bold" }}>
+                    Way to go, your application is in!
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    You have successfully submitted your application. The lab will review your application and contact
+                    you if they're interested.
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    Should you have any questions regarding the position or your application, please reach out to the
+                    lab directly. For technical support regarding the RESEARCH.UF platform, please contact
+                    support@gatorapps.org.
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ mb: 3 }}>
+                    What's next? You can track the status of your application and view all your submitted applications
+                    in the My Applications module.
+                  </Typography>
+                </Box>
+
+                {/* Buttons at the bottom */}
+                <Box
+                  sx={{
+                    p: 3,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    borderTop: "1px solid #e0e0e0",
+                    bgcolor: "#f5f5f5",
+                    position: "relative", // Ensure buttons are above confetti
+                    zIndex: 1, // Not necessary with pointerEvents: none on confetti, but added for extra safety
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    onClick={handleCloseRequest}
+                    size="small"
+                    sx={{
+                      minWidth: "100px",
+                      height: "36px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Close
+                  </Button>
+
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button
+                      variant="outlined"
+                      onClick={handleCelebrate}
+                      disabled={isCelebrateDisabled}
+                      size="small"
+                      startIcon={
+                        isCelebrateDisabled ? <CircularProgress size={16} color="inherit" /> : <CelebrationIcon />
+                      }
+                      sx={{
+                        minWidth: "120px",
+                        height: "36px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Celebrate
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleTrackApplications}
+                      size="small"
+                      sx={{
+                        minWidth: "160px",
+                        height: "36px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Track My Applications
+                    </Button>
+                  </Box>
+                </Box>
+              </Paper>
+            </Grow>
           </div>
         </Grow>
       </Modal>
