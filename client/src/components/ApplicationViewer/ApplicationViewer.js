@@ -111,11 +111,11 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
     setAppLoading(true);
     setError(null);
 
-    // Store the application ID and lab ID to prevent closure issues
-    const labId = application.labId;
+    // Store the application ID to prevent closure issues
     const applicationId = application.applicationId;
 
-    axiosPrivate.get(`/application/application?labId=${labId}&applicationId=${applicationId}`)
+    // Updated API call - removed labId parameter
+    axiosPrivate.get(`/application/application?applicationId=${applicationId}`)
       .then((response) => {
         if (response.data && response.data.errCode === '0' && response.data.payload.application) {
           const app = response.data.payload.application;
@@ -133,7 +133,7 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
       .finally(() => {
         setAppLoading(false);
       });
-  }, [application?.labId, application?.applicationId, previewMode]); // Simplified dependency array
+  }, [application?.applicationId, previewMode]); // Updated dependency array - removed labId
 
   // Memoize fetchPdf to prevent recreating on each render
   const fetchPdf = useCallback(async (fileId) => {
