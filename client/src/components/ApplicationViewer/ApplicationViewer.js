@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -69,10 +69,35 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
   const [useIframe, setUseIframe] = useState(pdfWorkerConfigFailed); // Initialize based on worker config status
   const pdfTimeoutRef = useRef(null);
   const previousPdfUrlRef = useRef(null);
+  const fetchedRef = useRef(false);
+
+  // Stabilize application object reference to prevent infinite loops
+  const applicationRef = useRef(application);
+  const previewModeRef = useRef(previewMode);
+  const previewDataRef = useRef(previewData);
+
+  // Update refs when props change
+  useEffect(() => {
+    applicationRef.current = application;
+    previewModeRef.current = previewMode;
+    previewDataRef.current = previewData;
+  }, [application, previewMode, previewData]);
 
   // Fetch application details when application prop changes or use preview data
   useEffect(() => {
+    // Skip if no application or if we've already fetched for this application
     if (!application) return;
+
+    // Reset the fetched flag when application changes
+    if (applicationRef.current !== application) {
+      fetchedRef.current = false;
+    }
+
+    // Skip if we've already fetched for this application
+    if (fetchedRef.current) return;
+
+    // Mark as fetched to prevent multiple requests
+    fetchedRef.current = true;
 
     if (previewMode && previewData) {
       // In preview mode, use the data passed directly
@@ -86,7 +111,11 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
     setAppLoading(true);
     setError(null);
 
-    axiosPrivate.get(`/application/application?labId=${application.labId}&applicationId=${application.applicationId}`)
+    // Store the application ID and lab ID to prevent closure issues
+    const labId = application.labId;
+    const applicationId = application.applicationId;
+
+    axiosPrivate.get(`/application/application?labId=${labId}&applicationId=${applicationId}`)
       .then((response) => {
         if (response.data && response.data.errCode === '0' && response.data.payload.application) {
           const app = response.data.payload.application;
@@ -104,10 +133,10 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
       .finally(() => {
         setAppLoading(false);
       });
-  }, [application, previewMode, previewData]);
+  }, [application?.labId, application?.applicationId, previewMode]); // Simplified dependency array
 
-  // Fetch PDF file
-  const fetchPdf = async (fileId) => {
+  // Memoize fetchPdf to prevent recreating on each render
+  const fetchPdf = useCallback(async (fileId) => {
     if (!fileId) {
       setError('No file ID provided');
       return;
@@ -165,7 +194,7 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Handle tab changes
   const handleTabChange = (event, newValue) => {
@@ -191,7 +220,7 @@ const ApplicationViewer = ({ application, applicantInfo, previewMode = false, pr
         pdfTimeoutRef.current = null;
       }
     };
-  }, [tabValue, resumeId, transcriptId]);
+  }, [tabValue, resumeId, transcriptId, fetchPdf]);
 
   // Clean up on unmount
   useEffect(() => {

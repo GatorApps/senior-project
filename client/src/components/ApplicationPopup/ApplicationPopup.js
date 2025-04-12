@@ -442,10 +442,10 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                         labId: postingId,
                         applicationId: 'preview'
                       }}
-                      applicantInfo={{
-                        firstName: 'Preview',
-                        lastName: 'User'
-                      }}
+                      // applicantInfo={{
+                      //   firstName: 'Preview',
+                      //   lastName: 'User'
+                      // }}
                       previewMode={true}
                       previewData={{
                         resumeId: resumeMetadata?.fileId,
