@@ -247,25 +247,25 @@ const Header = ({ SignInMenuItems, loading, signedIn, displayAccountDropdown }) 
                   <Avatar>{userDisplayName.toUpperCase()[0]}</Avatar>
                   <Typography noWrap>{userDisplayName}</Typography>
                 </MenuItem>
-                <MenuItem onClick={handleAccountSettings}>
+                {/* <MenuItem onClick={handleAccountSettings}>
                   <ListItemIcon>
                     <ManageAccountsIcon fontSize="small" />
                   </ListItemIcon>
                   Manage Account
-                </MenuItem>
+                </MenuItem> */}
                 <MenuItem onClick={handleSignOut}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>
                   Sign Out
                 </MenuItem>
-                <Divider />
-                <MenuItem onClick={() => { navigate('/settings'); }}>
+                {/* <Divider /> */}
+                {/* <MenuItem onClick={() => { navigate('/settings'); }}>
                   <ListItemIcon>
                     <Settings fontSize="small" />
                   </ListItemIcon>
                   Settings
-                </MenuItem>
+                </MenuItem> */}
               </Menu>
             </Fragment>
           )}

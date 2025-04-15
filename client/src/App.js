@@ -20,7 +20,7 @@ function App() {
     <Routes>
       <Route element={<InitializeApp />}>
         {/* public routes */}
-        <Route path="/genericpage" element={<GenericPage />} />
+        {/* <Route path="/genericpage" element={<GenericPage />} /> */}
 
         {/* protected routes */}
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
@@ -59,13 +59,13 @@ function App() {
           <Route path="/messages" element={<MessagesPage />} />
         </Route>
 
-        <Route element={<RequireAuth allowedRoles={[100999]} />}>
+        {/* <Route element={<RequireAuth allowedRoles={[100999]} />}>
           <Route path="/admin" element={<Admin />} />
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[100001]} />}>
           <Route path="/settings" element={<Settings />} />
-        </Route>
+        </Route> */}
 
         {/* catch all */}
         <Route path="*" element={<ErrorPage error="404" />} />

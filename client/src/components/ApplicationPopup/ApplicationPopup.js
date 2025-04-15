@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Box,
@@ -229,6 +231,9 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
     setLoading(true)
     setError(null)
 
+    // Record the start time to ensure minimum 2-second loading
+    const startTime = Date.now()
+
     const body = {
       application: {
         resumeId: resumeMetadata ? resumeMetadata.fileId : null,
@@ -240,21 +245,35 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
     try {
       await axiosPrivate.post(`/application?positionId=${postingId}`, body)
 
-      // First set loading to false
-      setLoading(false)
+      // Calculate how much time has passed since starting the submission
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, 2000 - elapsedTime)
 
-      // Add a small delay before showing success state for smoother transition
+      // Ensure loading state stays visible for at least 2 seconds
       setTimeout(() => {
-        setSuccess(true)
-        // Delay confetti slightly to let the grow animation complete
+        setLoading(false)
+
+        // Add a small delay before showing success state for smoother transition
         setTimeout(() => {
-          startConfetti()
-        }, 400)
-      }, 100)
+          setSuccess(true)
+          // Delay confetti slightly to let the grow animation complete
+          setTimeout(() => {
+            startConfetti()
+          }, 400)
+        }, 100)
+      }, remainingTime)
     } catch (error) {
       console.error("Submission error:", error)
-      setError(error.response?.data?.message || "Failed to submit application. Please try again.")
-      setLoading(false)
+
+      // Calculate how much time has passed since starting the submission
+      const elapsedTime = Date.now() - startTime
+      const remainingTime = Math.max(0, 2000 - elapsedTime)
+
+      // Ensure loading state stays visible for at least 2 seconds even on error
+      setTimeout(() => {
+        setError(error.response?.data?.message || "Failed to submit application. Please try again.")
+        setLoading(false)
+      }, remainingTime)
     }
   }
 
@@ -635,9 +654,7 @@ const ApplicationPopup = ({ open, onClose, questions, postingId }) => {
                           previewData={{
                             resumeId: resumeMetadata?.fileId,
                             transcriptId: transcriptMetadata?.fileId,
-                            supplementalResponses: hasSupplementalQuestions
-                              ? answers
-                              : null,
+                            supplementalResponses: hasSupplementalQuestions ? answers : null,
                           }}
                         />
                       </Box>

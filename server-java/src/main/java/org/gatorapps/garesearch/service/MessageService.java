@@ -49,9 +49,9 @@ public class MessageService {
         // Send email notification
         List<Map<String, String>> links = List.of(
                 Map.of("url", String.format("%s/messages?messageId=%s", frontendHost, message.getId()),
-                        "text", "View message in Message Center"),
-                Map.of("url", String.format("%s/settings#notifications", frontendHost),
-                        "text", "Update your notification settings")
+                        "text", "View message in Message Center")
+//                Map.of("url", String.format("%s/settings#notifications", frontendHost),
+//                        "text", "Update your notification settings")
         );
         sesService.sendBrandedEmail(recipient.getEmails().get(0), title, content, links);
     }
