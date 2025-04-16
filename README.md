@@ -1,14 +1,22 @@
-# GatorApps Template App
+# RESEARCH.UF by GatorApps
 
-Template for apps under the GatorApps suit.
+The Common Application for campus research opportunities.
+
+## Use RESEARCH.UF
+
+[https://research.dev.gatorapps.org](https://research.dev.gatorapps.org)
+
 
 ## Features
 
-- Start a new app for the GatorApps suit in minutes
-- Pre-styled UI with reusable hooks, components, views
-- Use centralized GatorApps session
+- Sign in with GatorLink
+- Student and faculty dashboards
+- Discover, view, and apply to resarch opportinities
+- Track application statuses
+- Maintain lab profile, post and edit open positions
+- Receive and review applications online
 
-## Getting Started
+<!-- ## Getting Started
 
 ### Prerequisites
 - [Git](https://git-scm.com/)
@@ -125,7 +133,7 @@ In the `client` directory:
   npm start
   ```
 
-Your frontend should now be running on [https://templateapp.dev-local.gatorapp.org:3300](http://localhost:3300) or your specified port.
+Your frontend should now be running on [https://templateapp.dev-local.gatorapp.org:3300](http://localhost:3300) or your specified port. -->
 
 <!-- ## Testing
 
@@ -140,9 +148,10 @@ Your frontend should now be running on [https://templateapp.dev-local.gatorapp.o
 - [React](https://react.dev/) - Frontend library
 - [Material-UI](https://mui.com/) - UI framework for React
 - [Redux](https://redux.js.org/) - State management
-- [Node.js](https://nodejs.org/) - Backend runtime
-- [Express.js](https://expressjs.com/) - Backend framework
-- [MongoDB](https://www.mongodb.com/) - Database
+- [Java](https://www.oracle.com/java/) – Programming language
+- [Spring Boot](https://spring.io/projects/spring-boot) – Backend framework
+- [Maven](https://maven.apache.org/) – Project management and build tool
+- [MongoDB](https://www.mongodb.com/) - NoSQL database
 
 <!-- ## Contributing
 
@@ -150,13 +159,16 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## Authors
 
-- **Luke Li** - [github-contact@lukexli.com](mailto:github-contact@lukexli.com) - [@lukexlii](https://github.com/lukexlii)
+- **Luke Li** - [luke.li@ufl.edu](mailto:luke.li@ufl.edu) - [@lukexlii](https://github.com/lukexlii)
+- **Avary McCormack** - [a.mccormack@ufl.edu](mailto:a.mccormack@ufl.edu) - [@avary8](https://github.com/avary8)
+- **Eric Zhou** - [ericzhou@ufl.edu](mailto:ericzhou@ufl.edu) - [@ercz16](https://github.com/ercz16)
+
 <!-- - See also the list of [contributors](https://github.com/your_username/project_name/contributors) who participated in this project. -->
 
 ## License
 
-GNU Affero General Public License v3.0
+Copyright 2025 GatorApps. All rights reserved.
 
-## Acknowledgments
+<!-- ## Acknowledgments
 
-- UI Design recreated from ONE.UF
+- UI Design recreated from ONE.UF -->
